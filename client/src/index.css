@@ -1,0 +1,188 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ===== THEME VARIABLES ===== */
+.dark {
+  --color-bg: #0a0a0f;
+  --color-surface: #0B1120;
+  --color-surface-light: #111118;
+  --color-surface-lighter: #1a1a25;
+  --color-card: rgba(255, 255, 255, 0.05);
+  --color-border: rgba(255, 255, 255, 0.1);
+  --overlay-rgb: 255 255 255;
+  --heading-rgb: 245 245 245;
+  --body-rgb: 209 213 219;
+  --muted-rgb: 156 163 175;
+  --faint-rgb: 107 114 128;
+  --scrollbar-track: #111118;
+}
+
+.light {
+  --color-bg: #f5f6fa;
+  --color-surface: #ffffff;
+  --color-surface-light: #f0f1f5;
+  --color-surface-lighter: #e8e9ed;
+  --color-card: rgba(0, 0, 0, 0.03);
+  --color-border: rgba(0, 0, 0, 0.1);
+  --overlay-rgb: 0 0 0;
+  --heading-rgb: 26 26 46;
+  --body-rgb: 71 85 105;
+  --muted-rgb: 100 116 139;
+  --faint-rgb: 148 163 184;
+  --scrollbar-track: #e8e9ed;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  font-size: 15px;
+}
+
+@media (max-width: 768px) {
+  html {
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  html {
+    font-size: 13px;
+  }
+}
+
+body {
+  font-family: 'Cairo', system-ui, sans-serif;
+  background-color: var(--color-bg);
+  color: var(--color-text-heading, rgb(var(--heading-rgb)));
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+::selection {
+  background-color: rgba(220, 38, 38, 0.3);
+  color: #ffffff;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--scrollbar-track);
+}
+
+::-webkit-scrollbar-thumb {
+  background: #dc2626;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #b91c1c;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+@layer components {
+  .container-custom {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+
+  .btn-primary {
+    @apply bg-primary hover:bg-primary-dark text-white font-semibold py-2.5 px-5 rounded-xl transition-all duration-300 text-sm
+           hover:shadow-lg hover:shadow-primary/25 active:scale-[0.98];
+  }
+
+  .btn-secondary {
+    @apply border text-heading font-semibold py-2.5 px-5 rounded-xl transition-all duration-300 backdrop-blur-sm text-sm;
+    border-color: rgb(var(--overlay-rgb) / 0.2);
+  }
+  .btn-secondary:hover {
+    background-color: rgb(var(--overlay-rgb) / 0.1);
+  }
+
+  .section-label {
+    @apply text-primary font-semibold text-xs uppercase tracking-[0.15em] mb-2 block;
+  }
+
+  .section-title {
+    @apply text-2xl md:text-3xl lg:text-4xl font-bold text-heading;
+  }
+
+  .section-subtitle {
+    @apply text-muted text-sm md:text-base max-w-2xl;
+  }
+
+  .card {
+    @apply rounded-xl overflow-hidden border hover:border-primary/30 transition-all duration-300;
+    background-color: var(--color-card);
+    border-color: rgb(var(--overlay-rgb) / 0.1);
+  }
+
+  .glass {
+    @apply backdrop-blur-xl border;
+    background-color: var(--color-card);
+    border-color: rgb(var(--overlay-rgb) / 0.1);
+  }
+
+  .input-field {
+    @apply w-full border rounded-lg px-3 py-2.5 text-heading focus:border-primary focus:outline-none transition-all duration-200 text-sm;
+    background-color: var(--color-card);
+    border-color: var(--color-border);
+  }
+
+  .section-padding {
+    @apply py-10 md:py-14 lg:py-16;
+  }
+}
+
+/* ===== RESPONSIVE TEXT ===== */
+@media (max-width: 640px) {
+  h1 { font-size: 1.75rem !important; }
+  h2 { font-size: 1.5rem !important; }
+  h3 { font-size: 1.1rem !important; }
+}
+
+/* ===== ANIMATIONS ===== */
+@keyframes marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+@keyframes fadeIn {
+  0% { opacity: 0; transform: translateY(10px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.4s ease-out;
+}
+
+.animate-on-scroll {
+  opacity: 0;
+  transform: translateY(15px);
+  transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+}
+
+.animate-on-scroll.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ===== GRADIENT TEXT ===== */
+.text-gradient {
+  background: linear-gradient(135deg, rgb(var(--heading-rgb)) 0%, rgb(var(--muted-rgb)) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
