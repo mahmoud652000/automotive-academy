@@ -7,6 +7,11 @@ import contactsRouter from './routes/contacts.js'
 import servicesRouter from './routes/services.js'
 import offersRouter from './routes/offers.js'
 import eventsRouter from './routes/events.js'
+import coursesRouter from './routes/courses.js'
+import galleryRouter from './routes/gallery.js'
+import Offer from './models/Offer.js'
+import Service from './models/Service.js'
+import Course from './models/Course.js'
 
 dotenv.config()
 
@@ -34,9 +39,35 @@ app.use('/api/contacts', contactsRouter)
 app.use('/api/services', servicesRouter)
 app.use('/api/offers', offersRouter)
 app.use('/api/events', eventsRouter)
+app.use('/api/courses', coursesRouter)
+app.use('/api/gallery', galleryRouter)
 
 app.get('/', (req, res) => {
   res.json({ message: 'أكاديمية السيارات API' })
+})
+
+// Seed endpoint — populates DB with default data if empty
+app.post('/api/seed', async (req, res) => {
+  try {
+    const { offers: seedOffers, services: seedServices, courses: seedCourses } = req.body
+
+    if (seedOffers?.length) {
+      await Offer.deleteMany({})
+      await Offer.insertMany(seedOffers)
+    }
+    if (seedServices?.length) {
+      await Service.deleteMany({})
+      await Service.insertMany(seedServices)
+    }
+    if (seedCourses?.length) {
+      await Course.deleteMany({})
+      await Course.insertMany(seedCourses)
+    }
+
+    res.json({ success: true, message: 'تم تهيئة البيانات بنجاح' })
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message })
+  }
 })
 
 // Only listen on port when running locally (not on Vercel)

@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import Icons from '../components/Icons'
 import { services, siteInfo, bookingSteps, timeSlots } from '../data/content'
+import { useLanguage } from '../context/LanguageContext'
 
 const renderIcon = (name, className = 'w-5 h-5') => {
   const Icon = Icons[name]
@@ -25,6 +26,7 @@ const Field = ({ icon, children, label }) => (
 )
 
 export default function Booking() {
+  const { lang, t } = useLanguage()
   const [form, setForm] = useState({ name: '', phone: '', carModel: '', service: '', date: '', time: '', notes: '' })
   const [submitted, setSubmitted] = useState(false)
   const [currentStep, setCurrentStep] = useState(1)
@@ -47,7 +49,7 @@ export default function Booking() {
     })
       .then((res) => res.json())
       .then(() => setSubmitted(true))
-      .catch(() => alert('حدث خطأ، يرجى المحاولة مرة أخرى.'))
+      .catch(() => alert(t('booking.bookingError')))
   }
 
   const resetForm = () => {
@@ -56,13 +58,13 @@ export default function Booking() {
     setForm({ name: '', phone: '', carModel: '', service: '', date: '', time: '', notes: '' })
   }
 
-  const stepLabels = ['بياناتك', 'السيارة والخدمة', 'الموعد', 'تأكيد']
+  const stepLabels = [t('booking.step1Label'), t('booking.step2Label'), t('booking.step3Label'), t('booking.step4Label')]
 
   const contactItems = [
     { icon: 'Phone', label: siteInfo.phone, href: `tel:${siteInfo.phone.replace(/\s/g, '')}` },
     { icon: 'Mail', label: siteInfo.email, href: `mailto:${siteInfo.email}` },
-    { icon: 'MapPin', label: siteInfo.address, href: null },
-    { icon: 'Clock', label: siteInfo.workingHours, href: null },
+    { icon: 'MapPin', label: lang === 'ar' ? siteInfo.address : siteInfo.addressEn, href: null },
+    { icon: 'Clock', label: lang === 'ar' ? siteInfo.workingHours : siteInfo.workingHoursEn, href: null },
   ]
 
   return (
@@ -78,11 +80,11 @@ export default function Booking() {
         <div className="container-custom relative z-10 text-center">
           <span className="text-primary font-bold text-sm flex items-center justify-center gap-2 mb-3">
             <span className="w-8 h-px bg-primary" />
-            حجز موعد
+            {t('booking.label')}
             <span className="w-8 h-px bg-primary" />
           </span>
-          <h1 className="text-3xl md:text-5xl font-bold text-white mb-3">احجز موعد صيانة سيارتك</h1>
-          <p className="text-white/80 text-base max-w-2xl mx-auto">املأ النموذج التالي وسنتواصل معك لتأكيد الموعد</p>
+          <h1 className="text-3xl md:text-5xl font-bold text-white mb-3">{t('booking.title')}</h1>
+          <p className="text-white/80 text-base max-w-2xl mx-auto">{t('booking.desc')}</p>
         </div>
       </section>
 
@@ -98,18 +100,18 @@ export default function Booking() {
                   <Icons.CheckCircle className="w-10 h-10 text-green-500" />
                 </div>
               </div>
-              <h2 className="text-2xl font-bold text-heading mb-3">تم استلام طلبك!</h2>
+              <h2 className="text-2xl font-bold text-heading mb-3">{t('booking.successTitle')}</h2>
               <p className="text-muted text-sm mb-8 leading-relaxed">
-                شكراً لك {form.name}. تم استلام طلب الحجز بنجاح.<br />
-                سنتواصل معك على {form.phone} لتأكيد الموعد.
+                {t('booking.successDesc')} {form.name}. {t('booking.successDesc2')}<br />
+                {t('booking.successDesc3')} {form.phone} {t('booking.successDesc4')}
               </p>
               <div className="flex flex-col sm:flex-row gap-3 justify-center">
                 <button onClick={resetForm} className="bg-primary hover:bg-primary-dark text-white font-bold py-3 px-8 rounded-xl transition-all duration-300 text-sm hover:shadow-lg hover:shadow-primary/30 flex items-center justify-center gap-2">
-                  حجز موعد آخر
+                  {t('booking.bookAnother')}
                   <Icons.ArrowLeft className="w-4 h-4" />
                 </button>
                 <Link to="/" className="border border-overlay/10 text-heading hover:bg-overlay/5 font-bold py-3 px-8 rounded-xl transition-all duration-300 text-sm flex items-center justify-center gap-2">
-                  العودة للرئيسية
+                  {t('booking.backHome')}
                 </Link>
               </div>
             </div>
@@ -135,8 +137,8 @@ export default function Booking() {
                           <Icons.Calendar className="w-5 h-5" />
                         </div>
                         <div>
-                          <h2 className="text-heading font-bold text-base">بيانات الحجز</h2>
-                          <p className="text-faint text-[10px]">املأ البيانات لاستكمال الحجز</p>
+                          <h2 className="text-heading font-bold text-base">{t('booking.formTitle')}</h2>
+                          <p className="text-faint text-[10px]">{t('booking.formSub')}</p>
                         </div>
                       </div>
 
@@ -173,10 +175,10 @@ export default function Booking() {
                         {/* Step 1: Personal */}
                         {currentStep === 1 && (
                           <div className="space-y-4 animate-fadeIn">
-                            <Field label="الاسم بالكامل *" icon="User">
-                              <input type="text" placeholder="اكتب اسمك" value={form.name} onChange={set('name')} required className={inputCls} />
+                            <Field label={t('booking.fullName')} icon="User">
+                              <input type="text" placeholder={lang === 'ar' ? 'اكتب اسمك' : 'Type your name'} value={form.name} onChange={set('name')} required className={inputCls} />
                             </Field>
-                            <Field label="رقم الهاتف *" icon="Phone">
+                            <Field label={t('booking.phone')} icon="Phone">
                               <input type="tel" placeholder="01xxxxxxxxx" value={form.phone} onChange={set('phone')} required className={inputCls} />
                             </Field>
                           </div>
@@ -185,16 +187,16 @@ export default function Booking() {
                         {/* Step 2: Service & Car */}
                         {currentStep === 2 && (
                           <div className="space-y-4 animate-fadeIn">
-                            <Field label="موديل السيارة *" icon="Car">
-                              <input type="text" placeholder="مثال: BMW 320i 2020" value={form.carModel} onChange={set('carModel')} required className={inputCls} />
+                            <Field label={t('booking.carModel')} icon="Car">
+                              <input type="text" placeholder={t('booking.carModelPlaceholder')} value={form.carModel} onChange={set('carModel')} required className={inputCls} />
                             </Field>
                             <div>
-                              <label className="text-faint text-xs mb-1.5 block font-medium">الخدمة المطلوبة *</label>
+                              <label className="text-faint text-xs mb-1.5 block font-medium">{t('booking.serviceRequired')}</label>
                               <div className="relative">
                                 <select value={form.service} onChange={set('service')} required className={inputCls + ' appearance-none pl-11'}>
-                                  <option value="">اختر الخدمة</option>
-                                  {services.map((s) => (<option key={s.id} value={s.title} className="bg-dark">{s.title}</option>))}
-                                  <option value="أخرى" className="bg-dark">أخرى</option>
+                                  <option value="">{t('booking.selectService')}</option>
+                                  {services.map((s) => (<option key={s.id} value={lang === 'ar' ? s.title : s.titleEn} className="bg-dark">{lang === 'ar' ? s.title : s.titleEn}</option>))}
+                                  <option value={t('booking.other')} className="bg-dark">{t('booking.other')}</option>
                                 </select>
                                 <span className="absolute top-1/2 -translate-y-1/2 left-4 text-faint pointer-events-none">
                                   <Icons.Wrench className="w-4 h-4" />
@@ -208,15 +210,15 @@ export default function Booking() {
                         {currentStep === 3 && (
                           <div className="space-y-4 animate-fadeIn">
                             <div className="grid sm:grid-cols-2 gap-4">
-                              <Field label="التاريخ *" icon="Calendar">
+                              <Field label={t('booking.date')} icon="Calendar">
                                 <input type="date" value={form.date} onChange={set('date')} required className={inputCls} />
                               </Field>
                               <div>
-                                <label className="text-faint text-xs mb-1.5 block font-medium">الوقت *</label>
+                                <label className="text-faint text-xs mb-1.5 block font-medium">{t('booking.time')}</label>
                                 <div className="relative">
                                   <select value={form.time} onChange={set('time')} required className={inputCls + ' appearance-none pl-11'}>
-                                    <option value="">اختر الوقت</option>
-                                    {timeSlots.map((t) => (<option key={t} value={t} className="bg-dark">{t}</option>))}
+                                    <option value="">{t('booking.selectTime')}</option>
+                                    {timeSlots.map((slot) => (<option key={slot} value={slot} className="bg-dark">{slot}</option>))}
                                   </select>
                                   <span className="absolute top-1/2 -translate-y-1/2 left-4 text-faint pointer-events-none">
                                     <Icons.Clock className="w-4 h-4" />
@@ -231,14 +233,14 @@ export default function Booking() {
                         {currentStep === 4 && (
                           <div className="space-y-4 animate-fadeIn">
                             <div>
-                              <label className="text-faint text-xs mb-1.5 block font-medium">ملاحظات إضافية</label>
-                              <textarea placeholder="اكتب أي تفاصيل إضافية..." value={form.notes} onChange={set('notes')} rows={3} className={inputCls + ' resize-none pl-4'} />
+                              <label className="text-faint text-xs mb-1.5 block font-medium">{t('booking.notes')}</label>
+                              <textarea placeholder={t('booking.notesPlaceholder')} value={form.notes} onChange={set('notes')} rows={3} className={inputCls + ' resize-none pl-4'} />
                             </div>
                             {/* Summary */}
                             <div className="bg-overlay/5 rounded-xl p-4 border border-overlay/10 space-y-2">
                               <p className="text-heading font-bold text-xs mb-3 flex items-center gap-2">
                                 <Icons.CheckCircle className="w-4 h-4 text-primary" />
-                                ملخص الحجز
+                                {t('booking.summary')}
                               </p>
                               <div className="grid grid-cols-2 gap-2 text-xs">
                                 <div className="flex items-center gap-2 text-muted"><Icons.User className="w-3.5 h-3.5 text-faint" /> {form.name}</div>
@@ -256,18 +258,18 @@ export default function Booking() {
                         <div className="flex items-center gap-3 pt-2">
                           {currentStep > 1 && (
                             <button type="button" onClick={() => setCurrentStep(currentStep - 1)} className="px-5 py-3 rounded-xl text-sm font-bold text-muted hover:text-heading bg-overlay/5 hover:bg-overlay/10 transition-all duration-300 flex items-center gap-2">
-                              السابق
+                              {t('booking.prev')}
                             </button>
                           )}
                           {currentStep < 4 ? (
                             <button type="button" onClick={() => canProceed() && setCurrentStep(currentStep + 1)} disabled={!canProceed()} className={`flex-1 py-3 rounded-xl font-bold text-sm transition-all duration-300 flex items-center justify-center gap-2 ${canProceed() ? 'bg-primary hover:bg-primary-dark text-white hover:shadow-lg hover:shadow-primary/30' : 'bg-overlay/5 text-faint cursor-not-allowed'}`}>
-                            التالي
+                            {t('booking.next')}
                               <Icons.ArrowLeft className="w-4 h-4" />
                             </button>
                           ) : (
                             <button type="submit" className="flex-1 bg-primary hover:bg-primary-dark text-white font-bold py-3 rounded-xl transition-all duration-300 text-sm hover:shadow-lg hover:shadow-primary/30 flex items-center justify-center gap-2">
                               <Icons.CheckCircle className="w-4 h-4" />
-                              تأكيد الحجز
+                              {t('booking.confirm')}
                             </button>
                           )}
                         </div>
@@ -282,7 +284,7 @@ export default function Booking() {
                   <div className="bg-gradient-to-b from-white/[0.04] to-transparent rounded-2xl p-5 border border-overlay/10">
                     <h3 className="text-heading font-bold text-sm mb-4 flex items-center gap-2">
                       <span className="w-1 h-4 bg-primary rounded-full" />
-                      معلومات التواصل
+                      {t('booking.contactInfo')}
                     </h3>
                     <div className="space-y-3">
                       {contactItems.map((item, i) => {
@@ -311,8 +313,8 @@ export default function Booking() {
                       <div className="w-9 h-9 bg-primary/15 rounded-lg flex items-center justify-center text-primary mb-3">
                         <Icons.Shield className="w-4 h-4" />
                       </div>
-                      <h3 className="text-heading font-bold text-sm mb-2">ملاحظة هامة</h3>
-                      <p className="text-muted text-xs leading-relaxed">يرجى الحضور قبل الموعد بـ 10 دقائق. في حالات الطوارئ يمكنك الاتصال بنا مباشرة.</p>
+                      <h3 className="text-heading font-bold text-sm mb-2">{t('booking.importantNote')}</h3>
+                      <p className="text-muted text-xs leading-relaxed">{t('booking.noteDesc')}</p>
                     </div>
                   </div>
 
@@ -320,15 +322,15 @@ export default function Booking() {
                   <div className="bg-gradient-to-b from-white/[0.04] to-transparent rounded-2xl p-5 border border-overlay/10">
                     <h3 className="text-heading font-bold text-sm mb-3 flex items-center gap-2">
                       <span className="w-1 h-4 bg-primary rounded-full" />
-                      ساعات العمل
+                      {t('booking.workingHours')}
                     </h3>
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 bg-green-500/10 rounded-lg flex items-center justify-center text-green-400">
                         <Icons.Clock className="w-5 h-5" />
                       </div>
                       <div>
-                        <p className="text-heading text-xs font-bold">السبت - الخميس</p>
-                        <p className="text-muted text-xs">9:00 ص - 9:00 م</p>
+                        <p className="text-heading text-xs font-bold">{t('booking.satThu')}</p>
+                        <p className="text-muted text-xs">{lang === 'ar' ? '10:00 ص - 12:00 م' : '10:00 AM - 12:00 AM'}</p>
                       </div>
                     </div>
                     <div className="flex items-center gap-3 mt-3 pt-3 border-t border-overlay/5">
@@ -336,8 +338,8 @@ export default function Booking() {
                         <Icons.Calendar className="w-5 h-5" />
                       </div>
                       <div>
-                        <p className="text-heading text-xs font-bold">الجمعة</p>
-                        <p className="text-muted text-xs">عطلة</p>
+                        <p className="text-heading text-xs font-bold">{t('booking.friday')}</p>
+                        <p className="text-muted text-xs">{t('booking.holiday')}</p>
                       </div>
                     </div>
                   </div>
@@ -353,10 +355,10 @@ export default function Booking() {
               <div className="text-center mb-10">
                 <span className="text-primary font-bold text-sm flex items-center justify-center gap-2 mb-2">
                   <span className="w-8 h-px bg-primary" />
-                  خطوات الحجز
+                  {t('booking.stepsLabel')}
                   <span className="w-8 h-px bg-primary" />
                 </span>
-                <h2 className="text-2xl md:text-3xl font-bold text-heading">كيف تتم عملية الحجز؟</h2>
+                <h2 className="text-2xl md:text-3xl font-bold text-heading">{t('booking.stepsTitle')}</h2>
               </div>
               <div className="relative">
                 {/* Connecting line */}
@@ -377,8 +379,8 @@ export default function Booking() {
                             </div>
                           </div>
                         </div>
-                        <h4 className="text-heading font-bold text-base mb-2 group-hover:text-primary transition-colors">{step.title}</h4>
-                        <p className="text-muted text-sm leading-relaxed max-w-[200px] mx-auto">{step.desc}</p>
+                        <h4 className="text-heading font-bold text-base mb-2 group-hover:text-primary transition-colors">{lang === 'ar' ? step.title : step.titleEn}</h4>
+                        <p className="text-muted text-sm leading-relaxed max-w-[200px] mx-auto">{lang === 'ar' ? step.desc : step.descEn}</p>
                       </div>
                     )
                   })}

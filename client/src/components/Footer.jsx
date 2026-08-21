@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { navLinks, siteInfo, services } from '../data/content'
+import { useLanguage } from '../context/LanguageContext'
 import Logo from './Logo'
 import Icons from './Icons'
 
@@ -47,16 +48,17 @@ const socialLinks = [
   },
 ]
 
-const contactItems = [
-  { icon: 'Phone', label: siteInfo.phone, href: `tel:${siteInfo.phone.replace(/\s/g, '')}` },
-  { icon: 'Mail', label: siteInfo.email, href: `mailto:${siteInfo.email}` },
-  { icon: 'MapPin', label: siteInfo.address, href: null },
-  { icon: 'Clock', label: siteInfo.workingHours, href: null },
-]
-
 export default function Footer() {
+  const { lang, t } = useLanguage()
   const [email, setEmail] = useState('')
   const [subscribed, setSubscribed] = useState(false)
+
+  const contactItems = [
+    { icon: 'Phone', label: siteInfo.phone, href: `tel:${siteInfo.phone.replace(/\s/g, '')}` },
+    { icon: 'Mail', label: siteInfo.email, href: `mailto:${siteInfo.email}` },
+    { icon: 'MapPin', label: lang === 'ar' ? siteInfo.address : siteInfo.addressEn, href: null },
+    { icon: 'Clock', label: lang === 'ar' ? siteInfo.workingHours : siteInfo.workingHoursEn, href: null },
+  ]
 
   const handleSubscribe = (e) => {
     e.preventDefault()
@@ -82,12 +84,12 @@ export default function Footer() {
             <div className="flex items-center gap-2.5 mb-3">
               <Logo className="h-10 w-auto flex-shrink-0" showText={false} />
               <div>
-                <h3 className="text-heading font-bold text-sm">{siteInfo.name}</h3>
-                <p className="text-primary text-[10px] font-medium">{siteInfo.slogan}</p>
+                <h3 className="text-heading font-bold text-sm">{lang === 'ar' ? siteInfo.name : siteInfo.nameEn}</h3>
+                <p className="text-primary text-[10px] font-medium">{lang === 'ar' ? siteInfo.slogan : siteInfo.sloganEn}</p>
               </div>
             </div>
             <p className="text-muted text-xs leading-relaxed mb-4 max-w-sm">
-              تقدم أفضل خدمات صيانة وإصلاح السيارات بأعلى معايير الجودة وباستخدام أحدث الأجهزة وفريق من الفنيين المحترفين
+              {t('footer.newsletterDesc')}
             </p>
 
             {/* Newsletter */}
@@ -96,12 +98,12 @@ export default function Footer() {
                 <div className="w-7 h-7 bg-primary/10 rounded-lg flex items-center justify-center text-primary">
                   <Icons.Mail className="w-3.5 h-3.5" />
                 </div>
-                <h4 className="text-heading font-bold text-xs">النشرة البريدية</h4>
+                <h4 className="text-heading font-bold text-xs">{t('footer.newsletter')}</h4>
               </div>
               {subscribed ? (
                 <div className="flex items-center gap-2 text-green-400 bg-green-500/10 border border-green-500/20 rounded-lg px-3 py-2 text-xs">
                   <Icons.CheckCircle className="w-3.5 h-3.5" />
-                  تم الاشتراك بنجاح!
+                  {t('footer.subscribed')}
                 </div>
               ) : (
                 <form onSubmit={handleSubscribe} className="flex gap-2">
@@ -109,12 +111,12 @@ export default function Footer() {
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder="أدخل بريدك الإلكتروني"
+                    placeholder={t('footer.emailPlaceholder')}
                     required
                     className="flex-1 bg-overlay/5 border border-overlay/10 rounded-lg px-3 py-2 text-heading placeholder-faint text-xs focus:border-primary focus:bg-overlay/10 focus:outline-none transition-all duration-300"
                   />
                   <button type="submit" className="bg-primary hover:bg-primary-dark text-white font-bold text-xs px-4 py-2 rounded-lg transition-all duration-300 hover:shadow-lg hover:shadow-primary/30 whitespace-nowrap">
-                    اشترك
+                    {t('footer.subscribe')}
                   </button>
                 </form>
               )}
@@ -125,14 +127,14 @@ export default function Footer() {
           <div className="lg:col-span-2">
             <h4 className="text-heading font-bold text-xs mb-3 flex items-center gap-2">
               <span className="w-1 h-4 bg-primary rounded-full" />
-              روابط سريعة
+              {t('footer.quickLinks')}
             </h4>
             <ul className="space-y-1.5">
               {navLinks.map((link) => (
                 <li key={link.path}>
                   <Link to={link.path} className="text-muted hover:text-primary transition-colors text-xs flex items-center gap-2 group">
                     <span className="w-1 h-1 rounded-full bg-overlay/30 group-hover:bg-primary transition-all duration-300" />
-                    {link.name}
+                    {lang === 'ar' ? link.name : link.nameEn}
                   </Link>
                 </li>
               ))}
@@ -143,14 +145,14 @@ export default function Footer() {
           <div className="lg:col-span-3">
             <h4 className="text-heading font-bold text-xs mb-3 flex items-center gap-2">
               <span className="w-1 h-4 bg-primary rounded-full" />
-              خدماتنا
+              {t('footer.ourServices')}
             </h4>
             <ul className="space-y-1.5">
               {services.map((service) => (
                 <li key={service.id}>
                   <Link to="/services" className="text-muted hover:text-primary transition-colors text-xs flex items-center gap-2 group">
                     <span className="w-1 h-1 rounded-full bg-overlay/30 group-hover:bg-primary transition-all duration-300" />
-                    {service.title}
+                    {lang === 'ar' ? service.title : service.titleEn}
                   </Link>
                 </li>
               ))}
@@ -161,7 +163,7 @@ export default function Footer() {
           <div className="lg:col-span-3">
             <h4 className="text-heading font-bold text-xs mb-3 flex items-center gap-2">
               <span className="w-1 h-4 bg-primary rounded-full" />
-              معلومات التواصل
+              {t('footer.contactInfo')}
             </h4>
             <ul className="space-y-2">
               {contactItems.map((item, index) => {
@@ -192,7 +194,7 @@ export default function Footer() {
 
             {/* Social */}
             <div className="mt-4">
-              <p className="text-faint text-[11px] mb-2">تابعنا على</p>
+              <p className="text-faint text-[11px] mb-2">{t('footer.followUs')}</p>
               <div className="flex gap-2">
                 {socialLinks.map((social) => (
                   <a
@@ -229,15 +231,15 @@ export default function Footer() {
       <div className="relative z-10 border-t border-overlay/5 bg-overlay/[0.02]">
         <div className="container-custom py-3 flex flex-col sm:flex-row items-center justify-between gap-2">
           <p className="text-faint text-[11px] flex items-center gap-1.5 flex-wrap justify-center">
-            <span>جميع الحقوق محفوظة © 2025</span>
-            <span className="text-primary font-medium">{siteInfo.name}</span>
+            <span>{t('footer.rights')}</span>
+            <span className="text-primary font-medium">{lang === 'ar' ? siteInfo.name : siteInfo.nameEn}</span>
             <span className="text-overlay/20">|</span>
-            <span>تصميم وتطوير</span>
-            <span className="text-heading font-medium">المهندس محمود البنا</span>
+            <span>{t('footer.designBy')}</span>
+            <span className="text-heading font-medium">{t('footer.developer')}</span>
           </p>
           <div className="flex gap-5 text-[11px] text-faint">
-            <a href="#" className="hover:text-primary transition-colors">سياسة الخصوصية</a>
-            <a href="#" className="hover:text-primary transition-colors">الشروط والأحكام</a>
+            <a href="#" className="hover:text-primary transition-colors">{t('footer.privacy')}</a>
+            <a href="#" className="hover:text-primary transition-colors">{t('footer.terms')}</a>
           </div>
         </div>
       </div>

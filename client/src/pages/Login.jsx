@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import { useLanguage } from '../context/LanguageContext'
 import Icons from '../components/Icons'
 
 export default function Login() {
@@ -8,6 +9,7 @@ export default function Login() {
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const { login } = useAuth()
+  const { t } = useLanguage()
   const navigate = useNavigate()
 
   const handleSubmit = (e) => {
@@ -15,7 +17,7 @@ export default function Login() {
     if (login(username, password)) {
       navigate('/dashboard')
     } else {
-      setError('اسم المستخدم أو كلمة المرور غير صحيحة')
+      setError(t('login.error'))
     }
   }
 
@@ -33,8 +35,8 @@ export default function Login() {
           {/* Logo */}
           <div className="text-center mb-6">
             <img src="/logo.png" alt="Automotive Academy" className="w-32 h-auto mx-auto mb-3" />
-            <h1 className="text-heading font-bold text-xl">لوحة التحكم</h1>
-            <p className="text-muted text-xs mt-1">تسجيل الدخول للوحة الإدارة</p>
+            <h1 className="text-heading font-bold text-xl">{t('login.title')}</h1>
+            <p className="text-muted text-xs mt-1">{t('login.sub')}</p>
           </div>
 
           {error && (
@@ -45,14 +47,14 @@ export default function Login() {
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="relative">
-              <label className="text-body text-xs mb-1 block">اسم المستخدم</label>
+              <label className="text-body text-xs mb-1 block">{t('login.username')}</label>
               <div className="relative">
                 <input
                   type="text"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   required
-                  placeholder="أدخل اسم المستخدم"
+                  placeholder={t('login.usernamePlaceholder')}
                   className="w-full bg-overlay/10 backdrop-blur-md border border-overlay/20 rounded-lg pr-4 pl-10 py-2.5 text-heading placeholder-overlay/40 focus:border-primary focus:bg-overlay/15 focus:outline-none text-sm transition-all"
                 />
                 <span className="absolute top-1/2 -translate-y-1/2 left-3 text-muted">
@@ -62,7 +64,7 @@ export default function Login() {
             </div>
 
             <div className="relative">
-              <label className="text-body text-xs mb-1 block">كلمة المرور</label>
+              <label className="text-body text-xs mb-1 block">{t('login.password')}</label>
               <div className="relative">
                 <input
                   type="password"
@@ -82,18 +84,18 @@ export default function Login() {
               type="submit"
               className="w-full bg-primary hover:bg-primary-dark text-white font-bold py-3 rounded-lg transition-all duration-300 text-sm hover:shadow-lg hover:shadow-primary/30"
             >
-              تسجيل الدخول
+              {t('login.submit')}
             </button>
           </form>
 
           <div className="mt-5 text-center">
             <Link to="/" className="text-muted hover:text-primary text-xs transition-colors">
-              ← العودة للموقع
+              {t('login.back')}
             </Link>
           </div>
 
           <div className="mt-4 bg-overlay/5 rounded-lg p-3 text-center">
-            <p className="text-faint text-[10px]">بيانات تجريبية</p>
+            <p className="text-faint text-[10px]">{t('login.demoData')}</p>
             <p className="text-muted text-xs mt-1">admin / admin123</p>
           </div>
         </div>

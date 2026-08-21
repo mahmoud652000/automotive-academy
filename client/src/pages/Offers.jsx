@@ -1,7 +1,8 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import Icons from '../components/Icons'
-import { offers, offerCategories, offerTrustBadges, timeSlots } from '../data/content'
+import { useLanguage } from '../context/LanguageContext'
+import { offers as defaultOffers, offerCategories, offerCategoriesEn, offerTrustBadges, timeSlots } from '../data/content'
 
 const renderIcon = (name, className = 'w-6 h-6') => {
   const Icon = Icons[name]
@@ -18,10 +19,23 @@ const cardThemes = [
 ]
 
 export default function Offers() {
-  const [activeCategory, setActiveCategory] = useState('كل العروض')
+  const { lang, t } = useLanguage()
+  const [activeCategory, setActiveCategory] = useState(lang === 'ar' ? 'كل العروض' : 'All Offers')
   const [selectedOffer, setSelectedOffer] = useState(null)
   const [form, setForm] = useState({ name: '', phone: '', date: '', time: '' })
   const [submitted, setSubmitted] = useState(false)
+  const [offers, setOffers] = useState(defaultOffers)
+
+  useEffect(() => {
+    fetch('/api/offers?active=true')
+      .then(r => r.json())
+      .then(d => { if (d.success && d.data?.length) setOffers(d.data) })
+      .catch(() => {})
+  }, [])
+
+  useEffect(() => {
+    setActiveCategory(lang === 'ar' ? 'كل العروض' : 'All Offers')
+  }, [lang])
 
   const handleBook = (offer) => {
     setSelectedOffer(offer)
@@ -37,17 +51,20 @@ export default function Offers() {
       body: JSON.stringify({
         ...form,
         type: 'offer',
-        offer: selectedOffer.title,
+        offer: lang === 'ar' ? selectedOffer.title : selectedOffer.titleEn,
       }),
     })
       .then((res) => res.json())
       .then(() => setSubmitted(true))
-      .catch(() => alert('حدث خطأ، يرجى المحاولة مرة أخرى.'))
+      .catch(() => alert(lang === 'ar' ? 'حدث خطأ، يرجى المحاولة مرة أخرى.' : 'An error occurred, please try again.'))
   }
 
-  const filteredOffers = activeCategory === 'كل العروض'
+  const categories = lang === 'ar' ? offerCategories : offerCategoriesEn
+  const defaultCategory = lang === 'ar' ? 'كل العروض' : 'All Offers'
+
+  const filteredOffers = activeCategory === defaultCategory
     ? offers
-    : offers.filter((o) => o.category === activeCategory)
+    : offers.filter((o) => (lang === 'ar' ? o.category : o.categoryEn) === activeCategory)
 
   return (
     <div className="pt-20">
@@ -61,15 +78,15 @@ export default function Offers() {
           <div className="grid lg:grid-cols-3 gap-8 items-center">
             <div className="lg:col-span-2">
               <div className="flex items-center gap-2 text-faint text-sm mb-4">
-                <Link to="/" className="hover:text-primary transition-colors">الرئيسية</Link>
+                <Link to="/" className="hover:text-primary transition-colors">{t('offers.breadcrumbHome')}</Link>
                 <span className="text-primary">/</span>
-                <span className="text-primary">العروض</span>
+                <span className="text-primary">{t('offers.breadcrumbCurrent')}</span>
               </div>
               <h1 className="text-4xl md:text-6xl font-bold text-white mb-4 leading-tight">
-                <span className="text-primary">عروضنا</span> المميزة
+                <span className="text-primary">{t('offers.title1')}</span> {t('offers.title2')}
               </h1>
               <p className="text-white/80 text-lg max-w-2xl">
-                أفضل العروض والخدمات بأعلى جودة لأن سيارتك تستحق الأفضل
+                {t('offers.desc')}
               </p>
             </div>
             <div className="relative group">
@@ -80,9 +97,9 @@ export default function Offers() {
                     <span className="text-primary text-2xl font-bold">%</span>
                   </div>
                 </div>
-                <h3 className="text-heading font-bold text-lg mb-2">عروض متجددة</h3>
-                <p className="text-muted text-sm mb-1">تابع الصفحة باستمرار</p>
-                <p className="text-primary text-sm font-medium">لا تفوت أفضل الأسعار</p>
+                <h3 className="text-heading font-bold text-lg mb-2">{t('offers.renewedTitle')}</h3>
+                <p className="text-muted text-sm mb-1">{t('offers.renewedSub1')}</p>
+                <p className="text-primary text-sm font-medium">{t('offers.renewedSub2')}</p>
               </div>
             </div>
           </div>
@@ -101,7 +118,7 @@ export default function Offers() {
         </div>
         <div className="container-custom">
           <div className="flex flex-wrap gap-2 justify-center">
-            {offerCategories.map((category) => (
+            {categories.map((category) => (
               <button
                 key={category}
                 onClick={() => setActiveCategory(category)}
@@ -126,17 +143,17 @@ export default function Offers() {
           <div className="flex flex-wrap items-center justify-center gap-2 mb-8">
             <div className="flex items-center gap-2 bg-overlay/5 border border-overlay/10 rounded-full px-4 py-2">
               <Icons.Tag className="w-4 h-4 text-primary" />
-              <span className="text-muted text-xs">اختر العرض المناسب</span>
+              <span className="text-muted text-xs">{t('offers.step1')}</span>
             </div>
             <span className="w-6 h-px bg-overlay/20" />
             <div className="flex items-center gap-2 bg-overlay/5 border border-overlay/10 rounded-full px-4 py-2">
               <Icons.Calendar className="w-4 h-4 text-primary" />
-              <span className="text-muted text-xs">احجز موعدك</span>
+              <span className="text-muted text-xs">{t('offers.step2')}</span>
             </div>
             <span className="w-6 h-px bg-overlay/20" />
             <div className="flex items-center gap-2 bg-overlay/5 border border-overlay/10 rounded-full px-4 py-2">
               <Icons.CheckCircle className="w-4 h-4 text-primary" />
-              <span className="text-muted text-xs">وفّر مع أفضل الأسعار</span>
+              <span className="text-muted text-xs">{t('offers.step3')}</span>
             </div>
           </div>
 
@@ -152,7 +169,7 @@ export default function Offers() {
                   <div className="relative h-28 overflow-hidden">
                     <img
                       src={offer.image}
-                      alt={offer.title}
+                      alt={lang === 'ar' ? offer.title : offer.titleEn}
                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-[#0B1120] via-[#0B1120]/40 to-transparent" />
@@ -170,48 +187,32 @@ export default function Offers() {
                       </div>
                     </div>
 
-                    {/* Discount badge */}
-                    <div className="absolute top-3 right-3 z-10">
-                      <div className="bg-primary text-white px-3 py-1.5 rounded-lg text-xs font-bold shadow-lg">
-                        خصم {offer.discount}%
-                      </div>
-                    </div>
-
                     {/* Category label */}
                     <div className="absolute top-3 left-3 z-10">
-                      <span className="text-[10px] text-white/60 font-medium uppercase tracking-wide bg-black/40 backdrop-blur px-2 py-0.5 rounded">{offer.category}</span>
+                      <span className="text-[10px] text-white/60 font-medium uppercase tracking-wide bg-black/40 backdrop-blur px-2 py-0.5 rounded">{lang === 'ar' ? offer.category : offer.categoryEn}</span>
                     </div>
+
+                    {/* Discount badge */}
+                    {offer.discount > 0 && (
+                      <div className="absolute top-3 right-3 z-10">
+                        <div className="bg-primary text-white px-3 py-1.5 rounded-lg text-xs font-bold shadow-lg">
+                          {offer.discount}% {t('offers.discount')}
+                        </div>
+                      </div>
+                    )}
                   </div>
 
                   {/* Content */}
                   <div className="p-4 flex flex-col flex-1">
-                    <h3 className="text-heading font-bold text-sm mb-1.5 group-hover:text-primary transition-colors">{offer.title}</h3>
-                    <p className="text-muted text-[11px] leading-relaxed mb-3 flex-1 line-clamp-2">{offer.desc}</p>
-
-                    {/* Price */}
-                    <div className="flex items-end justify-between mb-4">
-                      <div>
-                        <div className="flex items-baseline gap-1.5">
-                          <span className="text-primary font-bold text-2xl">{offer.newPrice}</span>
-                          <span className="text-faint text-xs">جنيه</span>
-                        </div>
-                        <div className="flex items-center gap-1 mt-0.5">
-                          <span className="text-faint line-through text-xs">{offer.oldPrice}</span>
-                          <span className="text-faint text-[10px]">جنيه</span>
-                        </div>
-                      </div>
-                      <div className="text-left">
-                        <span className="text-[10px] text-faint block mb-1">وفّر</span>
-                        <span className="text-emerald-500 font-bold text-sm">{offer.oldPrice - offer.newPrice} ج</span>
-                      </div>
-                    </div>
+                    <h3 className="text-heading font-bold text-sm mb-1.5 group-hover:text-primary transition-colors">{lang === 'ar' ? offer.title : offer.titleEn}</h3>
+                    <p className="text-muted text-[11px] leading-relaxed mb-4 flex-1 line-clamp-2">{lang === 'ar' ? offer.desc : offer.descEn}</p>
 
                     {/* Button */}
                     <button
                       onClick={() => handleBook(offer)}
                       className="w-full flex items-center justify-center gap-2 bg-overlay/5 hover:bg-primary text-heading hover:text-white font-bold py-2 rounded-lg transition-all duration-300 text-xs border border-overlay/10 hover:border-primary group-hover:shadow-lg group-hover:shadow-primary/30"
                     >
-                      احجز الآن
+                      {t('offers.bookNow')}
                       <Icons.ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
                     </button>
                   </div>
@@ -232,8 +233,8 @@ export default function Offers() {
                   {renderIcon(badge.icon, 'w-6 h-6')}
                 </div>
                 <div>
-                  <h4 className="text-heading font-bold text-sm mb-1">{badge.title}</h4>
-                  <p className="text-muted text-xs leading-relaxed">{badge.desc}</p>
+                  <h4 className="text-heading font-bold text-sm mb-1">{lang === 'ar' ? badge.title : badge.titleEn}</h4>
+                  <p className="text-muted text-xs leading-relaxed">{lang === 'ar' ? badge.desc : badge.descEn}</p>
                 </div>
               </div>
             ))}
@@ -242,17 +243,19 @@ export default function Offers() {
       </section>
 
       {/* ============ NEWSLETTER ============ */}
-      <section className="py-12 bg-dark">
-        <div className="container-custom">
-          <div className="relative rounded-3xl overflow-hidden bg-gradient-to-l from-primary via-primary/90 to-primary/70 p-8 md:p-12">
-            <div className="absolute top-0 left-0 w-64 h-64 bg-overlay/5 rounded-full -translate-x-1/3 -translate-y-1/3" />
-            <div className="absolute bottom-0 right-0 w-48 h-48 bg-overlay/5 rounded-full translate-x-1/4 translate-y-1/4" />
+      <section className="relative overflow-hidden">
+        {/* Background image */}
+        <div className="absolute inset-0">
+          <img src="/offers-newsletter.webp" alt="" className="w-full h-full object-cover" />
+          <div className="absolute inset-0 bg-gradient-to-l from-[#0a0a0f]/70 via-[#0a0a0f]/50 to-[#0a0a0f]/10" />
+        </div>
 
-            <div className="relative z-10 grid md:grid-cols-2 gap-8 items-center">
+        <div className="container-custom relative z-10 py-12 md:py-16">
+          <div className="grid md:grid-cols-2 gap-8 items-center">
               <div>
-                <h2 className="text-3xl md:text-4xl font-bold text-white mb-3">عروض حصرية 🔥</h2>
-                <p className="text-white/80 text-sm md:text-base leading-relaxed">
-                  اشترك الآن واحصل على خصومات حصرية وتحديثات العروض أول بأول
+                <h2 className="text-3xl md:text-4xl font-bold text-white mb-3 drop-shadow-lg">{t('offers.newsletterTitle')}</h2>
+                <p className="text-white/70 text-sm md:text-base leading-relaxed drop-shadow">
+                  {t('offers.newsletterDesc')}
                 </p>
               </div>
               <div>
@@ -260,8 +263,8 @@ export default function Offers() {
                   <div className="relative flex-1">
                     <input
                       type="email"
-                      placeholder="اكتب بريدك الإلكتروني"
-                      className="w-full bg-overlay/15 backdrop-blur border border-overlay/20 rounded-lg pr-4 pl-10 py-3.5 text-white placeholder-white/50 text-sm focus:outline-none focus:bg-overlay/20 focus:border-white/40 transition-all"
+                      placeholder={t('offers.emailPlaceholder')}
+                      className="w-full bg-white/10 backdrop-blur border border-white/20 rounded-lg pr-4 pl-10 py-3.5 text-white placeholder-white/50 text-sm focus:outline-none focus:bg-white/15 focus:border-white/40 transition-all"
                     />
                     <span className="absolute top-1/2 -translate-y-1/2 left-3 text-white/50">
                       <Icons.Mail className="w-5 h-5" />
@@ -269,14 +272,13 @@ export default function Offers() {
                   </div>
                   <button
                     type="submit"
-                    className="bg-surface hover:bg-black text-white font-bold px-8 py-3.5 rounded-lg transition-all duration-300 text-sm whitespace-nowrap hover:shadow-lg"
+                    className="bg-primary hover:bg-primary-dark text-white font-bold px-8 py-3.5 rounded-lg transition-all duration-300 text-sm whitespace-nowrap hover:shadow-lg hover:shadow-primary/40"
                   >
-                    اشترك الآن
+                    {t('offers.subscribe')}
                   </button>
                 </form>
               </div>
             </div>
-          </div>
         </div>
       </section>
 
@@ -289,31 +291,25 @@ export default function Offers() {
                 <div className="w-16 h-16 bg-green-600/20 rounded-full flex items-center justify-center mx-auto mb-4">
                   <Icons.CheckCircle className="w-8 h-8 text-green-500" />
                 </div>
-                <h3 className="text-heading font-bold text-lg mb-2">تم الحجز بنجاح!</h3>
-                <p className="text-muted text-sm mb-5">سنتواصل معك قريباً لتأكيد حجز عرض: {selectedOffer.title}</p>
+                <h3 className="text-heading font-bold text-lg mb-2">{t('offers.bookSuccess')}</h3>
+                <p className="text-muted text-sm mb-5">{t('offers.bookSuccessDesc')} {lang === 'ar' ? selectedOffer.title : selectedOffer.titleEn}</p>
                 <button onClick={() => setSelectedOffer(null)} className="bg-primary hover:bg-primary-dark text-white font-bold py-2.5 px-6 rounded-lg transition-all duration-300 text-sm">
-                  إغلاق
+                  {t('offers.close')}
                 </button>
               </div>
             ) : (
               <>
                 <div className="flex items-center justify-between mb-5">
-                  <h3 className="text-heading font-bold text-lg">حجز العرض</h3>
+                  <h3 className="text-heading font-bold text-lg">{t('offers.bookOffer')}</h3>
                   <button onClick={() => setSelectedOffer(null)} className="text-muted hover:text-heading transition-colors text-xl">✕</button>
                 </div>
                 <div className="bg-primary/10 border border-primary/30 rounded-lg p-3 mb-5">
-                  <p className="text-heading font-bold text-sm">{selectedOffer.title}</p>
-                  <div className="flex items-center gap-2 mt-1">
-                    <span className="text-primary font-bold text-xl">{selectedOffer.newPrice}</span>
-                    <span className="text-faint text-xs">جنيه</span>
-                    <span className="text-faint line-through text-xs mr-2">{selectedOffer.oldPrice}</span>
-                    <span className="text-emerald-500 text-xs font-bold">خصم {selectedOffer.discount}%</span>
-                  </div>
+                  <p className="text-heading font-bold text-sm">{lang === 'ar' ? selectedOffer.title : selectedOffer.titleEn}</p>
                 </div>
                 <form onSubmit={handleSubmit} className="space-y-3">
                   <input
                     type="text"
-                    placeholder="الاسم الكامل"
+                    placeholder={t('offers.fullName')}
                     value={form.name}
                     onChange={(e) => setForm({ ...form, name: e.target.value })}
                     required
@@ -321,7 +317,7 @@ export default function Offers() {
                   />
                   <input
                     type="tel"
-                    placeholder="رقم الهاتف"
+                    placeholder={t('offers.phone')}
                     value={form.phone}
                     onChange={(e) => setForm({ ...form, phone: e.target.value })}
                     required
@@ -341,12 +337,12 @@ export default function Offers() {
                       required
                       className="w-full bg-overlay/10 backdrop-blur-md border border-overlay/20 rounded-lg px-4 py-2.5 text-heading focus:border-primary focus:bg-overlay/15 focus:outline-none text-sm"
                     >
-                      <option value="" className="bg-dark">اختر الوقت</option>
+                      <option value="" className="bg-dark">{t('offers.selectTime')}</option>
                       {timeSlots.map((time) => <option key={time} value={time} className="bg-dark">{time}</option>)}
                     </select>
                   </div>
                   <button type="submit" className="w-full bg-primary hover:bg-primary-dark text-white font-bold py-3 rounded-lg transition-all duration-300 text-sm">
-                    تأكيد الحجز
+                    {t('offers.confirmBooking')}
                   </button>
                 </form>
               </>

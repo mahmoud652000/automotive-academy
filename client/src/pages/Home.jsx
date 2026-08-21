@@ -1,10 +1,13 @@
 import { useState, useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
+import { useLanguage } from '../context/LanguageContext'
 import ServiceCard from '../components/ServiceCard'
+import CTABanner from '../components/CTABanner'
 import Icons from '../components/Icons'
 import { services, features, stats, promoBadges, aboutBulletPoints, aboutText, bookingSteps, heroBadges, testimonials, siteInfo, carBrands } from '../data/content'
 
 export default function Home() {
+  const { lang, t } = useLanguage()
   const [bookingForm, setBookingForm] = useState({ name: '', phone: '', service: '', date: '', time: '' })
   const [reviewForm, setReviewForm] = useState({ name: '', role: '', text: '', rating: 5 })
   const [showReviewForm, setShowReviewForm] = useState(false)
@@ -23,10 +26,10 @@ export default function Home() {
     })
       .then((res) => res.json())
       .then(() => {
-        alert('تم استلام طلبك! سنتواصل معك قريباً لتأكيد الموعد.')
+        alert(t('home.bookingSuccess'))
         setBookingForm({ name: '', phone: '', service: '', date: '', time: '' })
       })
-      .catch(() => alert('حدث خطأ، يرجى المحاولة مرة أخرى.'))
+      .catch(() => alert(t('home.bookingError')))
   }
 
   const handleReviewSubmit = (e) => {
@@ -102,7 +105,7 @@ export default function Home() {
       {/* ============ HERO SECTION ============ */}
       <section className="relative min-h-[90vh] flex items-center overflow-hidden">
         <div className="absolute inset-0 z-0">
-          <img src="/hero-bg.png" alt="ورشة أكاديمية السيارات" className="w-full h-full object-cover" />
+          <img src="/hero-bg.png" alt={lang === 'ar' ? 'ورشة أكاديمية السيارات' : 'Automotive Academy Workshop'} className="w-full h-full object-cover" />
           <div className="absolute inset-0 bg-gradient-to-l from-[#0a0a0f] via-[#0a0a0f]/85 to-[#0a0a0f]/30" />
         </div>
 
@@ -112,13 +115,13 @@ export default function Home() {
             <div className="flex-1 lg:pt-8 lg:pr-8">
               <span className="inline-block text-primary font-bold text-sm tracking-wide mb-4 flex items-center gap-2">
                 <span className="w-8 h-px bg-primary" />
-                خبراء صيانة وإصلاح السيارات
+                {t('home.heroBadge')}
               </span>
               <h1 className="text-3xl md:text-5xl font-bold text-white leading-tight mb-5">
-                العناية الاحترافية<br /><span className="text-primary">لسيارتك</span>
+                {t('home.heroTitle1')}<br /><span className="text-primary">{t('home.heroTitle2')}</span>
               </h1>
               <p className="text-white/80 text-lg mb-8 max-w-lg leading-relaxed">
-                نقدم أفضل خدمات الصيانة والإصلاح باستخدام أحدث الأجهزة وفريق من الفنيين المحترفين
+                {t('home.heroDesc')}
               </p>
 
               {/* Trust Badges */}
@@ -126,7 +129,7 @@ export default function Home() {
                 {heroBadges.map((badge, index) => (
                   <div key={index} className="flex items-center gap-2 bg-white/10 backdrop-blur-md rounded-full px-4 py-2 border border-white/10 hover:border-primary/30 transition-colors">
                     <span className="text-primary">{renderIcon(badge.icon, 'w-5 h-5')}</span>
-                    <span className="text-white text-sm font-medium">{badge.text}</span>
+                    <span className="text-white text-sm font-medium">{lang === 'ar' ? badge.text : badge.textEn}</span>
                   </div>
                 ))}
               </div>
@@ -136,8 +139,8 @@ export default function Home() {
             <div className="w-full max-w-sm bg-white/5 backdrop-blur-2xl rounded-2xl p-6 border border-white/20 shadow-2xl shadow-primary/10 flex-shrink-0 lg:ml-0">
               <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-white/10 to-transparent pointer-events-none" />
               <div className="mb-5 relative z-10">
-                <h3 className="text-xl font-bold text-white mb-1">احجز موعدك الآن</h3>
-                <p className="text-white/70 text-xs">اختر الخدمة المناسبة لسيارتك</p>
+                <h3 className="text-xl font-bold text-white mb-1">{t('home.bookNow')}</h3>
+                <p className="text-white/70 text-xs">{t('home.bookSub')}</p>
               </div>
               <form onSubmit={handleSubmit} className="space-y-3 relative z-10">
                 <div className="relative">
@@ -147,18 +150,18 @@ export default function Home() {
                     required
                     className="w-full bg-white/10 backdrop-blur-md border border-white/20 rounded-lg pr-3 pl-9 py-2.5 text-white text-sm placeholder-white/50 focus:border-primary focus:bg-white/15 focus:outline-none transition-all appearance-none"
                   >
-                    <option value="" className="bg-surface">اختر الخدمة</option>
-                    {services.map((s) => (<option key={s.id} value={s.title} className="bg-surface">{s.title}</option>))}
+                    <option value="" className="bg-surface">{t('home.selectService')}</option>
+                    {services.map((s) => (<option key={s.id} value={lang === 'ar' ? s.title : s.titleEn} className="bg-surface">{lang === 'ar' ? s.title : s.titleEn}</option>))}
                   </select>
                   <span className="absolute top-1/2 -translate-y-1/2 left-3 text-gray-400 pointer-events-none">{renderIcon('Wrench', 'w-4 h-4')}</span>
                 </div>
                 <div className="relative">
-                  <input type="text" placeholder="الاسم الكامل" value={bookingForm.name} onChange={(e) => setBookingForm({ ...bookingForm, name: e.target.value })} required
+                  <input type="text" placeholder={t('home.fullName')} value={bookingForm.name} onChange={(e) => setBookingForm({ ...bookingForm, name: e.target.value })} required
                     className="w-full bg-white/10 backdrop-blur-md border border-white/20 rounded-lg pr-3 pl-9 py-2.5 text-white text-sm placeholder-white/50 focus:border-primary focus:bg-white/15 focus:outline-none transition-all" />
                   <span className="absolute top-1/2 -translate-y-1/2 left-3 text-gray-400 pointer-events-none">{renderIcon('User', 'w-4 h-4')}</span>
                 </div>
                 <div className="relative">
-                  <input type="tel" placeholder="رقم الهاتف" value={bookingForm.phone} onChange={(e) => setBookingForm({ ...bookingForm, phone: e.target.value })} required
+                  <input type="tel" placeholder={t('home.phone')} value={bookingForm.phone} onChange={(e) => setBookingForm({ ...bookingForm, phone: e.target.value })} required
                     className="w-full bg-white/10 backdrop-blur-md border border-white/20 rounded-lg pr-3 pl-9 py-2.5 text-white text-sm placeholder-white/50 focus:border-primary focus:bg-white/15 focus:outline-none transition-all" />
                   <span className="absolute top-1/2 -translate-y-1/2 left-3 text-gray-400 pointer-events-none">{renderIcon('Phone', 'w-4 h-4')}</span>
                 </div>
@@ -171,18 +174,18 @@ export default function Home() {
                   <div className="relative">
                     <select value={bookingForm.time} onChange={(e) => setBookingForm({ ...bookingForm, time: e.target.value })} required
                       className="w-full bg-white/10 backdrop-blur-md border border-white/20 rounded-lg pr-3 pl-8 py-2.5 text-white text-sm focus:border-primary focus:bg-white/15 focus:outline-none transition-all appearance-none">
-                      <option value="" className="bg-surface">الوقت</option>
-                      {['09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00','19:00','20:00'].map(t => <option key={t} className="bg-surface">{t}</option>)}
+                      <option value="" className="bg-surface">{lang === 'ar' ? 'الوقت' : 'Time'}</option>
+                      {['09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00','19:00','20:00'].map(time => <option key={time} className="bg-surface">{time}</option>)}
                     </select>
                     <span className="absolute top-1/2 -translate-y-1/2 left-2.5 text-gray-400 pointer-events-none">{renderIcon('Clock', 'w-4 h-4')}</span>
                   </div>
                 </div>
                 <button type="submit" className="w-full bg-primary hover:bg-primary-dark text-white font-bold py-3 rounded-lg transition-all duration-300 text-sm hover:shadow-lg hover:shadow-primary/30">
-                  تأكيد الحجز
+                  {t('home.confirmBooking')}
                 </button>
               </form>
               <div className="mt-4 pt-4 border-t border-white/5 text-center">
-                <p className="text-gray-400 text-xs mb-0.5">أو اتصل بنا مباشرة</p>
+                <p className="text-gray-400 text-xs mb-0.5">{t('home.orCall')}</p>
                 <a href={`tel:${siteInfo.phone.replace(/\s/g, '')}`} className="text-primary font-bold text-base hover:text-primary-light transition-colors">{siteInfo.phone}</a>
               </div>
             </div>
@@ -198,17 +201,17 @@ export default function Home() {
             <div className="text-center flex-1">
               <span className="text-primary font-bold text-sm flex items-center justify-center gap-2 mb-2">
                 <span className="w-8 h-px bg-primary" />
-                آراء العملاء
+                {t('home.testimonialsLabel')}
                 <span className="w-8 h-px bg-primary" />
               </span>
-              <h2 className="text-2xl md:text-3xl font-bold text-heading">ماذا يقول عملاؤنا؟</h2>
+              <h2 className="text-2xl md:text-3xl font-bold text-heading">{t('home.testimonialsTitle')}</h2>
             </div>
             <button
               onClick={() => setShowReviewForm(true)}
               className="flex items-center gap-2 bg-primary/10 hover:bg-primary text-primary hover:text-white font-bold text-xs px-4 py-2.5 rounded-lg border border-primary/30 transition-all duration-300 whitespace-nowrap"
             >
               <Icons.Star className="w-4 h-4" />
-              أضف رأيك
+              {t('home.addReview')}
             </button>
           </div>
 
@@ -235,16 +238,16 @@ export default function Home() {
                       </div>
 
                       {/* Text */}
-                      <p className="text-body text-sm leading-relaxed mb-4 relative z-10">{testimonial.text}</p>
+                      <p className="text-body text-sm leading-relaxed mb-4 relative z-10">{lang === 'ar' ? testimonial.text : (testimonial.textEn || testimonial.text)}</p>
 
                       {/* Author */}
                       <div className="flex items-center gap-3 pt-3 border-t border-overlay/5">
                         <div className="w-10 h-10 bg-primary/15 rounded-full flex items-center justify-center text-primary font-bold text-sm">
-                          {testimonial.name.charAt(0)}
+                          {(lang === 'ar' ? testimonial.name : (testimonial.nameEn || testimonial.name)).charAt(0)}
                         </div>
                         <div>
-                          <h4 className="text-heading font-bold text-xs">{testimonial.name}</h4>
-                          <p className="text-faint text-[10px]">{testimonial.role}</p>
+                          <h4 className="text-heading font-bold text-xs">{lang === 'ar' ? testimonial.name : (testimonial.nameEn || testimonial.name)}</h4>
+                          <p className="text-faint text-[10px]">{lang === 'ar' ? testimonial.role : (testimonial.roleEn || testimonial.role)}</p>
                         </div>
                       </div>
                     </div>
@@ -292,19 +295,19 @@ export default function Home() {
                 <div className="w-16 h-16 bg-green-600/20 rounded-full flex items-center justify-center mx-auto mb-4">
                   <Icons.CheckCircle className="w-8 h-8 text-green-500" />
                 </div>
-                <h3 className="text-heading font-bold text-lg mb-2">شكراً لك!</h3>
-                <p className="text-muted text-sm">تم إضافة رأيك بنجاح.</p>
+                <h3 className="text-heading font-bold text-lg mb-2">{t('home.reviewThanks')}</h3>
+                <p className="text-muted text-sm">{t('home.reviewAdded')}</p>
               </div>
             ) : (
               <>
                 <div className="flex items-center justify-between mb-5">
-                  <h3 className="text-heading font-bold text-lg">أضف رأيك</h3>
+                  <h3 className="text-heading font-bold text-lg">{t('home.addReview')}</h3>
                   <button onClick={() => setShowReviewForm(false)} className="text-muted hover:text-heading transition-colors text-xl">✕</button>
                 </div>
                 <form onSubmit={handleReviewSubmit} className="space-y-3">
                   <input
                     type="text"
-                    placeholder="الاسم"
+                    placeholder={t('home.reviewName')}
                     value={reviewForm.name}
                     onChange={(e) => setReviewForm({ ...reviewForm, name: e.target.value })}
                     required
@@ -312,14 +315,14 @@ export default function Home() {
                   />
                   <input
                     type="text"
-                    placeholder="صفتك (مثال: عميل دائم)"
+                    placeholder={t('home.reviewRole')}
                     value={reviewForm.role}
                     onChange={(e) => setReviewForm({ ...reviewForm, role: e.target.value })}
                     required
                     className="w-full bg-overlay/10 backdrop-blur-md border border-overlay/20 rounded-lg px-4 py-2.5 text-heading placeholder-overlay/50 focus:border-primary focus:bg-overlay/15 focus:outline-none text-sm"
                   />
                   <textarea
-                    placeholder="اكتب رأيك هنا..."
+                    placeholder={t('home.reviewText')}
                     value={reviewForm.text}
                     onChange={(e) => setReviewForm({ ...reviewForm, text: e.target.value })}
                     required
@@ -327,7 +330,7 @@ export default function Home() {
                     className="w-full bg-overlay/10 backdrop-blur-md border border-overlay/20 rounded-lg px-4 py-2.5 text-heading placeholder-overlay/50 focus:border-primary focus:bg-overlay/15 focus:outline-none text-sm resize-none"
                   />
                   <div>
-                    <label className="text-muted text-xs mb-2 block">التقييم</label>
+                    <label className="text-muted text-xs mb-2 block">{t('home.reviewRating')}</label>
                     <div className="flex gap-1">
                       {[1, 2, 3, 4, 5].map((star) => (
                         <button
@@ -342,7 +345,7 @@ export default function Home() {
                     </div>
                   </div>
                   <button type="submit" className="w-full bg-primary hover:bg-primary-dark text-white font-bold py-3 rounded-lg transition-all duration-300 text-sm">
-                    نشر الرأي
+                    {t('home.reviewPublish')}
                   </button>
                 </form>
               </>
@@ -357,9 +360,9 @@ export default function Home() {
         <div className="absolute bottom-0 left-0 w-72 h-72 bg-primary/5 rounded-full blur-3xl" />
         <div className="container-custom relative z-10">
           <div className="text-center mb-8">
-            <span className="text-primary font-bold text-xs mb-2 block">لماذا نحن</span>
+            <span className="text-primary font-bold text-xs mb-2 block">{t('home.whyLabel')}</span>
             <h2 className="text-xl md:text-3xl font-bold text-heading">
-              لماذا تختار <span className="text-primary">أكاديمية السيارات</span>؟
+              {t('home.whyTitle1')} <span className="text-primary">{t('home.whyTitle2')}</span>{t('home.whyTitle3')}
             </h2>
           </div>
 
@@ -374,8 +377,8 @@ export default function Home() {
                 <div className="relative w-10 h-10 mx-auto mb-2.5 bg-primary/10 rounded-lg flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-white group-hover:rotate-6 group-hover:scale-110 transition-all duration-300">
                   {renderIcon(item.icon, 'w-5 h-5')}
                 </div>
-                <h4 className="text-heading font-bold text-xs mb-0.5 group-hover:text-primary transition-colors">{item.title}</h4>
-                <p className="text-faint text-[10px] leading-snug">{item.desc}</p>
+                <h4 className="text-heading font-bold text-xs mb-0.5 group-hover:text-primary transition-colors">{lang === 'ar' ? item.title : item.titleEn}</h4>
+                <p className="text-faint text-[10px] leading-snug">{lang === 'ar' ? item.desc : item.descEn}</p>
               </div>
             ))}
           </div>
@@ -383,8 +386,8 @@ export default function Home() {
           {/* Car Brands Marquee */}
           <div>
             <div className="text-center mb-6">
-              <span className="text-primary font-bold text-xs mb-2 block">موديلات السيارات</span>
-              <h3 className="text-lg md:text-2xl font-bold text-heading">السيارات التي نخدمها</h3>
+              <span className="text-primary font-bold text-xs mb-2 block">{t('home.carBrandsLabel')}</span>
+              <h3 className="text-lg md:text-2xl font-bold text-heading">{t('home.carBrandsTitle')}</h3>
             </div>
 
             {/* Category labels */}
@@ -392,7 +395,7 @@ export default function Home() {
               {carBrands.map((group, i) => (
                 <div key={i} className="flex items-center gap-2 md:gap-4">
                   {i > 0 && <span className="text-white/10 text-sm">|</span>}
-                  <span className="text-faint hover:text-primary transition-colors text-xs md:text-sm font-medium cursor-default">{group.category}</span>
+                  <span className="text-faint hover:text-primary transition-colors text-xs md:text-sm font-medium cursor-default">{lang === 'ar' ? group.category : group.categoryEn}</span>
                 </div>
               ))}
             </div>
@@ -413,7 +416,7 @@ export default function Home() {
                         className="max-w-full max-h-full object-contain transition-transform duration-300 group-hover:scale-110"
                       />
                     </div>
-                    <p className="text-muted text-[10px] group-hover:text-heading transition-colors whitespace-nowrap">{brand.nameAr}</p>
+                    <p className="text-muted text-[10px] group-hover:text-heading transition-colors whitespace-nowrap">{lang === 'ar' ? brand.nameAr : brand.name}</p>
                   </div>
                 ))}
               </div>
@@ -434,10 +437,10 @@ export default function Home() {
             <div className="text-center mb-8">
               <span className="text-primary font-bold text-sm flex items-center justify-center gap-2 mb-2">
                 <span className="w-8 h-px bg-primary" />
-                الأحداث
+                {t('home.eventsLabel')}
                 <span className="w-8 h-px bg-primary" />
               </span>
-              <h2 className="text-2xl md:text-3xl font-bold text-heading">أحدث الأخبار والعروض</h2>
+              <h2 className="text-2xl md:text-3xl font-bold text-heading">{t('home.eventsTitle')}</h2>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
@@ -466,7 +469,7 @@ export default function Home() {
                         <div className="flex items-center justify-center mb-4">
                           <span className="inline-flex items-center gap-1.5 bg-primary text-white text-[10px] font-bold px-3 py-1.5 rounded-full shadow-lg shadow-primary/30">
                             <span className="w-1.5 h-1.5 bg-white rounded-full animate-pulse" />
-                            عرض محدود
+                            {t('home.limitedOffer')}
                           </span>
                         </div>
 
@@ -476,7 +479,7 @@ export default function Home() {
                             <span className="text-5xl md:text-6xl font-bold text-primary leading-none">{event.discount}</span>
                             <div className="flex flex-col">
                               <span className="text-2xl font-bold text-primary">%</span>
-                              <span className="text-xs font-bold text-white -mt-1">خصم</span>
+                              <span className="text-xs font-bold text-white -mt-1">{t('home.discount')}</span>
                             </div>
                           </div>
                         )}
@@ -489,9 +492,9 @@ export default function Home() {
                         {event.newPrice > 0 && (
                           <div className="flex items-center justify-center gap-3 mb-4">
                             {event.oldPrice > 0 && (
-                              <span className="text-white/30 line-through text-sm">{event.oldPrice} ج.م</span>
+                              <span className="text-white/30 line-through text-sm">{event.oldPrice} {lang === 'ar' ? 'ج.م' : 'EGP'}</span>
                             )}
-                            <span className="text-primary font-bold text-xl">{event.newPrice} ج.م</span>
+                            <span className="text-primary font-bold text-xl">{event.newPrice} {lang === 'ar' ? 'ج.م' : 'EGP'}</span>
                           </div>
                         )}
 
@@ -499,14 +502,14 @@ export default function Home() {
                         {event.expiryDate && (
                           <p className="text-white/40 text-[10px] text-center mb-5 flex items-center justify-center gap-1">
                             <Icons.Clock className="w-3 h-3" />
-                            عرض محدود حتى {event.expiryDate}
+                            {t('home.offerUntil')} {event.expiryDate}
                           </p>
                         )}
 
                         {/* CTA */}
                         <div className="flex justify-center">
                           <Link to="/booking" className="inline-flex items-center gap-2 bg-primary hover:bg-primary-dark text-white font-bold py-2.5 px-6 rounded-xl transition-all duration-300 text-sm hover:shadow-lg hover:shadow-primary/40 hover:scale-105">
-                            احجز الآن
+                            {t('home.bookNow')}
                             <Icons.ArrowLeft className="w-4 h-4" />
                           </Link>
                         </div>
@@ -523,7 +526,7 @@ export default function Home() {
                           <div className="absolute top-4 right-4">
                             <span className="inline-flex items-center gap-1.5 bg-surface/80 backdrop-blur-md text-primary text-[10px] font-bold px-3 py-1.5 rounded-full border border-overlay/20 shadow-lg">
                               <Icons.Bolt className="w-3 h-3" />
-                              حدث
+                              {t('home.eventBadge')}
                             </span>
                           </div>
                         </div>
@@ -533,7 +536,7 @@ export default function Home() {
                           <div className="flex items-center gap-2 mb-3">
                             <span className="inline-flex items-center gap-1.5 bg-primary/10 text-primary text-[10px] font-bold px-2.5 py-1 rounded-full">
                               <Icons.Bolt className="w-3 h-3" />
-                              حدث
+                              {t('home.eventBadge')}
                             </span>
                           </div>
                         )}
@@ -564,7 +567,7 @@ export default function Home() {
               <div className="relative rounded-2xl overflow-hidden border border-overlay/10 shadow-2xl shadow-primary/10">
                 {/* Thumbnail */}
                 <div className="relative aspect-video">
-                  <img src="https://images.unsplash.com/photo-1632823471565-1ecdf5c6da77?w=800" alt="ورشة أكاديمية السيارات" className="w-full h-full object-cover" />
+                  <img src="https://images.unsplash.com/photo-1632823471565-1ecdf5c6da77?w=800" alt={lang === 'ar' ? 'ورشة أكاديمية السيارات' : 'Automotive Academy Workshop'} className="w-full h-full object-cover" />
                   <div className="absolute inset-0 bg-gradient-to-t from-[#0B1120] via-[#0B1120]/30 to-transparent" />
 
                   {/* Glow ring */}
@@ -579,7 +582,7 @@ export default function Home() {
 
                   {/* Label */}
                   <div className="absolute bottom-4 right-4 bg-surface/90 backdrop-blur rounded-lg px-4 py-2 border border-overlay/10">
-                    <p className="text-heading text-sm font-medium">شاهد فيديو عن خدماتنا</p>
+                    <p className="text-heading text-sm font-medium">{t('home.watchVideo')}</p>
                   </div>
 
                   {/* Decorative corners */}
@@ -595,11 +598,11 @@ export default function Home() {
             <div>
               <span className="text-primary font-bold text-sm flex items-center gap-2 mb-3">
                 <span className="w-8 h-px bg-primary" />
-                من نحن
+                {t('home.aboutLabel')}
               </span>
-              <h2 className="text-2xl md:text-3xl font-bold text-heading mb-2">{aboutText.title}</h2>
-              <p className="text-primary font-bold text-lg mb-4">{aboutText.subtitle}</p>
-              {aboutText.paragraphs.map((p, i) => (
+              <h2 className="text-2xl md:text-3xl font-bold text-heading mb-2">{lang === 'ar' ? aboutText.title : aboutText.titleEn}</h2>
+              <p className="text-primary font-bold text-lg mb-4">{lang === 'ar' ? aboutText.subtitle : aboutText.subtitleEn}</p>
+              {(lang === 'ar' ? aboutText.paragraphs : aboutText.paragraphsEn).map((p, i) => (
                 <p key={i} className="text-muted mb-3 leading-relaxed text-sm">{p}</p>
               ))}
               <ul className="space-y-3 mb-8 mt-4">
@@ -608,12 +611,12 @@ export default function Home() {
                     <span className="w-7 h-7 bg-primary/15 rounded-lg flex items-center justify-center text-primary flex-shrink-0">
                       <Icons.CheckCircle className="w-4 h-4" />
                     </span>
-                    {item}
+                    {lang === 'ar' ? item.ar : item.en}
                   </li>
                 ))}
               </ul>
               <Link to="/about" className="inline-flex items-center gap-2 bg-primary hover:bg-primary-dark text-white font-bold py-3 px-8 rounded-lg transition-all duration-300 hover:shadow-lg hover:shadow-primary/30">
-                المزيد عنا
+                {t('home.aboutMore')}
                 <Icons.ArrowLeft className="w-4 h-4" />
               </Link>
             </div>
@@ -628,10 +631,10 @@ export default function Home() {
           <div className="text-center mb-12">
             <span className="text-primary font-bold text-sm flex items-center justify-center gap-2 mb-3">
               <span className="w-8 h-px bg-primary" />
-              خطوات الحجز
+              {t('home.bookingStepsLabel')}
               <span className="w-8 h-px bg-primary" />
             </span>
-            <h2 className="text-2xl md:text-3xl font-bold text-heading">احجز موعدك بسهولة في 4 خطوات</h2>
+            <h2 className="text-2xl md:text-3xl font-bold text-heading">{t('home.bookingStepsTitle')}</h2>
           </div>
 
           {/* Timeline */}
@@ -658,8 +661,8 @@ export default function Home() {
                     </div>
 
                     {/* Text */}
-                    <h4 className="text-heading font-bold text-base mb-2 group-hover:text-primary transition-colors">{step.title}</h4>
-                    <p className="text-muted text-sm leading-relaxed max-w-[200px] mx-auto">{step.desc}</p>
+                    <h4 className="text-heading font-bold text-base mb-2 group-hover:text-primary transition-colors">{lang === 'ar' ? step.title : step.titleEn}</h4>
+                    <p className="text-muted text-sm leading-relaxed max-w-[200px] mx-auto">{lang === 'ar' ? step.desc : step.descEn}</p>
                   </div>
                 )
               })}
@@ -667,6 +670,8 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      <CTABanner />
     </div>
   )
 }

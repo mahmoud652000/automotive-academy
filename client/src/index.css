@@ -186,3 +186,21 @@ img {
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
+
+/* ===== LTR SUPPORT ===== */
+html[dir="ltr"] body {
+  font-family: 'Inter', 'Cairo', system-ui, sans-serif;
+}
+
+html[dir="ltr"] .container-custom {
+  text-align: left;
+}
+
+/* Flip directional gradient overlays in LTR */
+html[dir="ltr"] .bg-gradient-to-l {
+  background-image: linear-gradient(to right, var(--tw-gradient-stops));
+}
+
+html[dir="ltr"] .bg-gradient-to-r {
+  background-image: linear-gradient(to left, var(--tw-gradient-stops));
+}

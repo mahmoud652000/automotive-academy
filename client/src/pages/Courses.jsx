@@ -1,12 +1,22 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Icons from '../components/Icons'
 import CTABanner from '../components/CTABanner'
-import { courses, siteInfo, timeSlots } from '../data/content'
+import { courses as defaultCourses, siteInfo, timeSlots } from '../data/content'
+import { useLanguage } from '../context/LanguageContext'
 
 export default function Courses() {
+  const { lang, t } = useLanguage()
   const [selectedCourse, setSelectedCourse] = useState(null)
   const [form, setForm] = useState({ name: '', phone: '', course: '', date: '', time: '' })
   const [submitted, setSubmitted] = useState(false)
+  const [courses, setCourses] = useState(defaultCourses)
+
+  useEffect(() => {
+    fetch('/api/courses')
+      .then(r => r.json())
+      .then(d => { if (d.success && d.data?.length) setCourses(d.data) })
+      .catch(() => {})
+  }, [])
 
   const handleEnroll = (courseTitle) => {
     setSelectedCourse(courseTitle)
@@ -23,7 +33,7 @@ export default function Courses() {
     })
       .then((res) => res.json())
       .then(() => setSubmitted(true))
-      .catch(() => alert('حدث خطأ، يرجى المحاولة مرة أخرى.'))
+      .catch(() => alert(t('courses.enrollError')))
   }
 
   return (
@@ -37,12 +47,12 @@ export default function Courses() {
         <div className="container-custom text-center relative z-10 w-full">
           <span className="text-primary font-bold text-sm flex items-center justify-center gap-2 mb-3">
             <span className="w-8 h-px bg-primary" />
-            الدورات التدريبية
+            {t('courses.label')}
             <span className="w-8 h-px bg-primary" />
           </span>
-          <h1 className="text-3xl md:text-4xl font-bold text-white mt-2 mb-3">دوراتنا التدريبية</h1>
+          <h1 className="text-3xl md:text-4xl font-bold text-white mt-2 mb-3">{t('courses.title')}</h1>
           <p className="text-white/80 text-base max-w-2xl mx-auto">
-            برامج تدريب احترافية للجيل القادم من خبراء السيارات
+            {t('courses.desc')}
           </p>
         </div>
       </section>
@@ -63,17 +73,17 @@ export default function Courses() {
           <div className="flex flex-wrap items-center justify-center gap-2 mb-6">
             <div className="flex items-center gap-2 bg-overlay/5 border border-overlay/10 rounded-full px-4 py-2">
               <Icons.Search className="w-4 h-4 text-primary" />
-              <span className="text-muted text-xs">اختر الدورة المناسبة</span>
+              <span className="text-muted text-xs">{t('courses.step1')}</span>
             </div>
             <span className="w-6 h-px bg-overlay/20" />
             <div className="flex items-center gap-2 bg-overlay/5 border border-overlay/10 rounded-full px-4 py-2">
               <Icons.Calendar className="w-4 h-4 text-primary" />
-              <span className="text-muted text-xs">سجل موعدك</span>
+              <span className="text-muted text-xs">{t('courses.step2')}</span>
             </div>
             <span className="w-6 h-px bg-overlay/20" />
             <div className="flex items-center gap-2 bg-overlay/5 border border-overlay/10 rounded-full px-4 py-2">
               <Icons.Trophy className="w-4 h-4 text-primary" />
-              <span className="text-muted text-xs">ابدأ مسيرتك الاحترافية</span>
+              <span className="text-muted text-xs">{t('courses.step3')}</span>
             </div>
           </div>
 
@@ -85,24 +95,24 @@ export default function Courses() {
               >
                 {/* Image */}
                 <div className="relative overflow-hidden h-44">
-                  <img src={course.image} alt={course.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                  <img src={course.image} alt={lang === 'ar' ? course.title : course.titleEn} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
                   <div className="absolute inset-0 bg-gradient-to-t from-[#0B1120] via-[#0B1120]/50 to-transparent" />
                   <div className="absolute top-0 right-0 left-0 h-1 bg-primary scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-right" />
                   {/* Duration badge */}
                   <div className="absolute top-3 right-3 bg-primary/90 backdrop-blur text-white text-[10px] font-bold px-2 py-1 rounded">
-                    {course.duration}
+                    {lang === 'ar' ? course.duration : course.durationEn}
                   </div>
                 </div>
 
                 {/* Content */}
                 <div className="p-5 flex flex-col flex-1">
-                  <h3 className="text-heading font-bold text-sm mb-1.5 group-hover:text-primary transition-colors">{course.title}</h3>
-                  <p className="text-muted text-xs leading-relaxed mb-3 flex-1 line-clamp-2">{course.desc}</p>
+                  <h3 className="text-heading font-bold text-sm mb-1.5 group-hover:text-primary transition-colors">{lang === 'ar' ? course.title : course.titleEn}</h3>
+                  <p className="text-muted text-xs leading-relaxed mb-3 flex-1 line-clamp-2">{lang === 'ar' ? course.desc : course.descEn}</p>
                   <button
-                    onClick={() => handleEnroll(course.title)}
+                    onClick={() => handleEnroll(lang === 'ar' ? course.title : course.titleEn)}
                     className="w-full flex items-center justify-center gap-2 bg-overlay/5 hover:bg-primary text-heading hover:text-white font-bold py-2 rounded-lg transition-all duration-300 text-xs border border-overlay/10 hover:border-primary group-hover:shadow-lg group-hover:shadow-primary/30"
                   >
-                    سجل الآن
+                    {t('courses.enroll')}
                     <Icons.ArrowLeft className="w-3.5 h-3.5" />
                   </button>
                 </div>
@@ -121,23 +131,23 @@ export default function Courses() {
                 <div className="w-16 h-16 bg-green-600/20 rounded-full flex items-center justify-center mx-auto mb-4">
                   <Icons.CheckCircle className="w-8 h-8 text-green-500" />
                 </div>
-                <h3 className="text-heading font-bold text-lg mb-2">تم التسجيل بنجاح!</h3>
-                <p className="text-muted text-sm mb-5">سنتواصل معك قريباً لتأكيد التسجيل في دورة: {selectedCourse}</p>
+                <h3 className="text-heading font-bold text-lg mb-2">{t('courses.enrollSuccess')}</h3>
+                <p className="text-muted text-sm mb-5">{t('courses.enrollSuccessDesc')} {selectedCourse}</p>
                 <button onClick={() => setSelectedCourse(null)} className="bg-primary hover:bg-primary-dark text-white font-bold py-2.5 px-6 rounded-lg transition-all duration-300 text-sm">
-                  إغلاق
+                  {t('courses.close')}
                 </button>
               </div>
             ) : (
               <>
                 <div className="flex items-center justify-between mb-5">
-                  <h3 className="text-heading font-bold text-lg">التسجيل في الدورة</h3>
+                  <h3 className="text-heading font-bold text-lg">{t('courses.enrollTitle')}</h3>
                   <button onClick={() => setSelectedCourse(null)} className="text-muted hover:text-heading transition-colors text-xl">✕</button>
                 </div>
-                <p className="text-muted text-xs mb-5">دورة: <span className="text-primary font-bold">{selectedCourse}</span></p>
+                <p className="text-muted text-xs mb-5">{t('courses.courseLabel')} <span className="text-primary font-bold">{selectedCourse}</span></p>
                 <form onSubmit={handleSubmit} className="space-y-3">
                   <input
                     type="text"
-                    placeholder="الاسم الكامل"
+                    placeholder={t('courses.fullName')}
                     value={form.name}
                     onChange={(e) => setForm({ ...form, name: e.target.value })}
                     required
@@ -145,7 +155,7 @@ export default function Courses() {
                   />
                   <input
                     type="tel"
-                    placeholder="رقم الهاتف"
+                    placeholder={t('courses.phone')}
                     value={form.phone}
                     onChange={(e) => setForm({ ...form, phone: e.target.value })}
                     required
@@ -165,15 +175,15 @@ export default function Courses() {
                       required
                       className="w-full bg-overlay/10 backdrop-blur-md border border-overlay/20 rounded-lg px-4 py-2.5 text-heading focus:border-primary focus:bg-overlay/15 focus:outline-none text-sm"
                     >
-                      <option value="" className="bg-dark">اختر الوقت</option>
+                      <option value="" className="bg-dark">{t('courses.selectTime')}</option>
                       {timeSlots.map((time) => <option key={time} value={time} className="bg-dark">{time}</option>)}
                     </select>
                   </div>
                   <button type="submit" className="w-full bg-primary hover:bg-primary-dark text-white font-bold py-3 rounded-lg transition-all duration-300 text-sm">
-                    تأكيد التسجيل
+                    {t('courses.confirmEnroll')}
                   </button>
                 </form>
-                <p className="text-faint text-[10px] text-center mt-3">أو اتصل بنا: {siteInfo.phone}</p>
+                <p className="text-faint text-[10px] text-center mt-3">{t('courses.orCall')} {siteInfo.phone}</p>
               </>
             )}
           </div>

@@ -1,4 +1,7 @@
+import { useLanguage } from '../context/LanguageContext'
+
 export default function WhatsAppButton() {
+  const { t } = useLanguage()
   return (
     <a
       href="https://wa.me/201103197077"
@@ -30,7 +33,7 @@ export default function WhatsAppButton() {
 
         {/* Tooltip */}
         <div className="absolute right-full mr-3 top-1/2 -translate-y-1/2 bg-white text-gray-900 px-3 py-2 rounded-xl text-xs font-bold whitespace-nowrap opacity-0 group-hover:opacity-100 transition-all duration-300 pointer-events-none shadow-xl">
-          💬 راسلنا على واتساب
+          {t('whatsapp.tooltip')}
         </div>
       </div>
     </a>
