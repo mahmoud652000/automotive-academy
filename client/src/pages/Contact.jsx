@@ -175,7 +175,7 @@ export default function Contact() {
                   <img src={branch.image} alt={lang === 'ar' ? branch.name : branch.nameEn} className="w-full h-full object-cover group-hover:scale-105 transition-all duration-700" />
                   <div className="absolute inset-0 bg-gradient-to-t from-surface via-surface/30 to-transparent" />
                   <div className="absolute bottom-4 right-4">
-                    <span className="inline-flex items-center gap-2 bg-surface/80 backdrop-blur-md text-primary text-xs font-bold px-3 py-1.5 rounded-full border border-overlay/20 shadow-lg">
+                    <span className="inline-flex items-center gap-2 bg-surface/80 text-primary text-xs font-bold px-3 py-1.5 rounded-full border border-overlay/20 shadow-lg">
                       <Icons.MapPin className="w-4 h-4" />
                       {lang === 'ar' ? branch.name : branch.nameEn}
                     </span>

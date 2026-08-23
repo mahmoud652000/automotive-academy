@@ -225,6 +225,10 @@ export const translations = {
     'gallery.noItems': 'لا توجد عناصر في المعرض حالياً',
     'gallery.testimonialsLabel': 'آراء العملاء',
     'gallery.testimonialsTitle': 'ماذا يقول عملاؤنا؟',
+    'gallery.tabAll': 'الكل',
+    'gallery.tabVideos': 'فيديوهات',
+    'gallery.tabPhotos': 'صور',
+    'gallery.watchNow': 'اضغط للمشاهدة',
 
     // ===== Login Page =====
     'login.title': 'لوحة التحكم',
@@ -559,6 +563,10 @@ export const translations = {
     'gallery.noItems': 'No gallery items yet',
     'gallery.testimonialsLabel': 'Testimonials',
     'gallery.testimonialsTitle': 'What Our Customers Say?',
+    'gallery.tabAll': 'All',
+    'gallery.tabVideos': 'Videos',
+    'gallery.tabPhotos': 'Photos',
+    'gallery.watchNow': 'Click to watch',
 
     // ===== Login Page =====
     'login.title': 'Dashboard',

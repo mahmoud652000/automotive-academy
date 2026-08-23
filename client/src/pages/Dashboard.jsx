@@ -503,7 +503,7 @@ export default function Dashboard() {
       </div>
 
       {/* === Top Bar === */}
-      <header className="relative z-50 flex items-center justify-between h-16 px-4 md:px-5 bg-surface/90 backdrop-blur-xl border-b border-overlay/10 flex-shrink-0">
+      <header className="relative z-50 flex items-center justify-between min-h-[64px] py-2.5 px-4 md:px-5 bg-surface border-b border-overlay/10 flex-shrink-0">
         <div className="flex items-center gap-2.5">
           <Logo className="h-9 w-auto flex-shrink-0" showText={false} />
           <div>
@@ -550,7 +550,7 @@ export default function Dashboard() {
 
       <div className="flex flex-1 overflow-hidden">
         {/* === Sidebar === */}
-        <aside className="w-56 bg-surface/80 backdrop-blur-xl border-l border-overlay/10 fixed right-0 top-16 bottom-0 overflow-y-auto z-40 hidden md:flex flex-col">
+        <aside className="w-56 bg-surface border-l border-overlay/10 fixed right-0 top-[64px] bottom-0 overflow-y-auto z-40 hidden md:flex flex-col">
           {/* Nav groups */}
           <nav className="space-y-3 p-3">
               {navGroups.map((group) => (
@@ -581,7 +581,7 @@ export default function Dashboard() {
         </aside>
 
         {/* === Mobile tab bar === */}
-        <div className="md:hidden fixed top-16 right-0 left-0 z-40 bg-surface/90 backdrop-blur-xl border-b border-overlay/10 overflow-x-auto">
+        <div className="md:hidden fixed top-[64px] right-0 left-0 z-40 bg-surface border-b border-overlay/10 overflow-x-auto">
           <div className="flex gap-1 p-2">
             {allTabs.map(tab => (
               <button
@@ -1077,7 +1077,7 @@ export default function Dashboard() {
 
       {/* === ADD FORM MODAL === */}
       {showForm && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm" onClick={closeForm}>
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/70" onClick={closeForm}>
           <div className="bg-gradient-to-b from-surface to-[#0a0a0f] rounded-2xl p-6 border border-overlay/20 max-w-md w-full shadow-2xl" onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-2.5">

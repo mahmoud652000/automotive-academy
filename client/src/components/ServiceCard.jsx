@@ -24,7 +24,7 @@ export default function ServiceCard({ service, renderIcon }) {
       <div className="absolute bottom-0 right-0 left-0 p-3">
         <div className="flex items-center gap-2 mb-1">
           {renderIcon && (
-            <div className="w-7 h-7 bg-primary/20 backdrop-blur-sm rounded-lg flex items-center justify-center text-primary border border-primary/30 group-hover:bg-primary group-hover:text-white transition-all duration-300">
+            <div className="w-7 h-7 bg-primary/20 rounded-lg flex items-center justify-center text-primary border border-primary/30 group-hover:bg-primary group-hover:text-white transition-all duration-300">
               {renderIcon(service.icon, 'w-4 h-4')}
             </div>
           )}

@@ -31,7 +31,7 @@ export default function Login() {
       <div className="absolute bottom-0 left-1/4 w-72 h-72 bg-primary/5 rounded-full blur-3xl" />
 
       <div className="relative z-10 w-full max-w-sm">
-        <div className="bg-overlay/10 backdrop-blur-2xl rounded-2xl p-8 border border-overlay/20 shadow-2xl">
+        <div className="bg-overlay/10 rounded-2xl p-8 border border-overlay/20 shadow-2xl">
           {/* Logo */}
           <div className="text-center mb-6">
             <img src="/logo.png" alt="Automotive Academy" className="w-32 h-auto mx-auto mb-3" />
@@ -55,7 +55,7 @@ export default function Login() {
                   onChange={(e) => setUsername(e.target.value)}
                   required
                   placeholder={t('login.usernamePlaceholder')}
-                  className="w-full bg-overlay/10 backdrop-blur-md border border-overlay/20 rounded-lg pr-4 pl-10 py-2.5 text-heading placeholder-overlay/40 focus:border-primary focus:bg-overlay/15 focus:outline-none text-sm transition-all"
+                  className="w-full bg-overlay/10 border border-overlay/20 rounded-lg pr-4 pl-10 py-2.5 text-heading placeholder-overlay/40 focus:border-primary focus:bg-overlay/15 focus:outline-none text-sm transition-all"
                 />
                 <span className="absolute top-1/2 -translate-y-1/2 left-3 text-muted">
                   <Icons.User className="w-4 h-4" />
@@ -72,7 +72,7 @@ export default function Login() {
                   onChange={(e) => setPassword(e.target.value)}
                   required
                   placeholder="••••••••"
-                  className="w-full bg-overlay/10 backdrop-blur-md border border-overlay/20 rounded-lg pr-4 pl-10 py-2.5 text-heading placeholder-overlay/40 focus:border-primary focus:bg-overlay/15 focus:outline-none text-sm transition-all"
+                  className="w-full bg-overlay/10 border border-overlay/20 rounded-lg pr-4 pl-10 py-2.5 text-heading placeholder-overlay/40 focus:border-primary focus:bg-overlay/15 focus:outline-none text-sm transition-all"
                 />
                 <span className="absolute top-1/2 -translate-y-1/2 left-3 text-muted">
                   <Icons.Shield className="w-4 h-4" />

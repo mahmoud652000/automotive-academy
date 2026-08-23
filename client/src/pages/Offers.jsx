@@ -182,14 +182,14 @@ export default function Offers() {
 
                     {/* Icon */}
                     <div className="absolute bottom-3 right-3 z-10">
-                      <div className="w-11 h-11 bg-primary/90 backdrop-blur rounded-xl flex items-center justify-center text-white border border-overlay/20 group-hover:scale-110 group-hover:bg-primary transition-all duration-300">
+                      <div className="w-11 h-11 bg-primary/90  rounded-xl flex items-center justify-center text-white border border-overlay/20 group-hover:scale-110 group-hover:bg-primary transition-all duration-300">
                         {renderIcon(offer.icon, 'w-5 h-5')}
                       </div>
                     </div>
 
                     {/* Category label */}
                     <div className="absolute top-3 left-3 z-10">
-                      <span className="text-[10px] text-white/60 font-medium uppercase tracking-wide bg-black/40 backdrop-blur px-2 py-0.5 rounded">{lang === 'ar' ? offer.category : offer.categoryEn}</span>
+                      <span className="text-[10px] text-white/60 font-medium uppercase tracking-wide bg-black/40  px-2 py-0.5 rounded">{lang === 'ar' ? offer.category : offer.categoryEn}</span>
                     </div>
 
                     {/* Discount badge */}
@@ -264,7 +264,7 @@ export default function Offers() {
                     <input
                       type="email"
                       placeholder={t('offers.emailPlaceholder')}
-                      className="w-full bg-white/10 backdrop-blur border border-white/20 rounded-lg pr-4 pl-10 py-3.5 text-white placeholder-white/50 text-sm focus:outline-none focus:bg-white/15 focus:border-white/40 transition-all"
+                      className="w-full bg-white/10  border border-white/20 rounded-lg pr-4 pl-10 py-3.5 text-white placeholder-white/50 text-sm focus:outline-none focus:bg-white/15 focus:border-white/40 transition-all"
                     />
                     <span className="absolute top-1/2 -translate-y-1/2 left-3 text-white/50">
                       <Icons.Mail className="w-5 h-5" />
@@ -284,8 +284,8 @@ export default function Offers() {
 
       {/* Booking modal */}
       {selectedOffer && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm" onClick={() => setSelectedOffer(null)}>
-          <div className="bg-overlay/10 backdrop-blur-2xl rounded-2xl p-6 md:p-8 border border-overlay/20 max-w-md w-full shadow-2xl" onClick={(e) => e.stopPropagation()}>
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/70" onClick={() => setSelectedOffer(null)}>
+          <div className="bg-overlay/10 rounded-2xl p-6 md:p-8 border border-overlay/20 max-w-md w-full shadow-2xl" onClick={(e) => e.stopPropagation()}>
             {submitted ? (
               <div className="text-center">
                 <div className="w-16 h-16 bg-green-600/20 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -313,7 +313,7 @@ export default function Offers() {
                     value={form.name}
                     onChange={(e) => setForm({ ...form, name: e.target.value })}
                     required
-                    className="w-full bg-overlay/10 backdrop-blur-md border border-overlay/20 rounded-lg px-4 py-2.5 text-heading placeholder-overlay/50 focus:border-primary focus:bg-overlay/15 focus:outline-none text-sm"
+                    className="w-full bg-overlay/10 border border-overlay/20 rounded-lg px-4 py-2.5 text-heading placeholder-overlay/50 focus:border-primary focus:bg-overlay/15 focus:outline-none text-sm"
                   />
                   <input
                     type="tel"
@@ -321,7 +321,7 @@ export default function Offers() {
                     value={form.phone}
                     onChange={(e) => setForm({ ...form, phone: e.target.value })}
                     required
-                    className="w-full bg-overlay/10 backdrop-blur-md border border-overlay/20 rounded-lg px-4 py-2.5 text-heading placeholder-overlay/50 focus:border-primary focus:bg-overlay/15 focus:outline-none text-sm"
+                    className="w-full bg-overlay/10 border border-overlay/20 rounded-lg px-4 py-2.5 text-heading placeholder-overlay/50 focus:border-primary focus:bg-overlay/15 focus:outline-none text-sm"
                   />
                   <div className="grid grid-cols-2 gap-3">
                     <input
@@ -329,13 +329,13 @@ export default function Offers() {
                       value={form.date}
                       onChange={(e) => setForm({ ...form, date: e.target.value })}
                       required
-                      className="w-full bg-overlay/10 backdrop-blur-md border border-overlay/20 rounded-lg px-4 py-2.5 text-heading placeholder-overlay/50 focus:border-primary focus:bg-overlay/15 focus:outline-none text-sm"
+                      className="w-full bg-overlay/10 border border-overlay/20 rounded-lg px-4 py-2.5 text-heading placeholder-overlay/50 focus:border-primary focus:bg-overlay/15 focus:outline-none text-sm"
                     />
                     <select
                       value={form.time}
                       onChange={(e) => setForm({ ...form, time: e.target.value })}
                       required
-                      className="w-full bg-overlay/10 backdrop-blur-md border border-overlay/20 rounded-lg px-4 py-2.5 text-heading focus:border-primary focus:bg-overlay/15 focus:outline-none text-sm"
+                      className="w-full bg-overlay/10 border border-overlay/20 rounded-lg px-4 py-2.5 text-heading focus:border-primary focus:bg-overlay/15 focus:outline-none text-sm"
                     >
                       <option value="" className="bg-dark">{t('offers.selectTime')}</option>
                       {timeSlots.map((time) => <option key={time} value={time} className="bg-dark">{time}</option>)}

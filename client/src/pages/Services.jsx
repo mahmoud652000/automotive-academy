@@ -82,7 +82,7 @@ export default function Services() {
                 {/* Content */}
                 <div className="absolute bottom-0 right-0 left-0 p-5">
                   <div className="flex items-center gap-2.5 mb-2">
-                    <div className="w-10 h-10 bg-primary/20 backdrop-blur-sm rounded-lg flex items-center justify-center text-primary border border-primary/30 group-hover:bg-primary group-hover:text-white transition-all duration-300">
+                    <div className="w-10 h-10 bg-primary/20 rounded-lg flex items-center justify-center text-primary border border-primary/30 group-hover:bg-primary group-hover:text-white transition-all duration-300">
                       {renderIcon(service.icon, 'w-5 h-5')}
                     </div>
                     <h3 className="text-white font-bold text-base">{lang === 'ar' ? service.title : service.titleEn}</h3>

@@ -99,7 +99,7 @@ export default function Courses() {
                   <div className="absolute inset-0 bg-gradient-to-t from-[#0B1120] via-[#0B1120]/50 to-transparent" />
                   <div className="absolute top-0 right-0 left-0 h-1 bg-primary scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-right" />
                   {/* Duration badge */}
-                  <div className="absolute top-3 right-3 bg-primary/90 backdrop-blur text-white text-[10px] font-bold px-2 py-1 rounded">
+                  <div className="absolute top-3 right-3 bg-primary/90  text-white text-[10px] font-bold px-2 py-1 rounded">
                     {lang === 'ar' ? course.duration : course.durationEn}
                   </div>
                 </div>
@@ -124,8 +124,8 @@ export default function Courses() {
 
       {/* Enrollment modal */}
       {selectedCourse && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm" onClick={() => setSelectedCourse(null)}>
-          <div className="bg-overlay/10 backdrop-blur-2xl rounded-2xl p-6 md:p-8 border border-overlay/20 max-w-md w-full shadow-2xl" onClick={(e) => e.stopPropagation()}>
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/70" onClick={() => setSelectedCourse(null)}>
+          <div className="bg-overlay/10 rounded-2xl p-6 md:p-8 border border-overlay/20 max-w-md w-full shadow-2xl" onClick={(e) => e.stopPropagation()}>
             {submitted ? (
               <div className="text-center">
                 <div className="w-16 h-16 bg-green-600/20 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -151,7 +151,7 @@ export default function Courses() {
                     value={form.name}
                     onChange={(e) => setForm({ ...form, name: e.target.value })}
                     required
-                    className="w-full bg-overlay/10 backdrop-blur-md border border-overlay/20 rounded-lg px-4 py-2.5 text-heading placeholder-overlay/50 focus:border-primary focus:bg-overlay/15 focus:outline-none text-sm"
+                    className="w-full bg-overlay/10 border border-overlay/20 rounded-lg px-4 py-2.5 text-heading placeholder-overlay/50 focus:border-primary focus:bg-overlay/15 focus:outline-none text-sm"
                   />
                   <input
                     type="tel"
@@ -159,7 +159,7 @@ export default function Courses() {
                     value={form.phone}
                     onChange={(e) => setForm({ ...form, phone: e.target.value })}
                     required
-                    className="w-full bg-overlay/10 backdrop-blur-md border border-overlay/20 rounded-lg px-4 py-2.5 text-heading placeholder-overlay/50 focus:border-primary focus:bg-overlay/15 focus:outline-none text-sm"
+                    className="w-full bg-overlay/10 border border-overlay/20 rounded-lg px-4 py-2.5 text-heading placeholder-overlay/50 focus:border-primary focus:bg-overlay/15 focus:outline-none text-sm"
                   />
                   <div className="grid grid-cols-2 gap-3">
                     <input
@@ -167,13 +167,13 @@ export default function Courses() {
                       value={form.date}
                       onChange={(e) => setForm({ ...form, date: e.target.value })}
                       required
-                      className="w-full bg-overlay/10 backdrop-blur-md border border-overlay/20 rounded-lg px-4 py-2.5 text-heading placeholder-overlay/50 focus:border-primary focus:bg-overlay/15 focus:outline-none text-sm"
+                      className="w-full bg-overlay/10 border border-overlay/20 rounded-lg px-4 py-2.5 text-heading placeholder-overlay/50 focus:border-primary focus:bg-overlay/15 focus:outline-none text-sm"
                     />
                     <select
                       value={form.time}
                       onChange={(e) => setForm({ ...form, time: e.target.value })}
                       required
-                      className="w-full bg-overlay/10 backdrop-blur-md border border-overlay/20 rounded-lg px-4 py-2.5 text-heading focus:border-primary focus:bg-overlay/15 focus:outline-none text-sm"
+                      className="w-full bg-overlay/10 border border-overlay/20 rounded-lg px-4 py-2.5 text-heading focus:border-primary focus:bg-overlay/15 focus:outline-none text-sm"
                     >
                       <option value="" className="bg-dark">{t('courses.selectTime')}</option>
                       {timeSlots.map((time) => <option key={time} value={time} className="bg-dark">{time}</option>)}
