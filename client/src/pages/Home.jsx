@@ -136,7 +136,7 @@ export default function Home() {
             </div>
 
             {/* Left Side - Booking Form */}
-            <div className="w-full max-w-sm bg-white/10 rounded-2xl p-6 border border-white/20 shadow-2xl shadow-primary/10 flex-shrink-0 lg:ml-0">
+            <div className="w-full max-w-sm bg-white/5 backdrop-blur-2xl rounded-2xl p-6 border border-white/20 shadow-2xl shadow-primary/10 flex-shrink-0 lg:ml-0">
               <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-white/10 to-transparent pointer-events-none" />
               <div className="mb-5 relative z-10">
                 <h3 className="text-xl font-bold text-white mb-1">{t('home.bookNow')}</h3>
@@ -148,7 +148,7 @@ export default function Home() {
                     value={bookingForm.service}
                     onChange={(e) => setBookingForm({ ...bookingForm, service: e.target.value })}
                     required
-                    className="w-full bg-white/10 border border-white/20 rounded-lg pr-3 pl-9 py-2.5 text-white text-sm placeholder-white/50 focus:border-primary focus:bg-white/15 focus:outline-none transition-all appearance-none"
+                    className="w-full bg-white/10 backdrop-blur-md border border-white/20 rounded-lg pr-3 pl-9 py-2.5 text-white text-sm placeholder-white/50 focus:border-primary focus:bg-white/15 focus:outline-none transition-all appearance-none"
                   >
                     <option value="" className="bg-surface">{t('home.selectService')}</option>
                     {services.map((s) => (<option key={s.id} value={lang === 'ar' ? s.title : s.titleEn} className="bg-surface">{lang === 'ar' ? s.title : s.titleEn}</option>))}
@@ -157,23 +157,23 @@ export default function Home() {
                 </div>
                 <div className="relative">
                   <input type="text" placeholder={t('home.fullName')} value={bookingForm.name} onChange={(e) => setBookingForm({ ...bookingForm, name: e.target.value })} required
-                    className="w-full bg-white/10 border border-white/20 rounded-lg pr-3 pl-9 py-2.5 text-white text-sm placeholder-white/50 focus:border-primary focus:bg-white/15 focus:outline-none transition-all" />
+                    className="w-full bg-white/10 backdrop-blur-md border border-white/20 rounded-lg pr-3 pl-9 py-2.5 text-white text-sm placeholder-white/50 focus:border-primary focus:bg-white/15 focus:outline-none transition-all" />
                   <span className="absolute top-1/2 -translate-y-1/2 left-3 text-gray-400 pointer-events-none">{renderIcon('User', 'w-4 h-4')}</span>
                 </div>
                 <div className="relative">
                   <input type="tel" placeholder={t('home.phone')} value={bookingForm.phone} onChange={(e) => setBookingForm({ ...bookingForm, phone: e.target.value })} required
-                    className="w-full bg-white/10 border border-white/20 rounded-lg pr-3 pl-9 py-2.5 text-white text-sm placeholder-white/50 focus:border-primary focus:bg-white/15 focus:outline-none transition-all" />
+                    className="w-full bg-white/10 backdrop-blur-md border border-white/20 rounded-lg pr-3 pl-9 py-2.5 text-white text-sm placeholder-white/50 focus:border-primary focus:bg-white/15 focus:outline-none transition-all" />
                   <span className="absolute top-1/2 -translate-y-1/2 left-3 text-gray-400 pointer-events-none">{renderIcon('Phone', 'w-4 h-4')}</span>
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div className="relative">
-                    <input type="date" value={bookingForm.date} onChange={(e) => setBookingForm({ ...bookingForm, date: e.target.value })} required
-                      className="w-full bg-white/10 border border-white/20 rounded-lg pr-3 pl-8 py-2.5 text-white text-sm focus:border-primary focus:bg-white/15 focus:outline-none transition-all" />
+                    <input type="date" dir="ltr" value={bookingForm.date} onChange={(e) => setBookingForm({ ...bookingForm, date: e.target.value })} required
+                      className="w-full bg-white/10 backdrop-blur-md border border-white/20 rounded-lg pr-3 pl-8 py-2.5 text-white text-sm focus:border-primary focus:bg-white/15 focus:outline-none transition-all" />
                     <span className="absolute top-1/2 -translate-y-1/2 left-2.5 text-gray-400 pointer-events-none">{renderIcon('Calendar', 'w-4 h-4')}</span>
                   </div>
                   <div className="relative">
                     <select value={bookingForm.time} onChange={(e) => setBookingForm({ ...bookingForm, time: e.target.value })} required
-                      className="w-full bg-white/10 border border-white/20 rounded-lg pr-3 pl-8 py-2.5 text-white text-sm focus:border-primary focus:bg-white/15 focus:outline-none transition-all appearance-none">
+                      className="w-full bg-white/10 backdrop-blur-md border border-white/20 rounded-lg pr-3 pl-8 py-2.5 text-white text-sm focus:border-primary focus:bg-white/15 focus:outline-none transition-all appearance-none">
                       <option value="" className="bg-surface">{lang === 'ar' ? 'الوقت' : 'Time'}</option>
                       {['09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00','19:00','20:00'].map(time => <option key={time} className="bg-surface">{time}</option>)}
                     </select>

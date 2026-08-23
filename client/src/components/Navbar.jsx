@@ -46,18 +46,18 @@ export default function Navbar() {
   )
 
   return (
-    <nav className="fixed top-0 w-full z-50 bg-surface border-b border-overlay/5">
+    <nav className="fixed top-0 w-full z-50 bg-surface/95 backdrop-blur-xl border-b border-overlay/5">
       <div className="container-custom">
-        <div className="flex items-center justify-between min-h-[64px] py-2.5">
+        <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2.5 group">
             <div className="relative">
               <div className="absolute -inset-1 bg-primary/20 rounded-lg blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-              <Logo className="relative h-8 w-auto flex-shrink-0" showText={false} />
+              <Logo className="relative h-10 w-auto flex-shrink-0" showText={false} />
             </div>
-            <div className="min-w-0">
-              <h1 className="text-heading font-bold text-sm leading-normal truncate">{lang === 'ar' ? siteInfo.name : siteInfo.nameEn}</h1>
-              <p className="text-primary text-[10px] font-medium leading-normal truncate">{lang === 'ar' ? siteInfo.slogan : siteInfo.sloganEn}</p>
+            <div>
+              <h1 className="text-heading font-bold text-base leading-tight">{lang === 'ar' ? siteInfo.name : siteInfo.nameEn}</h1>
+              <p className="text-primary text-[10px] font-medium">{lang === 'ar' ? siteInfo.slogan : siteInfo.sloganEn}</p>
             </div>
           </Link>
 
