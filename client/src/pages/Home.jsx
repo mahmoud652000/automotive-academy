@@ -105,7 +105,7 @@ export default function Home() {
       {/* ============ HERO SECTION ============ */}
       <section className="relative min-h-[90vh] flex items-center overflow-hidden">
         <div className="absolute inset-0 z-0">
-          <img src="/hero-bg.png" alt={lang === 'ar' ? 'ورشة أكاديمية السيارات' : 'Automotive Academy Workshop'} className="w-full h-full object-cover" />
+          <img src="/hero-bg.png" alt={lang === 'ar' ? 'ورشة Automotive Academy' : 'Automotive Academy Workshop'} className="w-full h-full object-cover" />
           <div className="absolute inset-0 bg-gradient-to-l from-[#0a0a0f] via-[#0a0a0f]/85 to-[#0a0a0f]/30" />
         </div>
 
@@ -565,31 +565,19 @@ export default function Home() {
             <div className="relative group lg:sticky lg:top-24 lg:self-start">
               <div className="absolute -inset-4 bg-primary/10 rounded-3xl blur-2xl opacity-50 group-hover:opacity-100 transition-opacity duration-500" />
               <div className="relative rounded-2xl overflow-hidden border border-overlay/10 shadow-2xl shadow-primary/10">
-                {/* Thumbnail */}
-                <div className="relative aspect-video">
-                  <img src="https://images.unsplash.com/photo-1632823471565-1ecdf5c6da77?w=800" alt={lang === 'ar' ? 'ورشة أكاديمية السيارات' : 'Automotive Academy Workshop'} className="w-full h-full object-cover" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#0B1120] via-[#0B1120]/30 to-transparent" />
-
-                  {/* Glow ring */}
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="relative">
-                      <div className="absolute -inset-4 bg-primary/20 rounded-full blur-md animate-pulse" />
-                      <button className="relative w-20 h-20 bg-primary rounded-full flex items-center justify-center text-white hover:bg-primary-dark transition-all duration-300 hover:scale-110 shadow-2xl shadow-primary/50 border-2 border-overlay/20">
-                        <Icons.Play className="w-8 h-8 mr-1" />
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Label */}
-                  <div className="absolute bottom-4 right-4 bg-surface/90 backdrop-blur rounded-lg px-4 py-2 border border-overlay/10">
-                    <p className="text-heading text-sm font-medium">{t('home.watchVideo')}</p>
-                  </div>
+                <div className="relative bg-black max-h-[500px]">
+                  <video
+                    src="/workshop-video.mp4"
+                    controls
+                    playsInline
+                    className="w-full h-auto max-h-[500px] object-contain"
+                  />
 
                   {/* Decorative corners */}
-                  <div className="absolute top-3 right-3 w-6 h-6 border-t-2 border-r-2 border-primary/50 rounded-tr-lg" />
-                  <div className="absolute top-3 left-3 w-6 h-6 border-t-2 border-l-2 border-primary/50 rounded-tl-lg" />
-                  <div className="absolute bottom-3 right-3 w-6 h-6 border-b-2 border-r-2 border-primary/50 rounded-br-lg" />
-                  <div className="absolute bottom-3 left-3 w-6 h-6 border-b-2 border-l-2 border-primary/50 rounded-bl-lg" />
+                  <div className="absolute top-3 right-3 w-6 h-6 border-t-2 border-r-2 border-primary/50 rounded-tr-lg pointer-events-none" />
+                  <div className="absolute top-3 left-3 w-6 h-6 border-t-2 border-l-2 border-primary/50 rounded-tl-lg pointer-events-none" />
+                  <div className="absolute bottom-3 right-3 w-6 h-6 border-b-2 border-r-2 border-primary/50 rounded-br-lg pointer-events-none" />
+                  <div className="absolute bottom-3 left-3 w-6 h-6 border-b-2 border-l-2 border-primary/50 rounded-bl-lg pointer-events-none" />
                 </div>
               </div>
             </div>

@@ -2,9 +2,10 @@ import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { useLanguage } from '../context/LanguageContext'
+import { useTheme } from '../context/ThemeContext'
 import Icons from '../components/Icons'
 import Logo from '../components/Logo'
-import { services as defaultServices, offers as defaultOffers, courses as defaultCourses, testimonials as defaultTestimonials } from '../data/content'
+import { services as defaultServices, offers as defaultOffers, courses as defaultCourses, testimonials as defaultTestimonials, siteInfo } from '../data/content'
 
 const renderIcon = (name, className = 'w-5 h-5') => {
   const Icon = Icons[name]
@@ -127,9 +128,117 @@ const AddBtn = ({ onClick, t }) => (
   </button>
 )
 
+const PrintBtn = ({ onClick, t }) => (
+  <button
+    onClick={onClick}
+    className="bg-overlay/5 hover:bg-overlay/10 text-heading font-bold text-xs px-4 py-2.5 rounded-xl transition-all duration-300 flex items-center gap-1.5 border border-overlay/10 hover:border-primary/30"
+  >
+    <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <polyline points="6 9 6 2 18 2 18 9" />
+      <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" />
+      <rect x="6" y="14" width="12" height="8" />
+    </svg>
+    {t('dash.print')}
+  </button>
+)
+
+const printBookings = (bookings, type, lang, t, siteInfo) => {
+  const statusLabels = { pending: t('dash.statusPending'), confirmed: t('dash.statusConfirmed'), completed: t('dash.statusCompleted'), cancelled: t('dash.statusCancelled') }
+
+  const titles = {
+    service: lang === 'ar' ? 'حجوزات الخدمات' : 'Service Bookings',
+    course: lang === 'ar' ? 'حجوزات الدورات' : 'Course Bookings',
+    offer: lang === 'ar' ? 'حجوزات العروض' : 'Offer Bookings',
+  }
+
+  const isAr = lang === 'ar'
+  const dir = isAr ? 'rtl' : 'ltr'
+
+  const serviceHeader = isAr ? 'الخدمة' : 'Service'
+  const courseHeader = isAr ? 'الدورة' : 'Course'
+  const offerHeader = isAr ? 'العرض' : 'Offer'
+
+  const typeHeader = type === 'course' ? courseHeader : type === 'offer' ? offerHeader : serviceHeader
+
+  const rows = bookings.map((b, i) => `
+    <tr>
+      <td style="text-align:center">${i + 1}</td>
+      <td>${b.name || '-'}</td>
+      <td>${b.phone || '-'}</td>
+      <td>${b.date || '-'} ${b.time || ''}</td>
+      <td>${type === 'course' ? (b.course || '-') : type === 'offer' ? (b.offer || '-') : (b.service || '-')}</td>
+      ${type === 'service' ? `<td>${b.carModel || '-'}</td>` : ''}
+      <td>${b.notes || '-'}</td>
+      <td style="text-align:center">${statusLabels[b.status] || t('dash.statusNew')}</td>
+    </tr>
+  `).join('')
+
+  const win = window.open('', '_blank')
+  win.document.write(`
+    <!DOCTYPE html>
+    <html lang="${isAr ? 'ar' : 'en'}" dir="${dir}">
+    <head>
+      <meta charset="UTF-8">
+      <title>${titles[type]}</title>
+      <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Cairo', 'Arial', sans-serif; background: #fff; color: #1a1a2e; padding: 30px; }
+        .header { text-align: center; margin-bottom: 25px; border-bottom: 3px solid #dc2626; padding-bottom: 15px; }
+        .header h1 { font-size: 22px; color: #dc2626; }
+        .header p { font-size: 13px; color: #666; margin-top: 5px; }
+        .meta { display: flex; justify-content: space-between; margin-bottom: 20px; font-size: 12px; color: #888; }
+        table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        th { background: #dc2626; color: #fff; padding: 10px 8px; font-weight: 700; text-align: center; }
+        th:first-child { border-radius: 8px 0 0 0; }
+        th:last-child { border-radius: 0 8px 0 0; }
+        td { padding: 9px 8px; border-bottom: 1px solid #eee; }
+        tr:nth-child(even) { background: #f8f9fa; }
+        .status-pending { background: #fef9c3; color: #854d0e; padding: 3px 8px; border-radius: 6px; font-size: 11px; }
+        .status-confirmed { background: #dcfce7; color: #166534; padding: 3px 8px; border-radius: 6px; font-size: 11px; }
+        .status-completed { background: #dbeafe; color: #1e40af; padding: 3px 8px; border-radius: 6px; font-size: 11px; }
+        .status-cancelled { background: #fee2e2; color: #991b1b; padding: 3px 8px; border-radius: 6px; font-size: 11px; }
+        .footer { margin-top: 30px; text-align: center; font-size: 11px; color: #aaa; border-top: 1px solid #eee; padding-top: 15px; }
+        @media print { body { padding: 15px; } }
+      </style>
+    </head>
+    <body>
+      <div class="header">
+        <h1>${siteInfo.name}</h1>
+        <p>${titles[type]}</p>
+      </div>
+      <div class="meta">
+        <span>${isAr ? 'التاريخ' : 'Date'}: ${new Date().toLocaleDateString(isAr ? 'ar-EG' : 'en-US')}</span>
+        <span>${isAr ? 'العدد' : 'Total'}: ${bookings.length}</span>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th style="width:40px">#</th>
+            <th>${isAr ? 'الاسم' : 'Name'}</th>
+            <th>${isAr ? 'الهاتف' : 'Phone'}</th>
+            <th>${isAr ? 'الموعد' : 'Date'}</th>
+            <th>${typeHeader}</th>
+            ${type === 'service' ? `<th>${isAr ? 'موديل السيارة' : 'Car Model'}</th>` : ''}
+            <th>${isAr ? 'ملاحظات' : 'Notes'}</th>
+            <th>${isAr ? 'الحالة' : 'Status'}</th>
+          </tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>
+      <div class="footer">
+        ${siteInfo.name} • ${siteInfo.phone} • ${siteInfo.address}
+      </div>
+      <script>window.onload = () => { window.print(); }</script>
+    </body>
+    </html>
+  `)
+  win.document.close()
+}
+
 export default function Dashboard() {
   const { username, logout } = useAuth()
-  const { lang, t } = useLanguage()
+  const { lang, t, toggleLang } = useLanguage()
+  const { theme, toggleTheme } = useTheme()
   const [activeTab, setActiveTab] = useState('overview')
 
   const [bookings, setBookings] = useState([])
@@ -386,31 +495,64 @@ export default function Dashboard() {
   )
 
   return (
-    <div className="pt-16 min-h-screen bg-dark relative flex flex-col">
+    <div className="h-screen bg-dark relative flex flex-col overflow-hidden">
       {/* Background decoration */}
       <div className="fixed inset-0 pointer-events-none">
         <div className="absolute top-0 right-0 w-96 h-96 bg-primary/3 rounded-full blur-3xl" />
         <div className="absolute bottom-0 left-0 w-96 h-96 bg-primary/2 rounded-full blur-3xl" />
       </div>
 
+      {/* === Top Bar === */}
+      <header className="relative z-50 flex items-center justify-between h-16 px-4 md:px-5 bg-surface/90 backdrop-blur-xl border-b border-overlay/10 flex-shrink-0">
+        <div className="flex items-center gap-2.5">
+          <Logo className="h-9 w-auto flex-shrink-0" showText={false} />
+          <div>
+            <h1 className="text-heading font-bold text-sm leading-tight">{lang === 'ar' ? siteInfo.name : siteInfo.nameEn}</h1>
+            <p className="text-primary text-[10px] font-medium">{t('dash.adminRole')}</p>
+          </div>
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-overlay/5 rounded-lg border border-overlay/10">
+            <span className="w-7 h-7 bg-primary/10 rounded-full flex items-center justify-center text-primary font-bold text-xs">
+              {username?.charAt(0) || '?'}
+            </span>
+            <span className="text-heading text-xs font-medium">{username}</span>
+          </div>
+
+          {/* Theme + Lang toggles */}
+          <div className="flex items-center gap-1 px-1.5 py-1 bg-overlay/5 rounded-lg border border-overlay/10">
+            <button
+              onClick={toggleTheme}
+              className="w-8 h-8 rounded-lg flex items-center justify-center transition-all duration-300 hover:bg-overlay/10"
+              title={theme === 'dark' ? t('nav.themeLight') : t('nav.themeDark')}
+            >
+              {theme === 'dark' ? <Icons.Sun className="w-4 h-4 text-amber-400" /> : <Icons.Moon className="w-4 h-4 text-slate-600" />}
+            </button>
+            <button
+              onClick={toggleLang}
+              className="w-8 h-8 rounded-lg flex items-center justify-center transition-all duration-300 hover:bg-overlay/10 text-xs font-bold text-heading"
+              title={t('nav.langSwitch')}
+            >
+              {lang === 'ar' ? 'EN' : 'ع'}
+            </button>
+          </div>
+
+          <Link to="/" className="flex items-center gap-1.5 text-muted hover:text-heading text-xs px-3 py-2 rounded-lg hover:bg-overlay/5 transition-all border border-overlay/10">
+            <Icons.ArrowLeft className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">{t('dash.backToSite')}</span>
+          </Link>
+          <button onClick={logout} className="flex items-center gap-1.5 text-red-400 hover:bg-red-500/10 text-xs px-3 py-2 rounded-lg transition-all border border-overlay/10">
+            <Icons.Shield className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">{t('dash.logout')}</span>
+          </button>
+        </div>
+      </header>
+
       <div className="flex flex-1 overflow-hidden">
         {/* === Sidebar === */}
         <aside className="w-56 bg-surface/80 backdrop-blur-xl border-l border-overlay/10 fixed right-0 top-16 bottom-0 overflow-y-auto z-40 hidden md:flex flex-col">
-          {/* Header */}
-          <div className="p-3">
-            <div className="flex items-center gap-2.5 mb-4 p-2.5 bg-gradient-to-l from-primary/10 to-transparent rounded-xl border border-overlay/10">
-              <div className="relative">
-                <div className="absolute -inset-1 bg-primary/20 rounded-lg blur-sm opacity-50" />
-                <Logo className="relative h-8 w-auto flex-shrink-0" showText={false} />
-              </div>
-              <div>
-                <p className="text-heading font-bold text-xs">{username}</p>
-                <p className="text-primary text-[9px] font-medium">{t('dash.adminRole')}</p>
-              </div>
-            </div>
-
-            {/* Nav groups */}
-            <nav className="space-y-3">
+          {/* Nav groups */}
+          <nav className="space-y-3 p-3">
               {navGroups.map((group) => (
                 <div key={group.title}>
                   <p className="text-faint text-[9px] font-bold uppercase tracking-wider px-3 mb-1">{group.title}</p>
@@ -436,22 +578,9 @@ export default function Dashboard() {
                 </div>
               ))}
             </nav>
-
-            {/* Bottom actions */}
-            <div className="mt-4 pt-3 border-t border-overlay/10 space-y-0.5">
-              <Link to="/" className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs text-muted hover:text-heading hover:bg-overlay/5 transition-all">
-                <Icons.ArrowLeft className="w-3.5 h-3.5" />
-                {t('dash.backToSite')}
-              </Link>
-              <button onClick={logout} className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs text-red-400 hover:bg-red-500/10 transition-all">
-                <Icons.Shield className="w-3.5 h-3.5" />
-                {t('dash.logout')}
-              </button>
-            </div>
-          </div>
         </aside>
 
-        {/* === Mobile top bar === */}
+        {/* === Mobile tab bar === */}
         <div className="md:hidden fixed top-16 right-0 left-0 z-40 bg-surface/90 backdrop-blur-xl border-b border-overlay/10 overflow-x-auto">
           <div className="flex gap-1 p-2">
             {allTabs.map(tab => (
@@ -466,15 +595,11 @@ export default function Dashboard() {
                 {tab.name}
               </button>
             ))}
-            <button onClick={logout} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-medium text-red-400 bg-overlay/5 whitespace-nowrap">
-              <Icons.Shield className="w-3.5 h-3.5" />
-              خروج
-            </button>
           </div>
         </div>
 
         {/* === Main Content === */}
-        <main className="flex-1 md:mr-56 p-4 md:p-5 mt-12 md:mt-4 relative z-10 overflow-y-auto">
+        <main className="flex-1 md:mr-56 p-4 md:p-6 mt-14 md:mt-0 relative z-10 overflow-y-auto">
 
           {/* === OVERVIEW === */}
           {activeTab === 'overview' && (
@@ -569,7 +694,12 @@ export default function Dashboard() {
               <PageHeader
                 title="حجوزات الخدمات"
                 subtitle={`${filteredBookings.length} ${t('dash.bookingCount')}`}
-                action={<SearchInput value={search} onChange={e => setSearch(e.target.value)} placeholder={t('dash.searchPlaceholder')} />}
+                action={
+                  <div className="flex items-center gap-2">
+                    <SearchInput value={search} onChange={e => setSearch(e.target.value)} placeholder={t('dash.searchPlaceholder')} />
+                    {filteredBookings.length > 0 && <PrintBtn onClick={() => printBookings(filteredBookings, 'service', lang, t, siteInfo)} t={t} />}
+                  </div>
+                }
               />
               <FilterChips items={statusFilters.map(f => ({ ...f, l: t(`dash.status${f.k.charAt(0).toUpperCase()}${f.k.slice(1)}`) }))} active={bookingFilter} onChange={setBookingFilter} />
               {filteredBookings.length === 0 ? (
@@ -617,7 +747,12 @@ export default function Dashboard() {
               <PageHeader
                 title="حجوزات الدورات"
                 subtitle={`${filteredCourseBookings.length} ${t('dash.bookingCount')}`}
-                action={<SearchInput value={courseSearch} onChange={e => setCourseSearch(e.target.value)} placeholder={t('dash.searchPlaceholderCourse')} />}
+                action={
+                  <div className="flex items-center gap-2">
+                    <SearchInput value={courseSearch} onChange={e => setCourseSearch(e.target.value)} placeholder={t('dash.searchPlaceholderCourse')} />
+                    {filteredCourseBookings.length > 0 && <PrintBtn onClick={() => printBookings(filteredCourseBookings, 'course', lang, t, siteInfo)} t={t} />}
+                  </div>
+                }
               />
               <FilterChips items={statusFilters.map(f => ({ ...f, l: t(`dash.status${f.k.charAt(0).toUpperCase()}${f.k.slice(1)}`) }))} active={courseBookingFilter} onChange={setCourseBookingFilter} />
               {filteredCourseBookings.length === 0 ? (
@@ -664,7 +799,12 @@ export default function Dashboard() {
               <PageHeader
                 title="حجوزات العروض"
                 subtitle={`${filteredOfferBookings.length} ${t('dash.bookingCount')}`}
-                action={<SearchInput value={offerSearch} onChange={e => setOfferSearch(e.target.value)} placeholder={t('dash.searchPlaceholderOffer')} />}
+                action={
+                  <div className="flex items-center gap-2">
+                    <SearchInput value={offerSearch} onChange={e => setOfferSearch(e.target.value)} placeholder={t('dash.searchPlaceholderOffer')} />
+                    {filteredOfferBookings.length > 0 && <PrintBtn onClick={() => printBookings(filteredOfferBookings, 'offer', lang, t, siteInfo)} t={t} />}
+                  </div>
+                }
               />
               <FilterChips items={statusFilters.map(f => ({ ...f, l: t(`dash.status${f.k.charAt(0).toUpperCase()}${f.k.slice(1)}`) }))} active={offerBookingFilter} onChange={setOfferBookingFilter} />
               {filteredOfferBookings.length === 0 ? (
@@ -869,6 +1009,13 @@ export default function Dashboard() {
                       <div className="relative h-40 overflow-hidden">
                         {g.type === 'photo' ? (
                           <img src={g.afterImage} alt={g.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" onError={(e) => { e.target.style.opacity = '0.1' }} />
+                        ) : g.videoUrl ? (
+                          <iframe
+                            src={g.videoUrl.replace('watch?v=', 'embed/').replace('youtu.be/', 'youtube.com/embed/').split('&')[0]}
+                            title={g.title}
+                            className="w-full h-full"
+                            allowFullScreen
+                          />
                         ) : (
                           <div className="w-full h-full bg-overlay/10 flex items-center justify-center">
                             <div className="w-12 h-12 bg-red-600/20 rounded-full flex items-center justify-center text-red-500">

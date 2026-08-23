@@ -46,11 +46,7 @@ export default function Navbar() {
   )
 
   return (
-    <nav className={`fixed top-0 w-full z-50 transition-all duration-500 ${
-      scrolled || theme === 'light'
-        ? 'bg-surface/95 backdrop-blur-xl'
-        : 'bg-transparent'
-    }`}>
+    <nav className="fixed top-0 w-full z-50 bg-surface/95 backdrop-blur-xl border-b border-overlay/5">
       <div className="container-custom">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}

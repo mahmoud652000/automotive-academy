@@ -1,5 +1,5 @@
 export const siteInfo = {
-  name: 'أكاديمية السيارات',
+  name: 'Automotive Academy',
   nameEn: 'Automotive Academy',
   slogan: 'خبراء العناية بسيارتك',
   sloganEn: 'Experts in Caring for Your Car',
@@ -108,7 +108,7 @@ export const promoBadges = [
 ]
 
 export const aboutText = {
-  title: 'أوتوموتيف أكاديمي | Automotive Academy',
+  title: 'Automotive Academy',
   titleEn: 'Automotive Academy',
   subtitle: 'خبرة متخصصة في خدمة وصيانة السيارات',
   subtitleEn: 'Specialized expertise in car service and maintenance',
@@ -117,7 +117,7 @@ export const aboutText = {
   ownerRole: 'المؤسس والمدير العام',
   ownerRoleEn: 'Founder & General Manager',
   paragraphs: [
-    'تأسست أوتوموتيف أكاديمي عام 2023 على يد المهندس أحمد عبد القادر، برؤية واضحة لتقديم مفهوم متكامل لخدمات وصيانة السيارات، يجمع بين الخبرة الفنية، التشخيص الدقيق، جودة الخدمة، والاهتمام بتجربة العميل.',
+    'تأسست Automotive Academy عام 2023 على يد المهندس أحمد عبد القادر، برؤية واضحة لتقديم مفهوم متكامل لخدمات وصيانة السيارات، يجمع بين الخبرة الفنية، التشخيص الدقيق، جودة الخدمة، والاهتمام بتجربة العميل.',
     'نقدم خدمات متكاملة للسيارات في مكان واحد، بدايةً من أعمال الصيانة الدورية والفحص والتشخيص، وصولًا إلى الإصلاحات الميكانيكية والكهربائية وأعمال العفشة والسمكرة والدهان والتكييف.',
     'هدفنا هو أن يحصل العميل على خدمة احترافية وموثوقة تساعده في الحفاظ على سيارته، ومعرفة حالتها الحقيقية، وإطالة عمر مكوناتها وتقليل احتمالية حدوث الأعطال المستقبلية.',
   ],

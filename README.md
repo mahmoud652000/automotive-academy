@@ -1,4 +1,4 @@
-# أكاديمية السيارات (Automotive Academy)
+# Automotive Academy
 
 موقع متكامل لمركز صيانة سيارات بتصميم Dark Mode عربي RTL.
 

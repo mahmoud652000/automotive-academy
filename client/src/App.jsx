@@ -44,7 +44,7 @@ function AnimatedRoutes() {
         <Route path="/login" element={<PageTransition><Login /></PageTransition>} />
         <Route path="/dashboard" element={
           <ProtectedRoute>
-            <PageTransition><Dashboard /></PageTransition>
+            <Dashboard />
           </ProtectedRoute>
         } />
         <Route path="*" element={<PageTransition><NotFound /></PageTransition>} />
@@ -60,21 +60,23 @@ function AppContent() {
     <>
       {showIntro && <Intro onFinish={() => setShowIntro(false)} />}
       <BrowserRouter>
-        <ScrollToTop />
-        <Navbar />
-        <LayoutContent />
+        <DashboardLayout>
+          <ScrollToTop />
+          <AnimatedRoutes />
+        </DashboardLayout>
       </BrowserRouter>
     </>
   )
 }
 
-function LayoutContent() {
+function DashboardLayout({ children }) {
   const location = useLocation()
   const isDashboard = location.pathname === '/dashboard'
 
   return (
     <>
-      <AnimatedRoutes />
+      {!isDashboard && <Navbar />}
+      {children}
       {!isDashboard && <Footer />}
       {!isDashboard && <WhatsAppButton />}
     </>

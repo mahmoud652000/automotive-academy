@@ -43,7 +43,7 @@ app.use('/api/courses', coursesRouter)
 app.use('/api/gallery', galleryRouter)
 
 app.get('/', (req, res) => {
-  res.json({ message: 'أكاديمية السيارات API' })
+  res.json({ message: 'Automotive Academy API' })
 })
 
 // Seed endpoint — populates DB with default data if empty

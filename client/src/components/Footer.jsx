@@ -13,8 +13,7 @@ const socialLinks = [
     path: <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />,
   },
   {
-    href: '#',
-    label: 'Instagram',
+    href: 'https://www.instagram.com/automotiveacademy11?igsi=amFnNWxtc2xlODNh',
     color: '#E1306C',
     path: (
       <>
@@ -234,8 +233,8 @@ export default function Footer() {
             <span>{t('footer.rights')}</span>
             <span className="text-primary font-medium">{lang === 'ar' ? siteInfo.name : siteInfo.nameEn}</span>
             <span className="text-overlay/20">|</span>
-            <span>{t('footer.designBy')}</span>
-            <span className="text-heading font-medium">{t('footer.developer')}</span>
+            <span>{t('footer.developerPrefix')}</span>
+            <a href="https://wa.me/201024949382" target="_blank" rel="noopener noreferrer" className="text-heading font-medium hover:text-primary transition-colors">{t('footer.developer')}</a>
           </p>
           <div className="flex gap-5 text-[11px] text-faint">
             <a href="#" className="hover:text-primary transition-colors">{t('footer.privacy')}</a>
