@@ -56,8 +56,8 @@ export default function Navbar() {
               <Logo className="relative h-9 w-auto flex-shrink-0" showText={false} />
             </div>
             <div className="min-w-0">
-              <h1 className="text-heading font-bold text-sm sm:text-base leading-tight whitespace-nowrap truncate">{lang === 'ar' ? siteInfo.name : siteInfo.nameEn}</h1>
-              <p className="text-primary text-[9px] sm:text-[10px] font-medium whitespace-nowrap truncate">{lang === 'ar' ? siteInfo.slogan : siteInfo.sloganEn}</p>
+              <h1 className="text-heading font-bold text-[11px] sm:text-sm lg:text-base leading-tight whitespace-nowrap truncate">{lang === 'ar' ? siteInfo.name : siteInfo.nameEn}</h1>
+              <p className="text-primary text-[8px] sm:text-[9px] lg:text-[10px] font-medium whitespace-nowrap truncate">{lang === 'ar' ? siteInfo.slogan : siteInfo.sloganEn}</p>
             </div>
           </Link>
 
