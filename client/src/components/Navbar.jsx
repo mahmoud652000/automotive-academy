@@ -48,16 +48,16 @@ export default function Navbar() {
   return (
     <nav className="fixed top-0 w-full z-50 bg-surface border-b border-overlay/10">
       <div className="container-custom">
-        <div className="flex items-center justify-between h-16">
+        <div className="flex items-center justify-between h-16 gap-2">
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-2.5 group flex-shrink-0">
-            <div className="relative">
+          <Link to="/" className="flex items-center gap-2 group flex-shrink-0 min-w-0">
+            <div className="relative flex-shrink-0">
               <div className="absolute -inset-1 bg-primary/20 rounded-lg blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-              <Logo className="relative h-10 w-auto flex-shrink-0" showText={false} />
+              <Logo className="relative h-9 w-auto flex-shrink-0" showText={false} />
             </div>
-            <div>
-              <h1 className="text-heading font-bold text-base leading-tight whitespace-nowrap">{lang === 'ar' ? siteInfo.name : siteInfo.nameEn}</h1>
-              <p className="text-primary text-[10px] font-medium whitespace-nowrap">{lang === 'ar' ? siteInfo.slogan : siteInfo.sloganEn}</p>
+            <div className="min-w-0">
+              <h1 className="text-heading font-bold text-sm sm:text-base leading-tight whitespace-nowrap truncate">{lang === 'ar' ? siteInfo.name : siteInfo.nameEn}</h1>
+              <p className="text-primary text-[9px] sm:text-[10px] font-medium whitespace-nowrap truncate">{lang === 'ar' ? siteInfo.slogan : siteInfo.sloganEn}</p>
             </div>
           </Link>
 
@@ -109,11 +109,11 @@ export default function Navbar() {
           </div>
 
           {/* Mobile Menu Button */}
-          <div className="lg:hidden flex items-center gap-1">
+          <div className="lg:hidden flex items-center gap-0.5 flex-shrink-0">
             <LangToggle />
             <ThemeToggle />
             <button
-              className="text-heading text-2xl w-10 h-10 flex items-center justify-center"
+              className="text-heading text-2xl w-9 h-9 flex items-center justify-center"
               onClick={() => setIsOpen(!isOpen)}
             >
               {isOpen ? '✕' : '☰'}
@@ -123,38 +123,40 @@ export default function Navbar() {
 
         {/* Mobile Menu */}
         {isOpen && (
-          <div className="lg:hidden pb-4 space-y-1 bg-surface rounded-b-xl border border-overlay/10 -mx-4 px-4 mt-2">
-            {navLinks.map((link) => (
-              <NavLink
-                key={link.path}
-                to={link.path}
-                onClick={() => setIsOpen(false)}
-                className={({ isActive }) =>
-                  `block py-2.5 px-4 rounded-lg font-medium text-sm transition-colors ${
-                    isActive ? 'text-primary bg-primary/10' : 'text-body hover:text-heading hover:bg-overlay/5'
-                  }`
-                }
-              >
-                {lang === 'ar' ? link.name : link.nameEn}
-              </NavLink>
-            ))}
-            <div className="pt-2 border-t border-overlay/5 space-y-2">
-              <Link
-                to="/booking"
-                onClick={() => setIsOpen(false)}
-                className="block btn-primary text-center text-sm"
-              >
-                {t('nav.bookNow')}
-              </Link>
-              {isLoggedIn ? (
-                <Link to="/dashboard" onClick={() => setIsOpen(false)} className="block py-2 px-4 text-primary font-medium text-sm">
-                  {t('nav.dashboard')}
+          <div className="lg:hidden fixed top-16 right-0 left-0 bottom-0 overflow-y-auto bg-surface border-t border-overlay/10 z-50">
+            <div className="px-4 py-4 space-y-1">
+              {navLinks.map((link) => (
+                <NavLink
+                  key={link.path}
+                  to={link.path}
+                  onClick={() => setIsOpen(false)}
+                  className={({ isActive }) =>
+                    `block py-3 px-4 rounded-lg font-medium text-sm transition-colors ${
+                      isActive ? 'text-primary bg-primary/10' : 'text-body hover:text-heading hover:bg-overlay/5'
+                    }`
+                  }
+                >
+                  {lang === 'ar' ? link.name : link.nameEn}
+                </NavLink>
+              ))}
+              <div className="pt-3 border-t border-overlay/5 space-y-2">
+                <Link
+                  to="/booking"
+                  onClick={() => setIsOpen(false)}
+                  className="block btn-primary text-center text-sm"
+                >
+                  {t('nav.bookNow')}
                 </Link>
-              ) : (
-                <Link to="/login" onClick={() => setIsOpen(false)} className="block py-2 px-4 text-body font-medium text-sm">
-                  {t('nav.login')}
-                </Link>
-              )}
+                {isLoggedIn ? (
+                  <Link to="/dashboard" onClick={() => setIsOpen(false)} className="block py-3 px-4 text-primary font-medium text-sm">
+                    {t('nav.dashboard')}
+                  </Link>
+                ) : (
+                  <Link to="/login" onClick={() => setIsOpen(false)} className="block py-3 px-4 text-body font-medium text-sm">
+                    {t('nav.login')}
+                  </Link>
+                )}
+              </div>
             </div>
           </div>
         )}
