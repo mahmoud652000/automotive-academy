@@ -39,21 +39,22 @@ export default function Courses() {
   return (
     <div className="pt-20">
       {/* Hero */}
-      <section className="relative py-12 md:py-16 flex items-center overflow-hidden">
+      <section className="relative py-16 md:py-20 flex items-center overflow-hidden bg-[#0a0a0f]">
         <div className="absolute inset-0 z-0">
-          <img src="/courses-bg.jpg" alt="" className="w-full h-full object-cover opacity-60" />
-          <div className="absolute inset-0 bg-gradient-to-b from-[#0a0a0f]/40 via-[#0a0a0f]/60 to-[#0a0a0f]" />
+          <img src="/courses-bg.webp" alt="" className="w-full h-full object-cover" />
+          <div className="absolute inset-0 bg-gradient-to-l from-[#0a0a0f] via-[#0a0a0f]/80 to-transparent" />
         </div>
-        <div className="container-custom text-center relative z-10 w-full">
-          <span className="text-primary font-bold text-sm flex items-center justify-center gap-2 mb-3">
-            <span className="w-8 h-px bg-primary" />
-            {t('courses.label')}
-            <span className="w-8 h-px bg-primary" />
-          </span>
-          <h1 className="text-3xl md:text-4xl font-bold text-white mt-2 mb-3">{t('courses.title')}</h1>
-          <p className="text-white/80 text-base max-w-2xl mx-auto">
-            {t('courses.desc')}
-          </p>
+        <div className="container-custom relative z-10 w-full">
+          <div className="max-w-lg ml-auto">
+            <span className="text-primary font-bold text-sm flex items-center gap-2 mb-3">
+              <span className="w-8 h-px bg-primary" />
+              {t('courses.label')}
+            </span>
+            <h1 className="text-3xl md:text-4xl font-bold text-white mb-3 leading-tight">{t('courses.title')}</h1>
+            <p className="text-white/70 text-sm md:text-base leading-relaxed">
+              {t('courses.desc')}
+            </p>
+          </div>
         </div>
       </section>
 

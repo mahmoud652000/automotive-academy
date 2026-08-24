@@ -209,10 +209,17 @@ export const Moon = ({ className = 'w-5 h-5' }) => (
   </svg>
 )
 
+export const BookOpen = ({ className = 'w-6 h-6' }) => (
+  <svg className={className} viewBox="0 0 24 24" {...stroke}>
+    <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
+    <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
+  </svg>
+)
+
 export const Icons = {
   Wrench, Gear, Shield, Bolt, Tag, Sofa, Oil, Computer, Brake, Snowflake,
   Car, Phone, User, Calendar, Clock, MapPin, Mail, Trophy, CheckCircle,
-  Play, ArrowLeft, Star, Search, Headphones, Sun, Moon,
+  Play, ArrowLeft, Star, Search, Headphones, Sun, Moon, BookOpen,
 }
 
 export default Icons

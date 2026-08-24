@@ -46,29 +46,29 @@ export default function Navbar() {
   )
 
   return (
-    <nav className="fixed top-0 w-full z-50 bg-surface/95 backdrop-blur-xl border-b border-overlay/5">
+    <nav className="fixed top-0 w-full z-50 bg-surface border-b border-overlay/10">
       <div className="container-custom">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-2.5 group">
+          <Link to="/" className="flex items-center gap-2.5 group flex-shrink-0">
             <div className="relative">
               <div className="absolute -inset-1 bg-primary/20 rounded-lg blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               <Logo className="relative h-10 w-auto flex-shrink-0" showText={false} />
             </div>
             <div>
-              <h1 className="text-heading font-bold text-base leading-tight">{lang === 'ar' ? siteInfo.name : siteInfo.nameEn}</h1>
-              <p className="text-primary text-[10px] font-medium">{lang === 'ar' ? siteInfo.slogan : siteInfo.sloganEn}</p>
+              <h1 className="text-heading font-bold text-base leading-tight whitespace-nowrap">{lang === 'ar' ? siteInfo.name : siteInfo.nameEn}</h1>
+              <p className="text-primary text-[10px] font-medium whitespace-nowrap">{lang === 'ar' ? siteInfo.slogan : siteInfo.sloganEn}</p>
             </div>
           </Link>
 
           {/* Desktop Menu */}
-          <div className="hidden lg:flex items-center gap-1">
+          <div className="hidden lg:flex items-center gap-0.5">
             {navLinks.map((link) => (
               <NavLink
                 key={link.path}
                 to={link.path}
                 className={({ isActive }) =>
-                  `font-medium text-sm transition-all relative py-2 px-3.5 rounded-lg ${
+                  `font-medium text-sm whitespace-nowrap transition-all relative py-2 px-2.5 rounded-lg ${
                     isActive
                       ? 'text-primary bg-primary/10'
                       : 'text-body hover:text-heading hover:bg-overlay/5'
@@ -81,28 +81,28 @@ export default function Navbar() {
           </div>
 
           {/* Actions */}
-          <div className="hidden lg:flex items-center gap-3">
+          <div className="hidden lg:flex items-center gap-2 flex-shrink-0">
             <LangToggle />
             <ThemeToggle />
 
-            <Link to="/booking" className="bg-primary hover:bg-primary-dark text-white font-bold text-sm px-5 py-2.5 rounded-lg transition-all duration-300 hover:shadow-lg hover:shadow-primary/30 flex items-center gap-1.5">
+            <Link to="/booking" className="bg-primary hover:bg-primary-dark text-white font-bold text-xs px-3.5 py-2 rounded-lg transition-all duration-300 hover:shadow-lg hover:shadow-primary/30 flex items-center gap-1 whitespace-nowrap">
               {t('nav.bookNow')}
-              <Icons.ArrowLeft className="w-3.5 h-3.5" />
+              <Icons.ArrowLeft className="w-3 h-3" />
             </Link>
 
             {isLoggedIn ? (
-              <div className="flex items-center gap-2">
-                <Link to="/dashboard" className="flex items-center gap-1.5 text-body hover:text-primary transition-colors text-sm border border-overlay/10 px-3 py-2 rounded-lg hover:border-primary/30">
-                  <Icons.Computer className="w-4 h-4" />
+              <div className="flex items-center gap-1.5">
+                <Link to="/dashboard" className="flex items-center gap-1 text-body hover:text-primary transition-colors text-xs border border-overlay/10 px-2.5 py-2 rounded-lg hover:border-primary/30 whitespace-nowrap">
+                  <Icons.Computer className="w-3.5 h-3.5" />
                   {t('nav.dashboard')}
                 </Link>
-                <button onClick={logout} className="text-red-400 hover:text-red-300 text-sm w-9 h-9 rounded-lg hover:bg-red-500/10 flex items-center justify-center transition-colors" title={t('nav.logout')}>
-                  <Icons.Shield className="w-4 h-4" />
+                <button onClick={logout} className="text-red-400 hover:text-red-300 text-xs w-8 h-8 rounded-lg hover:bg-red-500/10 flex items-center justify-center transition-colors" title={t('nav.logout')}>
+                  <Icons.Shield className="w-3.5 h-3.5" />
                 </button>
               </div>
             ) : (
-              <Link to="/login" className="flex items-center gap-1.5 text-body hover:text-primary transition-colors text-sm border border-overlay/10 px-3 py-2 rounded-lg hover:border-primary/30">
-                <Icons.User className="w-4 h-4" />
+              <Link to="/login" className="flex items-center gap-1 text-body hover:text-primary transition-colors text-xs border border-overlay/10 px-2.5 py-2 rounded-lg hover:border-primary/30 whitespace-nowrap">
+                <Icons.User className="w-3.5 h-3.5" />
                 {t('nav.login')}
               </Link>
             )}

@@ -249,6 +249,7 @@ export default function Dashboard() {
   const [reviews, setReviews] = useState(defaultTestimonials)
   const [events, setEvents] = useState([])
   const [gallery, setGallery] = useState([])
+  const [articles, setArticles] = useState([])
 
   const [bookingFilter, setBookingFilter] = useState('all')
   const [courseBookingFilter, setCourseBookingFilter] = useState('all')
@@ -278,7 +279,7 @@ export default function Dashboard() {
 
     const fetchAll = async () => {
       try {
-        const [bk, ct, ev, of, sv, cr, gl] = await Promise.all([
+        const [bk, ct, ev, of, sv, cr, gl, ar] = await Promise.all([
           apiCall('/api/bookings'),
           apiCall('/api/contacts'),
           apiCall('/api/events'),
@@ -286,6 +287,7 @@ export default function Dashboard() {
           apiCall('/api/services'),
           apiCall('/api/courses'),
           apiCall('/api/gallery'),
+          apiCall('/api/articles'),
         ])
         setBookings(bk.data || [])
         setContacts(ct.data || [])
@@ -294,6 +296,7 @@ export default function Dashboard() {
         setServices(sv.data || [])
         setCourses(cr.data || [])
         setGallery(gl.data || [])
+        setArticles(ar.data || [])
       } catch {}
     }
 
@@ -311,6 +314,7 @@ export default function Dashboard() {
   const deleteService = (id) => { fetch(`/api/services/${id}`, { method: 'DELETE' }); setServices(services.filter(s => s._id !== id)) }
   const deleteCourse = (id) => { fetch(`/api/courses/${id}`, { method: 'DELETE' }); setCourses(courses.filter(c => c._id !== id)) }
   const deleteGalleryItem = (id) => { fetch(`/api/gallery/${id}`, { method: 'DELETE' }); setGallery(gallery.filter(g => g._id !== id)) }
+  const deleteArticle = (id) => { fetch(`/api/articles/${id}`, { method: 'DELETE' }); setArticles(articles.filter(a => a._id !== id)) }
 
   const [showForm, setShowForm] = useState(false)
   const [formType, setFormType] = useState('')
@@ -380,6 +384,49 @@ export default function Dashboard() {
           if (d.success) setGallery([...gallery, d.data])
         }
       }
+      else if (formType === 'article') {
+        const submitData = { ...formData }
+        // Auto-generate tags from article content
+        const stopWords = new Set([
+          'في', 'من', 'إلى', 'على', 'عن', 'مع', 'هذا', 'هذه', 'ذلك', 'تلك', 'التي', 'الذي',
+          'ما', 'لا', 'لن', 'لم', 'قد', 'كل', 'بعض', 'أو', 'أم', 'ثم', 'إذا', 'حتى', 'لكن',
+          'بين', 'عند', 'لدى', 'أن', 'إن', 'كان', 'كانت', 'يكون', 'تكون', 'هو', 'هي', 'نحن',
+          'أنا', 'أنت', 'هم', 'هما', 'هؤلاء', 'هناك', 'هنا', 'كما', 'حيث', 'كي', 'لذلك',
+          'بعد', 'قبل', 'عند', 'فقط', 'أيضا', 'و', 'أو', 'ف', 'ب', 'ل', 'ك', 'ال', 'أي',
+          'بعض', 'غير', 'مثل', 'لأن', 'حتى', 'وقد', 'فقد', 'التي', 'الذي', 'الذين', 'اللاتي',
+          'اللواتي', 'اللذان', 'اللذين', 'إلى', 'علي', 'في', 'عن', 'مع', 'the', 'a', 'an', 'and',
+          'or', 'but', 'in', 'on', 'at', 'to', 'for', 'of', 'with', 'by', 'from', 'is', 'are',
+          'was', 'were', 'be', 'been', 'being', 'have', 'has', 'had', 'do', 'does', 'did',
+          'will', 'would', 'could', 'should', 'may', 'might', 'shall', 'can', 'this', 'that',
+          'these', 'those', 'i', 'you', 'he', 'she', 'it', 'we', 'they', 'what', 'which',
+          'who', 'when', 'where', 'why', 'how', 'all', 'each', 'every', 'both', 'few', 'more',
+          'most', 'other', 'some', 'such', 'no', 'nor', 'not', 'only', 'own', 'same', 'so',
+          'than', 'too', 'very', 'just', 'also'
+        ])
+        const text = `${submitData.title || ''} ${submitData.content || ''}`
+        const words = text
+          .replace(/[^\u0600-\u06FFa-zA-Z\s]/g, ' ')
+          .split(/\s+/)
+          .map(w => w.trim())
+          .filter(w => w.length >= 3 && !stopWords.has(w.toLowerCase()))
+        const freq = {}
+        words.forEach(w => {
+          const lw = w.toLowerCase()
+          freq[lw] = (freq[lw] || 0) + 1
+        })
+        submitData.tags = Object.entries(freq)
+          .sort((a, b) => b[1] - a[1])
+          .slice(0, 6)
+          .map(e => e[0])
+
+        if (editId) {
+          const d = await apiCall(`/api/articles/${editId}`, 'PUT', submitData)
+          if (d.success) setArticles(articles.map(a => a._id === editId ? d.data : a))
+        } else {
+          const d = await apiCall('/api/articles', 'POST', submitData)
+          if (d.success) setArticles([...articles, d.data])
+        }
+      }
     } catch {}
     closeForm()
   }
@@ -435,6 +482,7 @@ export default function Dashboard() {
         { id: 'courses', name: t('dash.courses'), icon: 'Gear' },
         { id: 'events', name: t('dash.events'), icon: 'Bolt' },
         { id: 'gallery', name: t('dash.gallery'), icon: 'Search' },
+        { id: 'articles', name: t('dash.articles'), icon: 'BookOpen' },
         { id: 'reviews', name: t('dash.reviews'), icon: 'Star' },
       ],
     },
@@ -456,6 +504,7 @@ export default function Dashboard() {
     { label: t('dash.courses'), value: courses.length, icon: 'Gear', color: 'text-purple-400 bg-purple-500/10', tab: 'courses' },
     { label: t('dash.events'), value: events.length, icon: 'Bolt', color: 'text-amber-400 bg-amber-500/10', tab: 'events' },
     { label: t('dash.gallery'), value: gallery.length, icon: 'Search', color: 'text-indigo-400 bg-indigo-500/10', tab: 'gallery' },
+    { label: t('dash.articles'), value: articles.length, icon: 'BookOpen', color: 'text-teal-400 bg-teal-500/10', tab: 'articles' },
     { label: t('dash.reviews'), value: reviews.length, icon: 'Star', color: 'text-cyan-400 bg-cyan-500/10', tab: 'reviews' },
   ]
 
@@ -1046,6 +1095,45 @@ export default function Dashboard() {
             </div>
           )}
 
+          {/* === ARTICLES === */}
+          {activeTab === 'articles' && (
+            <div className="animate-fadeIn">
+              <PageHeader title={t('dash.articles')} subtitle={`${articles.length} ${t('dash.articleCount')}`} action={<AddBtn onClick={() => openForm('article')} t={t} />} />
+              {articles.length === 0 ? (
+                <div className="bg-gradient-to-b from-white/[0.03] to-transparent rounded-2xl border border-overlay/10">
+                  <EmptyState icon="BookOpen" title={t('dash.noArticles')} sub={t('dash.noArticlesSub')} />
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {articles.map(ar => (
+                    <div key={ar._id} className="group bg-gradient-to-b from-white/[0.03] to-transparent rounded-2xl p-4 border border-overlay/10 flex items-center justify-between hover:border-primary/20 transition-all duration-500">
+                      <div className="flex items-center gap-3 flex-1 min-w-0">
+                        {ar.image ? (
+                          <img src={ar.image} alt={ar.title} className="w-11 h-11 rounded-xl object-cover flex-shrink-0" />
+                        ) : (
+                          <div className="w-11 h-11 bg-teal-500/10 rounded-xl flex items-center justify-center text-teal-400 flex-shrink-0">
+                            <Icons.BookOpen className="w-5 h-5" />
+                          </div>
+                        )}
+                        <div className="min-w-0">
+                          <h3 className="text-heading font-bold text-sm truncate">{ar.title}</h3>
+                          <div className="flex items-center gap-2 mt-0.5">
+                            <span className="text-faint text-[10px] bg-overlay/10 px-1.5 py-0.5 rounded">{ar.category}</span>
+                            {ar.excerpt && <p className="text-faint text-xs line-clamp-1">{ar.excerpt}</p>}
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-1 flex-shrink-0">
+                        <EditBtn onClick={() => openForm('article', ar)} t={t} />
+                        <DeleteBtn onClick={() => deleteArticle(ar._id)} t={t} />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
           {/* === REVIEWS === */}
           {activeTab === 'reviews' && (
             <div className="animate-fadeIn">
@@ -1082,9 +1170,9 @@ export default function Dashboard() {
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-2.5">
                 <div className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center text-primary">
-                  {renderIcon(formType === 'offer' ? 'Tag' : formType === 'service' ? 'Wrench' : formType === 'course' ? 'Gear' : 'Bolt', 'w-4 h-4')}
+                  {renderIcon(formType === 'offer' ? 'Tag' : formType === 'service' ? 'Wrench' : formType === 'course' ? 'Gear' : formType === 'article' ? 'BookOpen' : 'Bolt', 'w-4 h-4')}
                 </div>
-                <h3 className="text-heading font-bold text-lg">{editId ? t('dash.editTitle') : t('dash.addTitle')} {formType === 'offer' ? t('dash.offerLabel') : formType === 'service' ? t('dash.serviceLabel') : formType === 'course' ? t('dash.courseLabel') : t('dash.eventLabel')}</h3>
+                <h3 className="text-heading font-bold text-lg">{editId ? t('dash.editTitle') : t('dash.addTitle')} {formType === 'offer' ? t('dash.offerLabel') : formType === 'service' ? t('dash.serviceLabel') : formType === 'course' ? t('dash.courseLabel') : formType === 'article' ? t('dash.articleLabel') : t('dash.eventLabel')}</h3>
               </div>
               <button onClick={closeForm} className="w-8 h-8 rounded-lg flex items-center justify-center text-muted hover:text-heading hover:bg-overlay/10 transition-all">✕</button>
             </div>
@@ -1099,8 +1187,8 @@ export default function Dashboard() {
                   </button>
                 </div>
               )}
-              <input type="text" placeholder={formType === 'offer' ? t('dash.offerLabel') : formType === 'service' ? t('dash.serviceLabel') : formType === 'course' ? t('dash.courseLabel') : t('dash.eventLabel')} value={formData.title || ''} onChange={e => setFormData({ ...formData, title: e.target.value })} required className={inputCls} />
-              <textarea placeholder={t('dash.descPlaceholder')} value={formData.desc || formData.description || ''} onChange={e => setFormData({ ...formData, [formType === 'service' ? 'description' : formType === 'event' ? 'description' : 'desc']: e.target.value })} required rows={2} className={inputCls + ' resize-none'} />
+              <input type="text" placeholder={formType === 'offer' ? t('dash.offerLabel') : formType === 'service' ? t('dash.serviceLabel') : formType === 'course' ? t('dash.courseLabel') : formType === 'article' ? t('dash.articleTitle') : t('dash.eventLabel')} value={formData.title || ''} onChange={e => setFormData({ ...formData, title: e.target.value })} required className={inputCls} />
+              <textarea placeholder={formType === 'article' ? t('dash.articleExcerpt') : t('dash.descPlaceholder')} value={formData.desc || formData.description || formData.excerpt || ''} onChange={e => setFormData({ ...formData, [formType === 'service' ? 'description' : formType === 'event' ? 'description' : formType === 'article' ? 'excerpt' : 'desc']: e.target.value })} required rows={2} className={inputCls + ' resize-none'} />
               {formType === 'event' && (
                 <div>
                   <label className="text-faint text-xs mb-2 block">{t('dash.eventImage')}</label>
@@ -1278,6 +1366,67 @@ export default function Dashboard() {
                 <select value={formData.icon || 'Wrench'} onChange={e => setFormData({ ...formData, icon: e.target.value })} className={inputCls}>
                   {iconOptions.map(ic => <option key={ic} value={ic} className="bg-dark">{ic}</option>)}
                 </select>
+              )}
+              {formType === 'article' && (
+                <>
+                  <textarea placeholder={t('dash.articleContentPlaceholder')} value={formData.content || ''} onChange={e => setFormData({ ...formData, content: e.target.value })} required rows={5} className={inputCls + ' resize-none'} />
+                  <select value={formData.category || 'صيانة'} onChange={e => setFormData({ ...formData, category: e.target.value })} className={inputCls}>
+                    <option value="صيانة" className="bg-dark">{lang === 'ar' ? 'صيانة' : 'Maintenance'}</option>
+                    <option value="ميكانيكا" className="bg-dark">{lang === 'ar' ? 'ميكانيكا' : 'Mechanics'}</option>
+                    <option value="عفشة" className="bg-dark">{lang === 'ar' ? 'عفشة' : 'Suspension'}</option>
+                    <option value="فرامل" className="bg-dark">{lang === 'ar' ? 'فرامل' : 'Brakes'}</option>
+                    <option value="تكييف" className="bg-dark">{lang === 'ar' ? 'تكييف' : 'AC'}</option>
+                    <option value="كهرباء" className="bg-dark">{lang === 'ar' ? 'كهرباء' : 'Electrical'}</option>
+                    <option value="زيوت" className="bg-dark">{lang === 'ar' ? 'زيوت' : 'Oils'}</option>
+                    <option value="إطارات" className="bg-dark">{lang === 'ar' ? 'إطارات' : 'Tires'}</option>
+                    <option value="دهان" className="bg-dark">{lang === 'ar' ? 'دهان' : 'Paint'}</option>
+                    <option value="سمكرة" className="bg-dark">{lang === 'ar' ? 'سمكرة' : 'Bodywork'}</option>
+                    <option value="كشوف" className="bg-dark">{lang === 'ar' ? 'كشوف' : 'Inspections'}</option>
+                    <option value="تنظيف" className="bg-dark">{lang === 'ar' ? 'تنظيف' : 'Cleaning'}</option>
+                    <option value="نصائح" className="bg-dark">{lang === 'ar' ? 'نصائح' : 'Tips'}</option>
+                    <option value="عام" className="bg-dark">{lang === 'ar' ? 'عام' : 'General'}</option>
+                  </select>
+                  <div>
+                    <label className="text-faint text-xs mb-2 block">{t('dash.articleImage')}</label>
+                    <label className="flex flex-col items-center justify-center gap-2 border-2 border-dashed border-overlay/15 rounded-xl py-6 cursor-pointer hover:border-primary/40 transition-all duration-300 bg-overlay/5 hover:bg-overlay/10">
+                      <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
+                        {formData.image ? <img src={formData.image} alt="" className="w-16 h-16 rounded-lg object-cover" /> : <Icons.Search className="w-5 h-5" />}
+                      </div>
+                      {formData.image ? (
+                        <span className="text-green-400 text-xs font-medium">{t('dash.imageSelected')}</span>
+                      ) : (
+                        <span className="text-faint text-xs">{t('dash.uploadImage')}</span>
+                      )}
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={e => {
+                          const file = e.target.files[0]
+                          if (!file) return
+                          const img = new Image()
+                          const canvas = document.createElement('canvas')
+                          const reader = new FileReader()
+                          reader.onloadend = () => {
+                            img.onload = () => {
+                              const maxSize = 800
+                              let { width, height } = img
+                              if (width > height && width > maxSize) { height = (height * maxSize) / width; width = maxSize }
+                              else if (height > maxSize) { width = (width * maxSize) / height; height = maxSize }
+                              canvas.width = width
+                              canvas.height = height
+                              const ctx = canvas.getContext('2d')
+                              ctx.drawImage(img, 0, 0, width, height)
+                              setFormData({ ...formData, image: canvas.toDataURL('image/jpeg', 0.7) })
+                            }
+                            img.src = reader.result
+                          }
+                          reader.readAsDataURL(file)
+                        }}
+                      />
+                    </label>
+                  </div>
+                </>
               )}
               {formType === 'event' && formData.type === 'offer' && (
                 <>

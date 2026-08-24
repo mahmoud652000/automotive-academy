@@ -15,6 +15,8 @@ export default function Home() {
   const [userReviews, setUserReviews] = useState([])
   const [currentSlide, setCurrentSlide] = useState(0)
   const [events, setEvents] = useState([])
+  const [articles, setArticles] = useState([])
+  const [showArticleBanner, setShowArticleBanner] = useState(true)
   const allReviews = [...userReviews, ...testimonials]
 
   const handleSubmit = (e) => {
@@ -54,6 +56,10 @@ export default function Home() {
     fetch('/api/events?active=true')
       .then(r => r.json())
       .then(d => setEvents(d.data || []))
+      .catch(() => {})
+    fetch('/api/articles?active=true')
+      .then(r => r.json())
+      .then(d => setArticles(d.data || []))
       .catch(() => {})
   }, [])
 
@@ -192,6 +198,36 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* ============ ARTICLE NOTIFICATION BANNER ============ */}
+      {articles.length > 0 && showArticleBanner && (
+        <div className="bg-gradient-to-l from-primary/10 via-surface to-surface border-b border-overlay/10">
+          <div className="container-custom py-3">
+            <Link to="/articles" className="flex items-center gap-3 group">
+              <div className="w-10 h-10 bg-primary/15 rounded-xl flex items-center justify-center text-primary flex-shrink-0 group-hover:bg-primary group-hover:text-white transition-all duration-300">
+                <Icons.BookOpen className="w-5 h-5" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-heading font-bold text-xs flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 bg-primary rounded-full animate-pulse" />
+                  {t('articles.newArticle')}
+                </p>
+                <p className="text-muted text-[11px] truncate">{articles[0].title}</p>
+              </div>
+              <span className="hidden sm:flex items-center gap-1 text-primary text-xs font-bold group-hover:gap-2 transition-all">
+                {t('articles.readMore')}
+                <Icons.ArrowLeft className="w-3.5 h-3.5" />
+              </span>
+              <button
+                onClick={(e) => { e.preventDefault(); setShowArticleBanner(false) }}
+                className="w-7 h-7 rounded-lg flex items-center justify-center text-muted hover:text-heading hover:bg-overlay/10 transition-all flex-shrink-0"
+              >
+                ✕
+              </button>
+            </Link>
+          </div>
+        </div>
+      )}
 
       {/* ============ TESTIMONIALS ============ */}
       <section className="py-10 md:py-14 relative overflow-hidden bg-dark">

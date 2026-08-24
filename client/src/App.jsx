@@ -16,6 +16,7 @@ import Services from './pages/Services'
 import Courses from './pages/Courses'
 import Offers from './pages/Offers'
 import Gallery from './pages/Gallery'
+import Articles from './pages/Articles'
 import Contact from './pages/Contact'
 import Booking from './pages/Booking'
 import Login from './pages/Login'
@@ -39,6 +40,7 @@ function AnimatedRoutes() {
         <Route path="/courses" element={<PageTransition><Courses /></PageTransition>} />
         <Route path="/offers" element={<PageTransition><Offers /></PageTransition>} />
         <Route path="/gallery" element={<PageTransition><Gallery /></PageTransition>} />
+        <Route path="/articles" element={<PageTransition><Articles /></PageTransition>} />
         <Route path="/contact" element={<PageTransition><Contact /></PageTransition>} />
         <Route path="/booking" element={<PageTransition><Booking /></PageTransition>} />
         <Route path="/login" element={<PageTransition><Login /></PageTransition>} />

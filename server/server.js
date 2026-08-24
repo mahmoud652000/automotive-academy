@@ -9,6 +9,7 @@ import offersRouter from './routes/offers.js'
 import eventsRouter from './routes/events.js'
 import coursesRouter from './routes/courses.js'
 import galleryRouter from './routes/gallery.js'
+import articlesRouter from './routes/articles.js'
 import Offer from './models/Offer.js'
 import Service from './models/Service.js'
 import Course from './models/Course.js'
@@ -41,6 +42,7 @@ app.use('/api/offers', offersRouter)
 app.use('/api/events', eventsRouter)
 app.use('/api/courses', coursesRouter)
 app.use('/api/gallery', galleryRouter)
+app.use('/api/articles', articlesRouter)
 
 app.get('/', (req, res) => {
   res.json({ message: 'Automotive Academy API' })

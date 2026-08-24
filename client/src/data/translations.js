@@ -256,6 +256,26 @@ export const translations = {
     // ===== WhatsApp Button =====
     'whatsapp.tooltip': '💬 راسلنا على واتساب',
 
+    // ===== Articles Page =====
+    'articles.label': 'المقالات',
+    'articles.title': 'مقالات وإرشادات',
+    'articles.desc': 'مقالات متخصصة ونصائح احترافية للعناية بسيارتك',
+    'articles.latest': 'أحدث المقالات',
+    'articles.featured': 'المقال المميز',
+    'articles.readMore': 'اقرأ المزيد',
+    'articles.history': 'سجل المقالات',
+    'articles.historyDesc': 'تصفح جميع المقالات السابقة',
+    'articles.toc': 'فهرس المقالات',
+    'articles.allCategories': 'الكل',
+    'articles.noArticles': 'لا توجد مقالات بعد',
+    'articles.noArticlesSub': 'سيتم إضافة مقالات قريباً',
+    'articles.newArticle': 'مقال جديد',
+    'articles.newArticleDesc': 'تم نشر مقال جديد، اقرأه الآن!',
+    'articles.viewArticle': 'عرض المقال',
+    'articles.relatedArticles': 'مقالات ذات صلة',
+    'articles.back': 'العودة للمقالات',
+    'articles.share': 'مشاركة',
+
     // ===== Dashboard =====
     'dash.welcome': 'أهلاً،',
     'dash.overviewSub': 'إليك نظفة عامة على نشاط الموقع اليوم',
@@ -335,6 +355,19 @@ export const translations = {
     'dash.noCourseBookingsSub': 'لم يتم استلام أي حجوزات دورات بعد',
     'dash.noOfferBookingsSub': 'لم يتم استلام أي حجوزات عروض بعد',
     'dash.noMessagesSub': 'لم يتم استلام أي رسائل بعد',
+
+    // Dashboard - Articles
+    'dash.articles': 'المقالات',
+    'dash.articleCount': 'مقال',
+    'dash.articleLabel': 'مقال',
+    'dash.articleTitle': 'عنوان المقال',
+    'dash.articleExcerpt': 'مقدمة مختصرة (تظهر في بطاقة المقال)',
+    'dash.articleContent': 'محتوى المقال',
+    'dash.articleContentPlaceholder': 'اكتب محتوى المقال هنا...',
+    'dash.articleCategory': 'التصنيف',
+    'dash.articleImage': 'صورة المقال',
+    'dash.noArticles': 'لا توجد مقالات بعد',
+    'dash.noArticlesSub': 'أضف مقالاً جديداً ليظهر في صفحة المقالات',
   },
 
   en: {
@@ -594,6 +627,26 @@ export const translations = {
     // ===== WhatsApp Button =====
     'whatsapp.tooltip': '💬 Chat with us on WhatsApp',
 
+    // ===== Articles Page =====
+    'articles.label': 'Articles',
+    'articles.title': 'Articles & Guides',
+    'articles.desc': 'Expert articles and professional tips for caring for your car',
+    'articles.latest': 'Latest Articles',
+    'articles.featured': 'Featured Article',
+    'articles.readMore': 'Read More',
+    'articles.history': 'Article Archive',
+    'articles.historyDesc': 'Browse all previous articles',
+    'articles.toc': 'Table of Contents',
+    'articles.allCategories': 'All',
+    'articles.noArticles': 'No articles yet',
+    'articles.noArticlesSub': 'Articles will be added soon',
+    'articles.newArticle': 'New Article',
+    'articles.newArticleDesc': 'A new article has been published, read it now!',
+    'articles.viewArticle': 'View Article',
+    'articles.relatedArticles': 'Related Articles',
+    'articles.back': 'Back to Articles',
+    'articles.share': 'Share',
+
     // ===== Dashboard =====
     'dash.welcome': 'Welcome,',
     'dash.overviewSub': "Here's an overview of today's site activity",
@@ -673,5 +726,18 @@ export const translations = {
     'dash.noCourseBookingsSub': 'No course bookings received yet',
     'dash.noOfferBookingsSub': 'No offer bookings received yet',
     'dash.noMessagesSub': 'No messages received yet',
+
+    // Dashboard - Articles
+    'dash.articles': 'Articles',
+    'dash.articleCount': 'articles',
+    'dash.articleLabel': 'Article',
+    'dash.articleTitle': 'Article Title',
+    'dash.articleExcerpt': 'Short excerpt (shown on article card)',
+    'dash.articleContent': 'Article Content',
+    'dash.articleContentPlaceholder': 'Write the article content here...',
+    'dash.articleCategory': 'Category',
+    'dash.articleImage': 'Article Image',
+    'dash.noArticles': 'No articles yet',
+    'dash.noArticlesSub': 'Add a new article to display on the articles page',
   }
 }

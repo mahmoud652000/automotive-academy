@@ -19,6 +19,7 @@ export const navLinks = [
   { name: 'العروض', nameEn: 'Offers', path: '/offers' },
   { name: 'الدورات', nameEn: 'Courses', path: '/courses' },
   { name: 'معرضنا', nameEn: 'Gallery', path: '/gallery' },
+  { name: 'المقالات', nameEn: 'Articles', path: '/articles' },
   { name: 'من نحن', nameEn: 'About', path: '/about' },
   { name: 'تواصل معنا', nameEn: 'Contact', path: '/contact' },
 ]
