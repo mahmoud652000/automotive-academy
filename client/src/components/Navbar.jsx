@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Link, NavLink, useLocation } from 'react-router-dom'
+import { Link, NavLink } from 'react-router-dom'
 import { navLinks, siteInfo } from '../data/content'
 import Logo from './Logo'
 import { useAuth } from '../context/AuthContext'
@@ -9,22 +9,22 @@ import Icons from './Icons'
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false)
-  const [scrolled, setScrolled] = useState(false)
-  const { pathname } = useLocation()
   const { isLoggedIn, logout } = useAuth()
   const { theme, toggleTheme } = useTheme()
   const { lang, toggleLang, t } = useLanguage()
 
   useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 20)
+    const handleScroll = () => {
+      if (isOpen) setIsOpen(false)
+    }
     window.addEventListener('scroll', handleScroll)
     return () => window.removeEventListener('scroll', handleScroll)
-  }, [])
+  }, [isOpen])
 
-  const ThemeToggle = ({ className = '' }) => (
+  const ThemeToggle = () => (
     <button
       onClick={toggleTheme}
-      className={`w-9 h-9 rounded-lg flex items-center justify-center transition-all duration-300 hover:bg-overlay/10 ${className}`}
+      className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg flex items-center justify-center transition-all duration-300 hover:bg-overlay/10 flex-shrink-0"
       title={theme === 'dark' ? t('nav.themeLight') : t('nav.themeDark')}
     >
       {theme === 'dark' ? (
@@ -35,10 +35,10 @@ export default function Navbar() {
     </button>
   )
 
-  const LangToggle = ({ className = '' }) => (
+  const LangToggle = () => (
     <button
       onClick={toggleLang}
-      className={`w-9 h-9 rounded-lg flex items-center justify-center transition-all duration-300 hover:bg-overlay/10 text-xs font-bold text-heading ${className}`}
+      className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg flex items-center justify-center transition-all duration-300 hover:bg-overlay/10 text-xs font-bold text-heading flex-shrink-0"
       title={t('nav.langSwitch')}
     >
       {lang === 'ar' ? 'EN' : 'ع'}
@@ -48,27 +48,32 @@ export default function Navbar() {
   return (
     <nav className="fixed top-0 w-full z-50 bg-surface border-b border-overlay/10">
       <div className="container-custom">
-        <div className="flex items-center justify-between h-16 gap-2">
-          {/* Logo */}
-          <Link to="/" className="flex items-center gap-2 group flex-shrink-0 min-w-0">
+        <div className="flex items-center justify-between h-14 sm:h-16">
+
+          {/* ===== Logo + Brand ===== */}
+          <Link to="/" className="flex items-center gap-2 group flex-shrink-0">
             <div className="relative flex-shrink-0">
               <div className="absolute -inset-1 bg-primary/20 rounded-lg blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-              <Logo className="relative h-9 w-auto flex-shrink-0" showText={false} />
+              <Logo className="relative h-7 sm:h-9 lg:h-10 w-auto" showText={false} />
             </div>
-            <div className="min-w-0">
-              <h1 className="text-heading font-bold text-[11px] sm:text-sm lg:text-base leading-tight whitespace-nowrap truncate">{lang === 'ar' ? siteInfo.name : siteInfo.nameEn}</h1>
-              <p className="text-primary text-[8px] sm:text-[9px] lg:text-[10px] font-medium whitespace-nowrap truncate">{lang === 'ar' ? siteInfo.slogan : siteInfo.sloganEn}</p>
+            <div className="flex flex-col leading-tight">
+              <h1 className="text-heading font-bold text-[10px] sm:text-sm lg:text-base whitespace-nowrap">
+                {lang === 'ar' ? siteInfo.name : siteInfo.nameEn}
+              </h1>
+              <p className="text-primary text-[7px] sm:text-[9px] lg:text-[10px] font-medium whitespace-nowrap">
+                {lang === 'ar' ? siteInfo.slogan : siteInfo.sloganEn}
+              </p>
             </div>
           </Link>
 
-          {/* Desktop Menu */}
+          {/* ===== Desktop Nav Links ===== */}
           <div className="hidden lg:flex items-center gap-0.5">
             {navLinks.map((link) => (
               <NavLink
                 key={link.path}
                 to={link.path}
                 className={({ isActive }) =>
-                  `font-medium text-sm whitespace-nowrap transition-all relative py-2 px-2.5 rounded-lg ${
+                  `font-medium text-sm whitespace-nowrap transition-all py-2 px-2.5 rounded-lg ${
                     isActive
                       ? 'text-primary bg-primary/10'
                       : 'text-body hover:text-heading hover:bg-overlay/5'
@@ -80,7 +85,7 @@ export default function Navbar() {
             ))}
           </div>
 
-          {/* Actions */}
+          {/* ===== Desktop Actions ===== */}
           <div className="hidden lg:flex items-center gap-2 flex-shrink-0">
             <LangToggle />
             <ThemeToggle />
@@ -96,7 +101,7 @@ export default function Navbar() {
                   <Icons.Computer className="w-3.5 h-3.5" />
                   {t('nav.dashboard')}
                 </Link>
-                <button onClick={logout} className="text-red-400 hover:text-red-300 text-xs w-8 h-8 rounded-lg hover:bg-red-500/10 flex items-center justify-center transition-colors" title={t('nav.logout')}>
+                <button onClick={logout} className="text-red-400 hover:text-red-300 w-8 h-8 rounded-lg hover:bg-red-500/10 flex items-center justify-center transition-colors" title={t('nav.logout')}>
                   <Icons.Shield className="w-3.5 h-3.5" />
                 </button>
               </div>
@@ -108,22 +113,25 @@ export default function Navbar() {
             )}
           </div>
 
-          {/* Mobile Menu Button */}
-          <div className="lg:hidden flex items-center gap-0.5 flex-shrink-0">
+          {/* ===== Mobile Toggles ===== */}
+          <div className="lg:hidden flex items-center gap-1 flex-shrink-0">
             <LangToggle />
             <ThemeToggle />
             <button
-              className="text-heading text-2xl w-9 h-9 flex items-center justify-center"
+              className="text-heading text-xl w-8 h-8 flex items-center justify-center"
               onClick={() => setIsOpen(!isOpen)}
             >
               {isOpen ? '✕' : '☰'}
             </button>
           </div>
         </div>
+      </div>
 
-        {/* Mobile Menu */}
-        {isOpen && (
-          <div className="lg:hidden fixed top-16 right-0 left-0 bottom-0 overflow-y-auto bg-surface border-t border-overlay/10 z-50">
+      {/* ===== Mobile Fullscreen Menu ===== */}
+      {isOpen && (
+        <>
+          <div className="lg:hidden fixed inset-0 top-14 sm:top-16 bg-black/50 z-40" onClick={() => setIsOpen(false)} />
+          <div className="lg:hidden fixed top-14 sm:top-16 right-0 left-0 bottom-0 overflow-y-auto bg-surface z-50">
             <div className="px-4 py-4 space-y-1">
               {navLinks.map((link) => (
                 <NavLink
@@ -139,7 +147,7 @@ export default function Navbar() {
                   {lang === 'ar' ? link.name : link.nameEn}
                 </NavLink>
               ))}
-              <div className="pt-3 border-t border-overlay/5 space-y-2">
+              <div className="pt-3 mt-2 border-t border-overlay/10 space-y-2">
                 <Link
                   to="/booking"
                   onClick={() => setIsOpen(false)}
@@ -159,8 +167,8 @@ export default function Navbar() {
               </div>
             </div>
           </div>
-        )}
-      </div>
+        </>
+      )}
     </nav>
   )
 }
