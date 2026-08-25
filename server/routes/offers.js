@@ -1,68 +1,74 @@
 import express from 'express'
-import Offer from '../models/Offer.js'
+import db, { formatRow, formatRows, prepareBody, buildInsert, buildUpdate } from '../db.js'
+import { sendNewsletterEmail } from '../services/email.js'
 
 const router = express.Router()
+const table = 'offers'
 
-// GET /api/offers - Get all active offers
-router.get('/', async (req, res) => {
+// GET /api/offers
+router.get('/', (req, res) => {
   try {
     const { active } = req.query
-    const filter = active === 'true' ? { active: true } : {}
-    const offers = await Offer.find(filter).sort({ createdAt: -1 })
-    res.json({ success: true, count: offers.length, data: offers })
+    const rows = active === 'true'
+      ? db.prepare('SELECT * FROM offers WHERE active = 1 ORDER BY created_at DESC').all()
+      : db.prepare('SELECT * FROM offers ORDER BY created_at DESC').all()
+    res.json({ success: true, count: rows.length, data: formatRows(rows, table) })
   } catch (error) {
     res.status(500).json({ success: false, message: error.message })
   }
 })
 
-// POST /api/offers - Create an offer
-router.post('/', async (req, res) => {
+// POST /api/offers
+router.post('/', (req, res) => {
   try {
-    const offer = new Offer(req.body)
-    const saved = await offer.save()
-    res.status(201).json({ success: true, data: saved })
+    const data = prepareBody(req.body, table)
+    const { sql, values } = buildInsert(table, data)
+    const info = db.prepare(sql).run(...values)
+    const row = db.prepare('SELECT * FROM offers WHERE id = ?').get(info.lastInsertRowid)
+    const formatted = formatRow(row, table)
+
+    // Send newsletter to confirmed subscribers (non-blocking)
+    const confirmedSubs = db.prepare("SELECT email, token FROM subscribers WHERE status = 'confirmed'").all()
+    if (confirmedSubs.length > 0) {
+      sendNewsletterEmail(confirmedSubs, 'offer', formatted).catch(e => console.error('[offers] Newsletter send failed:', e.message))
+    }
+
+    res.status(201).json({ success: true, data: formatted })
   } catch (error) {
     res.status(400).json({ success: false, message: error.message })
   }
 })
 
-// GET /api/offers/:id - Get a single offer
-router.get('/:id', async (req, res) => {
+// GET /api/offers/:id
+router.get('/:id', (req, res) => {
   try {
-    const offer = await Offer.findById(req.params.id)
-    if (!offer) {
-      return res.status(404).json({ success: false, message: 'العرض غير موجود' })
-    }
-    res.json({ success: true, data: offer })
+    const row = db.prepare('SELECT * FROM offers WHERE id = ?').get(Number(req.params.id))
+    if (!row) return res.status(404).json({ success: false, message: 'العرض غير موجود' })
+    res.json({ success: true, data: formatRow(row, table) })
   } catch (error) {
     res.status(500).json({ success: false, message: error.message })
   }
 })
 
-// PUT /api/offers/:id - Update an offer
-router.put('/:id', async (req, res) => {
+// PUT /api/offers/:id
+router.put('/:id', (req, res) => {
   try {
-    const offer = await Offer.findByIdAndUpdate(
-      req.params.id,
-      req.body,
-      { new: true, runValidators: true }
-    )
-    if (!offer) {
-      return res.status(404).json({ success: false, message: 'العرض غير موجود' })
-    }
-    res.json({ success: true, data: offer })
+    const data = prepareBody(req.body, table)
+    const { sql, values } = buildUpdate(table, data)
+    const info = db.prepare(sql).run(...values, Number(req.params.id))
+    if (info.changes === 0) return res.status(404).json({ success: false, message: 'العرض غير موجود' })
+    const row = db.prepare('SELECT * FROM offers WHERE id = ?').get(Number(req.params.id))
+    res.json({ success: true, data: formatRow(row, table) })
   } catch (error) {
     res.status(400).json({ success: false, message: error.message })
   }
 })
 
-// DELETE /api/offers/:id - Delete an offer
-router.delete('/:id', async (req, res) => {
+// DELETE /api/offers/:id
+router.delete('/:id', (req, res) => {
   try {
-    const offer = await Offer.findByIdAndDelete(req.params.id)
-    if (!offer) {
-      return res.status(404).json({ success: false, message: 'العرض غير موجود' })
-    }
+    const info = db.prepare('DELETE FROM offers WHERE id = ?').run(Number(req.params.id))
+    if (info.changes === 0) return res.status(404).json({ success: false, message: 'العرض غير موجود' })
     res.json({ success: true, message: 'تم حذف العرض' })
   } catch (error) {
     res.status(500).json({ success: false, message: error.message })

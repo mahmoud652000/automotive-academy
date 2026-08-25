@@ -3,6 +3,12 @@ import CTABanner from '../components/CTABanner'
 import Icons from '../components/Icons'
 import { useLanguage } from '../context/LanguageContext'
 
+// Check if URL is a YouTube link
+const isYouTube = (url) => {
+  if (!url) return false
+  return /(?:youtube\.com|youtu\.be)/.test(url)
+}
+
 // Convert YouTube URL to embed URL
 const getYouTubeEmbed = (url) => {
   if (!url) return ''
@@ -209,7 +215,7 @@ export default function Gallery() {
 
       {/* Category Filters */}
       {categories.length > 1 && (
-        <section className="py-3 border-y border-overlay/10 bg-surface sticky top-16 z-30 backdrop-blur-xl">
+        <section className="py-3 border-y border-overlay/10 bg-surface sticky top-14 sm:top-16 z-30 backdrop-blur-xl">
           <div className="container-custom">
             <div className="flex flex-wrap gap-2 justify-center">
               {categories.map(cat => (
@@ -254,24 +260,42 @@ export default function Gallery() {
                   {/* Video player */}
                   {playingVideo === video._id ? (
                     <div className="aspect-video">
-                      <iframe
-                        src={getYouTubeEmbed(video.videoUrl)}
-                        className="w-full h-full"
-                        frameBorder="0"
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                        allowFullScreen
-                        title={lang === 'ar' ? video.title : (video.titleEn || video.title)}
-                      />
+                      {isYouTube(video.videoUrl) ? (
+                        <iframe
+                          src={getYouTubeEmbed(video.videoUrl)}
+                          className="w-full h-full"
+                          frameBorder="0"
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                          allowFullScreen
+                          title={lang === 'ar' ? video.title : (video.titleEn || video.title)}
+                        />
+                      ) : (
+                        <video
+                          src={video.videoUrl}
+                          className="w-full h-full bg-black"
+                          controls
+                          autoPlay
+                          title={lang === 'ar' ? video.title : (video.titleEn || video.title)}
+                        />
+                      )}
                     </div>
                   ) : (
                     <>
                       <div className="relative aspect-video overflow-hidden cursor-pointer" onClick={() => setPlayingVideo(video._id)}>
-                        <img
-                          src={getYouTubeThumb(video.videoUrl)}
-                          alt={lang === 'ar' ? video.title : (video.titleEn || video.title)}
-                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                          onError={(e) => { e.target.src = 'https://images.unsplash.com/photo-1632823471565-1ecdf5c6da77?w=600' }}
-                        />
+                        {isYouTube(video.videoUrl) ? (
+                          <img
+                            src={getYouTubeThumb(video.videoUrl)}
+                            alt={lang === 'ar' ? video.title : (video.titleEn || video.title)}
+                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                            onError={(e) => { e.target.src = 'https://images.unsplash.com/photo-1632823471565-1ecdf5c6da77?w=600' }}
+                          />
+                        ) : (
+                          <video
+                            src={video.videoUrl}
+                            className="w-full h-full object-cover bg-black/80"
+                            muted
+                          />
+                        )}
                         <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent" />
                         {/* Play button */}
                         <div className="absolute inset-0 flex items-center justify-center">
@@ -302,7 +326,7 @@ export default function Gallery() {
                         <div className="absolute bottom-0 right-0 left-0 p-4 transform translate-y-2 group-hover:translate-y-0 transition-transform duration-300">
                           <h3 className="text-white font-bold text-sm mb-1 line-clamp-1">{lang === 'ar' ? video.title : (video.titleEn || video.title)}</h3>
                           <div className="flex items-center gap-1.5 text-white/60 text-[10px]">
-                            <svg className="w-3 h-3 text-red-500" viewBox="0 0 24 24" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814z"/></svg>
+                            <svg className="w-3 h-3 text-red-500" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
                             <span>{lang === 'ar' ? 'اضغط للمشاهدة' : 'Click to watch'}</span>
                           </div>
                         </div>

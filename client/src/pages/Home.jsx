@@ -1,13 +1,17 @@
 import { useState, useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { useLanguage } from '../context/LanguageContext'
+import { useSettings } from '../context/SettingsContext'
 import ServiceCard from '../components/ServiceCard'
 import CTABanner from '../components/CTABanner'
 import Icons from '../components/Icons'
+import Toast, { useToast } from '../components/Toast'
 import { services, features, stats, promoBadges, aboutBulletPoints, aboutText, bookingSteps, heroBadges, testimonials, siteInfo, carBrands } from '../data/content'
 
 export default function Home() {
   const { lang, t } = useLanguage()
+  const { get } = useSettings()
+  const { toast, showToast } = useToast()
   const [bookingForm, setBookingForm] = useState({ name: '', phone: '', service: '', date: '', time: '' })
   const [reviewForm, setReviewForm] = useState({ name: '', role: '', text: '', rating: 5 })
   const [showReviewForm, setShowReviewForm] = useState(false)
@@ -28,21 +32,32 @@ export default function Home() {
     })
       .then((res) => res.json())
       .then(() => {
-        alert(t('home.bookingSuccess'))
+        showToast(t('home.bookingSuccess'), 'success')
         setBookingForm({ name: '', phone: '', service: '', date: '', time: '' })
       })
-      .catch(() => alert(t('home.bookingError')))
+      .catch(() => showToast(t('home.bookingError')))
   }
 
   const handleReviewSubmit = (e) => {
     e.preventDefault()
-    setUserReviews([...userReviews, { ...reviewForm, name: reviewForm.name }])
-    setReviewSubmitted(true)
-    setReviewForm({ name: '', role: '', text: '', rating: 5 })
-    setTimeout(() => {
-      setShowReviewForm(false)
-      setReviewSubmitted(false)
-    }, 2500)
+    fetch('/api/reviews', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(reviewForm),
+    })
+      .then((res) => res.json())
+      .then((d) => {
+        if (d.success) {
+          setUserReviews([...userReviews, d.data])
+          setReviewSubmitted(true)
+          setReviewForm({ name: '', role: '', text: '', rating: 5 })
+          setTimeout(() => {
+            setShowReviewForm(false)
+            setReviewSubmitted(false)
+          }, 2500)
+        }
+      })
+      .catch(() => {})
   }
 
   const reviewsPerPage = 3
@@ -60,6 +75,10 @@ export default function Home() {
     fetch('/api/articles?active=true')
       .then(r => r.json())
       .then(d => setArticles(d.data || []))
+      .catch(() => {})
+    fetch('/api/reviews?active=true')
+      .then(r => r.json())
+      .then(d => { if (d.data) setUserReviews(d.data) })
       .catch(() => {})
   }, [])
 
@@ -111,27 +130,27 @@ export default function Home() {
       {/* ============ HERO SECTION ============ */}
       <section className="relative min-h-[90vh] flex items-center overflow-hidden">
         <div className="absolute inset-0 z-0">
-          <img src="/hero-bg.png" alt={lang === 'ar' ? 'ورشة Automotive Academy' : 'Automotive Academy Workshop'} className="w-full h-full object-cover" />
+          <img src={get('bg_home') || '/hero-bg.png'} alt={lang === 'ar' ? 'ورشة Automotive Academy' : 'Automotive Academy Workshop'} className="w-full h-full object-cover" style={{ objectPosition: `${get('bg_home_x') || 50}% ${get('bg_home_y') || 50}%` }} />
           <div className="absolute inset-0 bg-gradient-to-l from-[#0a0a0f] via-[#0a0a0f]/85 to-[#0a0a0f]/30" />
         </div>
 
-        <div className="container-custom relative z-10 py-12 pt-32">
+        <div className="container-custom relative z-10 py-12 pt-28 sm:pt-32">
           <div className="flex flex-col lg:flex-row items-center lg:items-start justify-between gap-8">
             {/* Right Side - Text */}
-            <div className="flex-1 lg:pt-8 lg:pr-8">
-              <span className="inline-block text-primary font-bold text-sm tracking-wide mb-4 flex items-center gap-2">
+            <div className="flex-1 lg:pt-8 lg:pr-8 text-center lg:text-right">
+              <span className="inline-block text-primary font-bold text-sm tracking-wide mb-4 flex items-center gap-2 lg:justify-start justify-center">
                 <span className="w-8 h-px bg-primary" />
                 {t('home.heroBadge')}
               </span>
               <h1 className="text-3xl md:text-5xl font-bold text-white leading-tight mb-5">
-                {t('home.heroTitle1')}<br /><span className="text-primary">{t('home.heroTitle2')}</span>
+                {get('hero_home_title1') || t('home.heroTitle1')}<br /><span className="text-primary">{get('hero_home_title2') || t('home.heroTitle2')}</span>
               </h1>
-              <p className="text-white/80 text-lg mb-8 max-w-lg leading-relaxed">
-                {t('home.heroDesc')}
+              <p className="text-white/80 text-base md:text-lg mb-8 max-w-lg mx-auto lg:mx-0 leading-relaxed">
+                {get('hero_home_desc') || t('home.heroDesc')}
               </p>
 
               {/* Trust Badges */}
-              <div className="flex flex-wrap gap-3">
+              <div className="flex flex-wrap gap-3 justify-center lg:justify-start">
                 {heroBadges.map((badge, index) => (
                   <div key={index} className="flex items-center gap-2 bg-white/10 rounded-full px-4 py-2 border border-white/10 hover:border-primary/30 transition-colors">
                     <span className="text-primary">{renderIcon(badge.icon, 'w-5 h-5')}</span>
@@ -142,7 +161,7 @@ export default function Home() {
             </div>
 
             {/* Left Side - Booking Form */}
-            <div className="w-full max-w-sm bg-white/5 backdrop-blur-2xl rounded-2xl p-6 border border-white/20 shadow-2xl shadow-primary/10 flex-shrink-0 lg:ml-0">
+            <div className="w-full max-w-sm bg-white/5 backdrop-blur-2xl rounded-2xl p-5 sm:p-6 border border-white/20 shadow-2xl shadow-primary/10 flex-shrink-0">
               <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-white/10 to-transparent pointer-events-none" />
               <div className="mb-5 relative z-10">
                 <h3 className="text-xl font-bold text-white mb-1">{t('home.bookNow')}</h3>
@@ -192,7 +211,7 @@ export default function Home() {
               </form>
               <div className="mt-4 pt-4 border-t border-white/5 text-center">
                 <p className="text-gray-400 text-xs mb-0.5">{t('home.orCall')}</p>
-                <a href={`tel:${siteInfo.phone.replace(/\s/g, '')}`} className="text-primary font-bold text-base hover:text-primary-light transition-colors">{siteInfo.phone}</a>
+                <a href={`tel:${(get('site_phone') || '').replace(/\s/g, '')}`} className="text-primary font-bold text-base hover:text-primary-light transition-colors">{get('site_phone')}</a>
               </div>
             </div>
           </div>
@@ -233,7 +252,7 @@ export default function Home() {
       <section className="py-10 md:py-14 relative overflow-hidden bg-dark">
         <div className="absolute top-0 right-0 w-96 h-96 bg-primary/5 rounded-full blur-3xl" />
         <div className="container-custom relative z-10">
-          <div className="flex items-center justify-between mb-8">
+          <div className="flex flex-col sm:flex-row items-center justify-between mb-8 gap-3">
             <div className="text-center flex-1">
               <span className="text-primary font-bold text-sm flex items-center justify-center gap-2 mb-2">
                 <span className="w-8 h-px bg-primary" />
@@ -325,7 +344,7 @@ export default function Home() {
       {/* Add Review Modal */}
       {showReviewForm && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/70 -sm" onClick={() => setShowReviewForm(false)}>
-          <div className="bg-overlay/10 rounded-2xl p-6 border border-overlay/20 max-w-md w-full shadow-2xl" onClick={(e) => e.stopPropagation()}>
+          <div className="bg-gradient-to-b from-surface to-[#0a0a0f] rounded-2xl p-6 border border-overlay/20 max-w-md w-full shadow-2xl" onClick={(e) => e.stopPropagation()}>
             {reviewSubmitted ? (
               <div className="text-center py-4">
                 <div className="w-16 h-16 bg-green-600/20 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -602,12 +621,21 @@ export default function Home() {
               <div className="absolute -inset-4 bg-primary/10 rounded-3xl blur-2xl opacity-50 group-hover:opacity-100 transition-opacity duration-500" />
               <div className="relative rounded-2xl overflow-hidden border border-overlay/10 shadow-2xl shadow-primary/10">
                 <div className="relative bg-black max-h-[500px]">
-                  <video
-                    src="/workshop-video.mp4"
-                    controls
-                    playsInline
-                    className="w-full h-auto max-h-[500px] object-contain"
-                  />
+                  {/(?:youtube\.com|youtu\.be)/.test(get('workshop_video') || '') ? (
+                    <iframe
+                      src={(get('workshop_video') || '').replace('watch?v=', 'embed/').replace('youtu.be/', 'youtube.com/embed/').split('&')[0]}
+                      title="Workshop Video"
+                      className="w-full h-full min-h-[300px] max-h-[500px]"
+                      allowFullScreen
+                    />
+                  ) : (
+                    <video
+                      src={get('workshop_video') || '/workshop-video.mp4'}
+                      controls
+                      playsInline
+                      className="w-full h-auto max-h-[500px] object-contain"
+                    />
+                  )}
 
                   {/* Decorative corners */}
                   <div className="absolute top-3 right-3 w-6 h-6 border-t-2 border-r-2 border-primary/50 rounded-tr-lg pointer-events-none" />
@@ -696,6 +724,7 @@ export default function Home() {
       </section>
 
       <CTABanner />
+      <Toast toast={toast} />
     </div>
   )
 }

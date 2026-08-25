@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import Icons from '../components/Icons'
+import Toast, { useToast } from '../components/Toast'
 import { useLanguage } from '../context/LanguageContext'
+import { useSettings } from '../context/SettingsContext'
 import { offers as defaultOffers, offerCategories, offerCategoriesEn, offerTrustBadges, timeSlots } from '../data/content'
 
 const renderIcon = (name, className = 'w-6 h-6') => {
@@ -20,16 +22,20 @@ const cardThemes = [
 
 export default function Offers() {
   const { lang, t } = useLanguage()
+  const { get } = useSettings()
+  const { toast, showToast } = useToast()
   const [activeCategory, setActiveCategory] = useState(lang === 'ar' ? 'كل العروض' : 'All Offers')
   const [selectedOffer, setSelectedOffer] = useState(null)
   const [form, setForm] = useState({ name: '', phone: '', date: '', time: '' })
   const [submitted, setSubmitted] = useState(false)
   const [offers, setOffers] = useState(defaultOffers)
+  const [newsletterEmail, setNewsletterEmail] = useState('')
+  const [newsletterSubscribed, setNewsletterSubscribed] = useState(false)
 
   useEffect(() => {
     fetch('/api/offers?active=true')
       .then(r => r.json())
-      .then(d => { if (d.success && d.data?.length) setOffers(d.data) })
+      .then(d => { if (d.success) setOffers(d.data) })
       .catch(() => {})
   }, [])
 
@@ -56,7 +62,29 @@ export default function Offers() {
     })
       .then((res) => res.json())
       .then(() => setSubmitted(true))
-      .catch(() => alert(lang === 'ar' ? 'حدث خطأ، يرجى المحاولة مرة أخرى.' : 'An error occurred, please try again.'))
+      .catch(() => showToast(lang === 'ar' ? 'حدث خطأ، يرجى المحاولة مرة أخرى.' : 'An error occurred, please try again.'))
+  }
+
+  const handleNewsletterSubscribe = async (e) => {
+    e.preventDefault()
+    if (!newsletterEmail) return
+    try {
+      const res = await fetch('/api/subscribers', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: newsletterEmail }),
+      })
+      const data = await res.json()
+      if (data.success) {
+        setNewsletterSubscribed(true)
+        setNewsletterEmail('')
+        setTimeout(() => setNewsletterSubscribed(false), 4000)
+      } else {
+        showToast(data.message || 'حدث خطأ')
+      }
+    } catch {
+      showToast(lang === 'ar' ? 'حدث خطأ، يرجى المحاولة مرة أخرى.' : 'An error occurred, please try again.')
+    }
   }
 
   const categories = lang === 'ar' ? offerCategories : offerCategoriesEn
@@ -69,24 +97,24 @@ export default function Offers() {
   return (
     <div className="pt-20">
       {/* ============ HERO ============ */}
-      <section className="relative py-16 md:py-20 overflow-hidden bg-dark">
+      <section className="relative py-12 md:py-20 overflow-hidden bg-dark">
         <div className="absolute inset-0 z-0">
-          <img src="/offers-bg.png" alt="" className="w-full h-full object-cover opacity-60" />
+          <img src={get('bg_offers') || '/offers-bg.png'} alt="" className="w-full h-full object-cover opacity-60" style={{ objectPosition: `${get('bg_offers_x') || 50}% ${get('bg_offers_y') || 50}%` }} />
           <div className="absolute inset-0 bg-gradient-to-l from-[#0a0a0f] via-[#0a0a0f]/60 to-[#0a0a0f]/20" />
         </div>
         <div className="container-custom relative z-10">
           <div className="grid lg:grid-cols-3 gap-8 items-center">
             <div className="lg:col-span-2">
-              <div className="flex items-center gap-2 text-faint text-sm mb-4">
+              <div className="flex items-center gap-2 text-faint text-xs sm:text-sm mb-4">
                 <Link to="/" className="hover:text-primary transition-colors">{t('offers.breadcrumbHome')}</Link>
                 <span className="text-primary">/</span>
                 <span className="text-primary">{t('offers.breadcrumbCurrent')}</span>
               </div>
-              <h1 className="text-4xl md:text-6xl font-bold text-white mb-4 leading-tight">
-                <span className="text-primary">{t('offers.title1')}</span> {t('offers.title2')}
+              <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold text-white mb-4 leading-tight">
+                <span className="text-primary">{get('hero_offers_title1') || t('offers.title1')}</span> {get('hero_offers_title2') || t('offers.title2')}
               </h1>
-              <p className="text-white/80 text-lg max-w-2xl">
-                {t('offers.desc')}
+              <p className="text-white/80 text-sm md:text-lg max-w-2xl">
+                {get('hero_offers_desc') || t('offers.desc')}
               </p>
             </div>
             <div className="relative group">
@@ -259,12 +287,21 @@ export default function Offers() {
                 </p>
               </div>
               <div>
-                <form className="flex gap-3">
+                {newsletterSubscribed ? (
+                  <div className="flex items-center gap-2 text-green-400 bg-green-500/15 border border-green-500/30 rounded-lg px-4 py-3.5 text-sm backdrop-blur-sm">
+                    <Icons.CheckCircle className="w-5 h-5" />
+                    {lang === 'ar' ? 'تم تسجيل اشتراكك! تحقق من بريدك للتأكيد.' : 'Subscribed! Check your email to confirm.'}
+                  </div>
+                ) : (
+                <form onSubmit={handleNewsletterSubscribe} className="flex flex-col sm:flex-row gap-3">
                   <div className="relative flex-1">
                     <input
                       type="email"
+                      value={newsletterEmail}
+                      onChange={(e) => setNewsletterEmail(e.target.value)}
                       placeholder={t('offers.emailPlaceholder')}
-                      className="w-full bg-white/10  border border-white/20 rounded-lg pr-4 pl-10 py-3.5 text-white placeholder-white/50 text-sm focus:outline-none focus:bg-white/15 focus:border-white/40 transition-all"
+                      required
+                      className="w-full bg-white/10 border border-white/20 rounded-lg pr-4 pl-10 py-3.5 text-white placeholder-white/50 text-sm focus:outline-none focus:bg-white/15 focus:border-white/40 transition-all"
                     />
                     <span className="absolute top-1/2 -translate-y-1/2 left-3 text-white/50">
                       <Icons.Mail className="w-5 h-5" />
@@ -272,11 +309,12 @@ export default function Offers() {
                   </div>
                   <button
                     type="submit"
-                    className="bg-primary hover:bg-primary-dark text-white font-bold px-8 py-3.5 rounded-lg transition-all duration-300 text-sm whitespace-nowrap hover:shadow-lg hover:shadow-primary/40"
+                    className="bg-primary hover:bg-primary-dark text-white font-bold px-6 sm:px-8 py-3.5 rounded-lg transition-all duration-300 text-sm whitespace-nowrap hover:shadow-lg hover:shadow-primary/40"
                   >
                     {t('offers.subscribe')}
                   </button>
                 </form>
+                )}
               </div>
             </div>
         </div>
@@ -323,7 +361,7 @@ export default function Offers() {
                     required
                     className="w-full bg-overlay/10 border border-overlay/20 rounded-lg px-4 py-2.5 text-heading placeholder-overlay/50 focus:border-primary focus:bg-overlay/15 focus:outline-none text-sm"
                   />
-                  <div className="grid grid-cols-2 gap-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <input
                       type="date"
                       value={form.date}
@@ -350,6 +388,7 @@ export default function Offers() {
           </div>
         </div>
       )}
+      <Toast toast={toast} />
     </div>
   )
 }

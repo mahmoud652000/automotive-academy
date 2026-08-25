@@ -12,10 +12,12 @@
     "install:all": "cd client && npm install && cd ../server && npm install"
   },
   "dependencies": {
+    "better-sqlite3": "^11.1.2",
     "concurrently": "^8.2.2",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
-    "mongoose": "^8.2.3"
+    "multer": "^2.2.0",
+    "resend": "^4.8.0"
   }
 }

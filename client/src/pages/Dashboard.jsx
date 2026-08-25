@@ -3,9 +3,10 @@ import { Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { useLanguage } from '../context/LanguageContext'
 import { useTheme } from '../context/ThemeContext'
+import { useSettings } from '../context/SettingsContext'
 import Icons from '../components/Icons'
 import Logo from '../components/Logo'
-import { services as defaultServices, offers as defaultOffers, courses as defaultCourses, testimonials as defaultTestimonials, siteInfo } from '../data/content'
+import { siteInfo } from '../data/content'
 
 const renderIcon = (name, className = 'w-5 h-5') => {
   const Icon = Icons[name]
@@ -14,11 +15,57 @@ const renderIcon = (name, className = 'w-5 h-5') => {
 
 const iconOptions = ['Wrench', 'Gear', 'Shield', 'Bolt', 'Car', 'Oil', 'Computer', 'Brake', 'Snowflake', 'Search', 'Tag', 'Trophy']
 
+const iconLabels = {
+  Wrench: 'ميكانيكا',
+  Gear: 'قطع غيار',
+  Shield: 'حماية',
+  Bolt: 'كهرباء',
+  Car: 'عفشة',
+  Oil: 'زيت',
+  Computer: 'كمبيوتر',
+  Brake: 'فرامل',
+  Snowflake: 'تكييف',
+  Search: 'فحص',
+  Tag: 'سعر',
+  Trophy: 'جودة',
+}
+
+const serviceCategories = [
+  'ميكانيكا', 'عفشة', 'كهرباء', 'تكييف', 'فرامل', 'صيانة دورية',
+  'سمكرة ودهان', 'إطارات', 'زيوت', 'كشوف', 'تنظيف', 'كمبيوتر وتشخيص', 'عام'
+]
+
+const offerCategoryMap = {
+  'كشوف': ['كشف شامل', 'كشف محرك', 'كشف عفشة', 'كشف قير', 'كشف كهرباء', 'كشف تكييف', 'كشف فرامل', 'كشف بيع وشراء'],
+  'ميكانيكا': ['محرك', 'قير', 'زيوت وفلاتر', 'طلمبة بنزين', 'دورة تبريد', 'حساسات'],
+  'عفشة': ['مساعدات', 'نوابض', 'أذرع تحكم', 'رولمان بلي', 'مفصلات', 'مقود'],
+  'كهرباء': ['بطارية', 'دينمو', 'إنارة', 'أسلاك', 'حساسات', 'فيوزات'],
+  'تكييف': ['شحن فريون', 'تنظيف تكييف', 'كومبروسر', 'مروحة تكييف', 'خراطيم', 'فلاتر تكييف'],
+  'فرامل': ['تيل أمامي', 'تيل خلفي', 'طنابير', 'أقراص', 'هيدروليك', 'ABS'],
+  'صيانة': ['صيانة دورية', 'تغيير زيت', 'فلتر هواء', 'فحص شامل', 'ضبط محرك', 'صيانة وقائية'],
+  'تنظيف': ['غسيل خارجي', 'غسيل داخلي', 'تلميع', 'تعقيم', 'حماية سطح', 'تفصيل داخلي'],
+  'سمكرة ودهان': ['سمكرة', 'دهان', 'صقل', 'إصلاح خدوش', 'حماية'],
+  'إطارات': ['تغيير إطارات', 'ميزان', 'ضبط زوايا', 'إصلاح ثقب', 'تخزين إطارات'],
+  'كمبيوتر وتشخيص': ['فحص كمبيوتر', 'برمجة', 'مسح أكواد', 'إعادة ضبط', 'تشخيص أعطال'],
+}
+
 const apiCall = async (url, method = 'GET', body = null) => {
   const opts = { method, headers: { 'Content-Type': 'application/json' } }
   if (body) opts.body = JSON.stringify(body)
   const res = await fetch(url, opts)
-  return res.json()
+  const data = await res.json()
+  if (!res.ok || data.success === false) throw new Error(data.message || 'حدث خطأ في العملية')
+  return data
+}
+
+const uploadFile = async (file) => {
+  const fd = new FormData()
+  fd.append('file', file)
+  const res = await fetch('/api/upload', { method: 'POST', body: fd })
+  if (!res.ok) throw new Error('فشل رفع الملف')
+  const data = await res.json()
+  if (!data.success) throw new Error(data.message || 'فشل رفع الملف')
+  return data.data.url
 }
 
 const EmptyState = ({ icon = 'Search', title, sub = '' }) => (
@@ -103,8 +150,18 @@ const DeleteBtn = ({ onClick, t }) => (
     onClick={onClick}
     className="text-red-400 hover:text-red-300 text-xs px-2.5 py-1.5 rounded-lg hover:bg-red-500/10 transition-all flex items-center gap-1"
   >
-    <Icons.Shield className="w-3.5 h-3.5" />
+    <Icons.Trash className="w-3.5 h-3.5" />
     {t('dash.delete')}
+  </button>
+)
+
+const ViewBtn = ({ onClick, t }) => (
+  <button
+    onClick={onClick}
+    className="text-emerald-400 hover:text-emerald-300 text-xs px-2.5 py-1.5 rounded-lg hover:bg-emerald-500/10 transition-all flex items-center gap-1"
+  >
+    <Icons.Eye className="w-3.5 h-3.5" />
+    {t('dash.view')}
   </button>
 )
 
@@ -113,7 +170,7 @@ const EditBtn = ({ onClick, t }) => (
     onClick={onClick}
     className="text-blue-400 hover:text-blue-300 text-xs px-2.5 py-1.5 rounded-lg hover:bg-blue-500/10 transition-all flex items-center gap-1"
   >
-    <Icons.Search className="w-3.5 h-3.5" />
+    <Icons.Edit className="w-3.5 h-3.5" />
     {t('dash.edit')}
   </button>
 )
@@ -238,6 +295,7 @@ const printBookings = (bookings, type, lang, t, siteInfo) => {
 export default function Dashboard() {
   const { username, logout } = useAuth()
   const { lang, t, toggleLang } = useLanguage()
+  const { settings } = useSettings()
   const { theme, toggleTheme } = useTheme()
   const [activeTab, setActiveTab] = useState('overview')
 
@@ -246,10 +304,11 @@ export default function Dashboard() {
   const [offers, setOffers] = useState([])
   const [services, setServices] = useState([])
   const [courses, setCourses] = useState([])
-  const [reviews, setReviews] = useState(defaultTestimonials)
+  const [reviews, setReviews] = useState([])
   const [events, setEvents] = useState([])
   const [gallery, setGallery] = useState([])
   const [articles, setArticles] = useState([])
+  const [subscribers, setSubscribers] = useState([])
 
   const [bookingFilter, setBookingFilter] = useState('all')
   const [courseBookingFilter, setCourseBookingFilter] = useState('all')
@@ -257,29 +316,50 @@ export default function Dashboard() {
   const [search, setSearch] = useState('')
   const [courseSearch, setCourseSearch] = useState('')
   const [offerSearch, setOfferSearch] = useState('')
+  const [toast, setToast] = useState(null)
+  const [loading, setLoading] = useState(true)
 
-  // Seed DB on first load if empty, then fetch all data
+  // Settings state — initialized from SettingsContext
+  const [settingsForm, setSettingsForm] = useState({})
+  const [settingsLoaded, setSettingsLoaded] = useState(false)
+
   useEffect(() => {
-    const seedIfNeeded = async () => {
-      try {
-        const offRes = await apiCall('/api/offers')
-        const svcRes = await apiCall('/api/services')
-        const crsRes = await apiCall('/api/courses')
-        if ((!offRes.success || offRes.data?.length === 0) && defaultOffers.length) {
-          await apiCall('/api/seed', 'POST', { offers: defaultOffers })
-        }
-        if ((!svcRes.success || svcRes.data?.length === 0) && defaultServices.length) {
-          await apiCall('/api/seed', 'POST', { services: defaultServices })
-        }
-        if ((!crsRes.success || crsRes.data?.length === 0) && defaultCourses.length) {
-          await apiCall('/api/seed', 'POST', { courses: defaultCourses })
-        }
-      } catch {}
+    if (!settingsLoaded && settings) {
+      setSettingsForm({ ...settings })
+      setSettingsLoaded(true)
     }
+  }, [settings, settingsLoaded])
 
-    const fetchAll = async () => {
+  const handleSettingsChange = (key, value) => {
+    setSettingsForm(prev => ({ ...prev, [key]: value }))
+  }
+
+  const handleSettingsUpload = async (key, file) => {
+    try {
+      const url = await uploadFile(file)
+      setSettingsForm(prev => ({ ...prev, [key]: url }))
+    } catch (e) { showToast(e.message) }
+  }
+
+  const handleSaveSettings = async () => {
+    try {
+      await apiCall('/api/settings', 'PUT', settingsForm)
+      showToast(t('dash.settingsSaved'), 'success')
+      // Reload to apply settings everywhere
+      setTimeout(() => window.location.reload(), 1200)
+    } catch (e) { showToast(e.message) }
+  }
+
+  const showToast = (msg, type = 'error') => {
+    setToast({ msg, type })
+    setTimeout(() => setToast(null), 3500)
+  }
+
+  // Fetch all data on mount
+  useEffect(() => {
+    const init = async () => {
       try {
-        const [bk, ct, ev, of, sv, cr, gl, ar] = await Promise.all([
+        const results = await Promise.allSettled([
           apiCall('/api/bookings'),
           apiCall('/api/contacts'),
           apiCall('/api/events'),
@@ -288,7 +368,11 @@ export default function Dashboard() {
           apiCall('/api/courses'),
           apiCall('/api/gallery'),
           apiCall('/api/articles'),
+          apiCall('/api/reviews'),
+          apiCall('/api/subscribers'),
         ])
+        const val = (r) => r.status === 'fulfilled' ? r.value : { data: [] }
+        const [bk, ct, ev, of, sv, cr, gl, ar, rv, subs] = results.map(val)
         setBookings(bk.data || [])
         setContacts(ct.data || [])
         setEvents(ev.data || [])
@@ -297,24 +381,87 @@ export default function Dashboard() {
         setCourses(cr.data || [])
         setGallery(gl.data || [])
         setArticles(ar.data || [])
-      } catch {}
+        setReviews(rv.data || [])
+        setSubscribers(subs.data || [])
+      } catch (e) {
+        console.error('Fetch failed:', e.message)
+      } finally {
+        setLoading(false)
+      }
     }
 
-    seedIfNeeded().then(fetchAll)
+    init()
   }, [])
 
-  const updateBookingStatus = (id, status) => {
-    fetch(`/api/bookings/${id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ status }) })
-    setBookings(bookings.map(b => b._id === id ? { ...b, status } : b))
+  const updateBookingStatus = async (id, status) => {
+    try {
+      await apiCall(`/api/bookings/${id}`, 'PATCH', { status })
+      setBookings(prev => prev.map(b => b._id === id ? { ...b, status } : b))
+    } catch (e) { showToast(e.message) }
   }
-  const deleteBooking = (id) => { fetch(`/api/bookings/${id}`, { method: 'DELETE' }); setBookings(bookings.filter(b => b._id !== id)) }
-  const deleteContact = (id) => { fetch(`/api/contacts/${id}`, { method: 'DELETE' }); setContacts(contacts.filter(c => c._id !== id)) }
-  const deleteEvent = (id) => { fetch(`/api/events/${id}`, { method: 'DELETE' }); setEvents(events.filter(e => e._id !== id)) }
-  const deleteOffer = (id) => { fetch(`/api/offers/${id}`, { method: 'DELETE' }); setOffers(offers.filter(o => o._id !== id)) }
-  const deleteService = (id) => { fetch(`/api/services/${id}`, { method: 'DELETE' }); setServices(services.filter(s => s._id !== id)) }
-  const deleteCourse = (id) => { fetch(`/api/courses/${id}`, { method: 'DELETE' }); setCourses(courses.filter(c => c._id !== id)) }
-  const deleteGalleryItem = (id) => { fetch(`/api/gallery/${id}`, { method: 'DELETE' }); setGallery(gallery.filter(g => g._id !== id)) }
-  const deleteArticle = (id) => { fetch(`/api/articles/${id}`, { method: 'DELETE' }); setArticles(articles.filter(a => a._id !== id)) }
+  const deleteBooking = async (id) => {
+    try {
+      await apiCall(`/api/bookings/${id}`, 'DELETE')
+      setBookings(prev => prev.filter(b => b._id !== id))
+      showToast(t('dash.deletedSuccess'), 'success')
+    } catch (e) { showToast(e.message) }
+  }
+  const deleteContact = async (id) => {
+    try {
+      await apiCall(`/api/contacts/${id}`, 'DELETE')
+      setContacts(prev => prev.filter(c => c._id !== id))
+      showToast(t('dash.deletedSuccess'), 'success')
+    } catch (e) { showToast(e.message) }
+  }
+  const deleteEvent = async (id) => {
+    try {
+      await apiCall(`/api/events/${id}`, 'DELETE')
+      setEvents(prev => prev.filter(e => e._id !== id))
+      showToast(t('dash.deletedSuccess'), 'success')
+    } catch (e) { showToast(e.message) }
+  }
+  const deleteOffer = async (id) => {
+    try {
+      await apiCall(`/api/offers/${id}`, 'DELETE')
+      setOffers(prev => prev.filter(o => o._id !== id))
+      showToast(t('dash.deletedSuccess'), 'success')
+    } catch (e) { showToast(e.message) }
+  }
+  const deleteService = async (id) => {
+    try {
+      await apiCall(`/api/services/${id}`, 'DELETE')
+      setServices(prev => prev.filter(s => s._id !== id))
+      showToast(t('dash.deletedSuccess'), 'success')
+    } catch (e) { showToast(e.message) }
+  }
+  const deleteCourse = async (id) => {
+    try {
+      await apiCall(`/api/courses/${id}`, 'DELETE')
+      setCourses(prev => prev.filter(c => c._id !== id))
+      showToast(t('dash.deletedSuccess'), 'success')
+    } catch (e) { showToast(e.message) }
+  }
+  const deleteGalleryItem = async (id) => {
+    try {
+      await apiCall(`/api/gallery/${id}`, 'DELETE')
+      setGallery(prev => prev.filter(g => g._id !== id))
+      showToast(t('dash.deletedSuccess'), 'success')
+    } catch (e) { showToast(e.message) }
+  }
+  const deleteArticle = async (id) => {
+    try {
+      await apiCall(`/api/articles/${id}`, 'DELETE')
+      setArticles(prev => prev.filter(a => a._id !== id))
+      showToast(t('dash.deletedSuccess'), 'success')
+    } catch (e) { showToast(e.message) }
+  }
+  const deleteSubscriber = async (id) => {
+    try {
+      await apiCall(`/api/subscribers/${id}`, 'DELETE')
+      setSubscribers(prev => prev.filter(s => s._id !== id))
+      showToast(t('dash.deletedSuccess'), 'success')
+    } catch (e) { showToast(e.message) }
+  }
 
   const [showForm, setShowForm] = useState(false)
   const [formType, setFormType] = useState('')
@@ -336,34 +483,45 @@ export default function Dashboard() {
   }
   const closeForm = () => { setShowForm(false); setFormType(''); setFormData({}); setEditId(null) }
 
+  const [showPreview, setShowPreview] = useState(false)
+  const [previewData, setPreviewData] = useState(null)
+  const [previewType, setPreviewType] = useState('')
+
+  const openPreview = (type, item) => {
+    setPreviewType(type)
+    setPreviewData(item)
+    setShowPreview(true)
+  }
+  const closePreview = () => { setShowPreview(false); setPreviewData(null); setPreviewType('') }
+
   const handleFormSubmit = async (e) => {
     e.preventDefault()
     try {
       if (formType === 'offer') {
         if (editId) {
           const d = await apiCall(`/api/offers/${editId}`, 'PUT', formData)
-          if (d.success) setOffers(offers.map(o => o._id === editId ? d.data : o))
+          if (d.success) setOffers(prev => prev.map(o => o._id === editId ? d.data : o))
         } else {
           const d = await apiCall('/api/offers', 'POST', formData)
-          if (d.success) setOffers([...offers, d.data])
+          if (d.success) setOffers(prev => [...prev, d.data])
         }
       }
       else if (formType === 'service') {
         if (editId) {
           const d = await apiCall(`/api/services/${editId}`, 'PUT', formData)
-          if (d.success) setServices(services.map(s => s._id === editId ? d.data : s))
+          if (d.success) setServices(prev => prev.map(s => s._id === editId ? d.data : s))
         } else {
           const d = await apiCall('/api/services', 'POST', formData)
-          if (d.success) setServices([...services, d.data])
+          if (d.success) setServices(prev => [...prev, d.data])
         }
       }
       else if (formType === 'course') {
         if (editId) {
           const d = await apiCall(`/api/courses/${editId}`, 'PUT', formData)
-          if (d.success) setCourses(courses.map(c => c._id === editId ? d.data : c))
+          if (d.success) setCourses(prev => prev.map(c => c._id === editId ? d.data : c))
         } else {
           const d = await apiCall('/api/courses', 'POST', formData)
-          if (d.success) setCourses([...courses, d.data])
+          if (d.success) setCourses(prev => [...prev, d.data])
         }
       }
       else if (formType === 'event') {
@@ -371,17 +529,17 @@ export default function Dashboard() {
         const url = editId ? `/api/events/${editId}` : '/api/events'
         const d = await apiCall(url, method, formData)
         if (d.success) {
-          if (editId) setEvents(events.map(e => e._id === editId ? d.data : e))
-          else setEvents([...events, d.data])
+          if (editId) setEvents(prev => prev.map(e => e._id === editId ? d.data : e))
+          else setEvents(prev => [...prev, d.data])
         }
       }
       else if (formType === 'gallery') {
         if (editId) {
           const d = await apiCall(`/api/gallery/${editId}`, 'PUT', formData)
-          if (d.success) setGallery(gallery.map(g => g._id === editId ? d.data : g))
+          if (d.success) setGallery(prev => prev.map(g => g._id === editId ? d.data : g))
         } else {
           const d = await apiCall('/api/gallery', 'POST', formData)
-          if (d.success) setGallery([...gallery, d.data])
+          if (d.success) setGallery(prev => [...prev, d.data])
         }
       }
       else if (formType === 'article') {
@@ -421,13 +579,16 @@ export default function Dashboard() {
 
         if (editId) {
           const d = await apiCall(`/api/articles/${editId}`, 'PUT', submitData)
-          if (d.success) setArticles(articles.map(a => a._id === editId ? d.data : a))
+          if (d.success) setArticles(prev => prev.map(a => a._id === editId ? d.data : a))
         } else {
           const d = await apiCall('/api/articles', 'POST', submitData)
-          if (d.success) setArticles([...articles, d.data])
+          if (d.success) setArticles(prev => [...prev, d.data])
         }
       }
-    } catch {}
+      showToast(editId ? 'تم التحديث بنجاح' : 'تمت الإضافة بنجاح', 'success')
+    } catch (e) {
+      showToast(e.message)
+    }
     closeForm()
   }
 
@@ -445,19 +606,22 @@ export default function Dashboard() {
 
   const filteredBookings = serviceBookings.filter(b => {
     const matchFilter = bookingFilter === 'all' || b.status === bookingFilter
-    const matchSearch = !search || b.name?.includes(search) || b.phone?.includes(search) || b.service?.includes(search)
+    const q = search.toLowerCase()
+    const matchSearch = !search || b.name?.toLowerCase().includes(q) || b.phone?.includes(q) || b.service?.toLowerCase().includes(q)
     return matchFilter && matchSearch
   })
 
   const filteredCourseBookings = courseBookings.filter(b => {
     const matchFilter = courseBookingFilter === 'all' || b.status === courseBookingFilter
-    const matchSearch = !courseSearch || b.name?.includes(courseSearch) || b.phone?.includes(courseSearch) || b.course?.includes(courseSearch)
+    const q = courseSearch.toLowerCase()
+    const matchSearch = !courseSearch || b.name?.toLowerCase().includes(q) || b.phone?.includes(q) || b.course?.toLowerCase().includes(q)
     return matchFilter && matchSearch
   })
 
   const filteredOfferBookings = offerBookings.filter(b => {
     const matchFilter = offerBookingFilter === 'all' || b.status === offerBookingFilter
-    const matchSearch = !offerSearch || b.name?.includes(offerSearch) || b.phone?.includes(offerSearch) || b.offer?.includes(offerSearch)
+    const q = offerSearch.toLowerCase()
+    const matchSearch = !offerSearch || b.name?.toLowerCase().includes(q) || b.phone?.includes(q) || b.offer?.toLowerCase().includes(q)
     return matchFilter && matchSearch
   })
 
@@ -488,7 +652,14 @@ export default function Dashboard() {
     },
     {
       title: t('dash.groupContact'),
-      items: [{ id: 'contacts', name: t('dash.contacts'), icon: 'Mail' }],
+      items: [
+        { id: 'contacts', name: t('dash.contacts'), icon: 'Mail' },
+        { id: 'subscribers', name: t('dash.subscribers'), icon: 'Mail' },
+      ],
+    },
+    {
+      title: t('dash.groupSettings'),
+      items: [{ id: 'settings', name: t('dash.settings'), icon: 'Gear' }],
     },
   ]
 
@@ -506,6 +677,7 @@ export default function Dashboard() {
     { label: t('dash.gallery'), value: gallery.length, icon: 'Search', color: 'text-indigo-400 bg-indigo-500/10', tab: 'gallery' },
     { label: t('dash.articles'), value: articles.length, icon: 'BookOpen', color: 'text-teal-400 bg-teal-500/10', tab: 'articles' },
     { label: t('dash.reviews'), value: reviews.length, icon: 'Star', color: 'text-cyan-400 bg-cyan-500/10', tab: 'reviews' },
+    { label: t('dash.subscribers'), value: subscribers.length, icon: 'Mail', color: 'text-indigo-400 bg-indigo-500/10', tab: 'subscribers' },
   ]
 
   const inputCls = "w-full bg-overlay/5 border border-overlay/10 rounded-xl px-3 py-2.5 text-heading text-sm placeholder-faint focus:outline-none focus:border-primary focus:bg-overlay/10 transition-all duration-300"
@@ -556,7 +728,7 @@ export default function Dashboard() {
         <div className="flex items-center gap-2.5">
           <Logo className="h-9 w-auto flex-shrink-0" showText={false} />
           <div>
-            <h1 className="text-heading font-bold text-sm leading-tight">{lang === 'ar' ? siteInfo.name : siteInfo.nameEn}</h1>
+            <h1 className="text-heading font-bold text-sm leading-tight">{lang === 'ar' ? (settings.site_name || siteInfo.name) : (settings.site_name_en || siteInfo.nameEn)}</h1>
             <p className="text-primary text-[10px] font-medium">{t('dash.adminRole')}</p>
           </div>
         </div>
@@ -650,8 +822,18 @@ export default function Dashboard() {
         {/* === Main Content === */}
         <main className="flex-1 md:mr-56 p-4 md:p-6 mt-14 md:mt-0 relative z-10 overflow-y-auto">
 
+          {/* Loading state */}
+          {loading && (
+            <div className="flex items-center justify-center py-32">
+              <div className="flex flex-col items-center gap-3">
+                <div className="w-10 h-10 border-2 border-primary/20 border-t-primary rounded-full animate-spin" />
+                <p className="text-faint text-xs">{t('dash.loading')}</p>
+              </div>
+            </div>
+          )}
+
           {/* === OVERVIEW === */}
-          {activeTab === 'overview' && (
+          {activeTab === 'overview' && !loading && (
             <div className="animate-fadeIn">
               {/* Header banner */}
               <div className="relative overflow-hidden rounded-xl bg-gradient-to-l from-primary/15 via-surface to-surface border border-overlay/10 p-4 mb-4">
@@ -666,7 +848,7 @@ export default function Dashboard() {
               </div>
 
               {/* Stats grid */}
-              <div className="grid grid-cols-3 lg:grid-cols-5 gap-2.5 mb-4">
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5 mb-4">
                 {stats.map((s, i) => (
                   <button
                     key={i}
@@ -738,7 +920,7 @@ export default function Dashboard() {
           )}
 
           {/* === BOOKINGS === */}
-          {activeTab === 'bookings' && (
+          {activeTab === 'bookings' && !loading && (
             <div className="animate-fadeIn">
               <PageHeader
                 title="حجوزات الخدمات"
@@ -791,7 +973,7 @@ export default function Dashboard() {
           )}
 
           {/* === COURSE BOOKINGS === */}
-          {activeTab === 'course-bookings' && (
+          {activeTab === 'course-bookings' && !loading && (
             <div className="animate-fadeIn">
               <PageHeader
                 title="حجوزات الدورات"
@@ -843,7 +1025,7 @@ export default function Dashboard() {
           )}
 
           {/* === OFFER BOOKINGS === */}
-          {activeTab === 'offer-bookings' && (
+          {activeTab === 'offer-bookings' && !loading && (
             <div className="animate-fadeIn">
               <PageHeader
                 title="حجوزات العروض"
@@ -894,7 +1076,7 @@ export default function Dashboard() {
           )}
 
           {/* === CONTACTS === */}
-          {activeTab === 'contacts' && (
+          {activeTab === 'contacts' && !loading && (
             <div className="animate-fadeIn">
               <PageHeader title={t('dash.contacts')} subtitle={`${contacts.length} ${t('dash.messageCount')}`} />
               {contacts.length === 0 ? (
@@ -929,23 +1111,28 @@ export default function Dashboard() {
           )}
 
           {/* === OFFERS === */}
-          {activeTab === 'offers' && (
+          {activeTab === 'offers' && !loading && (
             <div className="animate-fadeIn">
               <PageHeader title={t('dash.offers')} subtitle={`${offers.length} ${t('dash.offerCount')}`} action={<AddBtn onClick={() => openForm('offer')} t={t} />} />
               <div className="space-y-3">
                 {offers.map(o => (
                   <div key={o._id} className="group bg-gradient-to-b from-white/[0.03] to-transparent rounded-2xl p-4 border border-overlay/10 flex items-center justify-between hover:border-primary/20 transition-all duration-500">
                     <div className="flex items-center gap-3">
-                      <div className="w-11 h-11 bg-primary/10 rounded-xl flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-white transition-all duration-300">{renderIcon(o.icon || 'Tag', 'w-5 h-5')}</div>
+                      {o.image ? (
+                        <img src={o.image} alt={o.title} className="w-11 h-11 rounded-xl object-cover flex-shrink-0" />
+                      ) : (
+                        <div className="w-11 h-11 bg-primary/10 rounded-xl flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-white transition-all duration-300">{renderIcon(o.icon || 'Tag', 'w-5 h-5')}</div>
+                      )}
                       <div>
                         <h3 className="text-heading font-bold text-sm">{o.title}</h3>
                         <div className="flex items-center gap-2 mt-0.5">
                           {o.discount > 0 && <span className="text-primary text-xs font-bold">{o.discount}% {t('dash.discountPlaceholder')}</span>}
-                          <span className="text-faint text-[10px]">• {o.category}</span>
+                          <span className="text-faint text-[10px]">• {o.category}{o.subcategory ? ` / ${o.subcategory}` : ''}</span>
                         </div>
                       </div>
                     </div>
                     <div className="flex items-center gap-1">
+                      <ViewBtn onClick={() => openPreview('offer', o)} t={t} />
                       <EditBtn onClick={() => openForm('offer', o)} t={t} />
                       <DeleteBtn onClick={() => deleteOffer(o._id)} t={t} />
                     </div>
@@ -956,7 +1143,7 @@ export default function Dashboard() {
           )}
 
           {/* === SERVICES === */}
-          {activeTab === 'services' && (
+          {activeTab === 'services' && !loading && (
             <div className="animate-fadeIn">
               <PageHeader title={t('dash.services')} subtitle={`${services.length} ${t('dash.serviceCount')}`} action={<AddBtn onClick={() => openForm('service')} t={t} />} />
               <div className="space-y-3">
@@ -970,6 +1157,7 @@ export default function Dashboard() {
                       </div>
                     </div>
                     <div className="flex items-center gap-1">
+                      <ViewBtn onClick={() => openPreview('service', s)} t={t} />
                       <EditBtn onClick={() => openForm('service', s)} t={t} />
                       <DeleteBtn onClick={() => deleteService(s._id)} t={t} />
                     </div>
@@ -980,20 +1168,25 @@ export default function Dashboard() {
           )}
 
           {/* === COURSES === */}
-          {activeTab === 'courses' && (
+          {activeTab === 'courses' && !loading && (
             <div className="animate-fadeIn">
               <PageHeader title={t('dash.courses')} subtitle={`${courses.length} ${t('dash.courseCount')}`} action={<AddBtn onClick={() => openForm('course')} t={t} />} />
               <div className="space-y-3">
                 {courses.map(c => (
                   <div key={c._id} className="group bg-gradient-to-b from-white/[0.03] to-transparent rounded-2xl p-4 border border-overlay/10 flex items-center justify-between hover:border-primary/20 transition-all duration-500">
                     <div className="flex items-center gap-3">
-                      <div className="w-11 h-11 bg-primary/10 rounded-xl flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-white transition-all duration-300">{renderIcon('Gear', 'w-5 h-5')}</div>
+                      {c.image ? (
+                        <img src={c.image} alt={c.title} className="w-11 h-11 rounded-xl object-cover" />
+                      ) : (
+                        <div className="w-11 h-11 bg-primary/10 rounded-xl flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-white transition-all duration-300">{renderIcon('Gear', 'w-5 h-5')}</div>
+                      )}
                       <div>
                         <h3 className="text-heading font-bold text-sm">{c.title}</h3>
                         <p className="text-faint text-xs mt-0.5"><span className="text-primary">{c.duration}</span> • {c.desc}</p>
                       </div>
                     </div>
                     <div className="flex items-center gap-1">
+                      <ViewBtn onClick={() => openPreview('course', c)} t={t} />
                       <EditBtn onClick={() => openForm('course', c)} t={t} />
                       <DeleteBtn onClick={() => deleteCourse(c._id)} t={t} />
                     </div>
@@ -1004,7 +1197,7 @@ export default function Dashboard() {
           )}
 
           {/* === EVENTS === */}
-          {activeTab === 'events' && (
+          {activeTab === 'events' && !loading && (
             <div className="animate-fadeIn">
               <PageHeader title={t('dash.events')} subtitle={`${events.length} ${t('dash.eventCount')}`} action={<AddBtn onClick={() => openForm('event')} t={t} />} />
               {events.length === 0 ? (
@@ -1033,6 +1226,7 @@ export default function Dashboard() {
                         </div>
                       </div>
                       <div className="flex items-center gap-1">
+                      <ViewBtn onClick={() => openPreview('event', ev)} t={t} />
                       <EditBtn onClick={() => openForm('event', ev)} t={t} />
                       <DeleteBtn onClick={() => deleteEvent(ev._id)} t={t} />
                     </div>
@@ -1044,7 +1238,7 @@ export default function Dashboard() {
           )}
 
           {/* === GALLERY === */}
-          {activeTab === 'gallery' && (
+          {activeTab === 'gallery' && !loading && (
             <div className="animate-fadeIn">
               <PageHeader title={t('dash.gallery')} subtitle={`${gallery.length} ${lang === 'ar' ? 'عنصر' : 'items'}`} action={<AddBtn onClick={() => openForm('gallery')} t={t} />} />
               {gallery.length === 0 ? (
@@ -1059,12 +1253,16 @@ export default function Dashboard() {
                         {g.type === 'photo' ? (
                           <img src={g.afterImage} alt={g.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" onError={(e) => { e.target.style.opacity = '0.1' }} />
                         ) : g.videoUrl ? (
-                          <iframe
-                            src={g.videoUrl.replace('watch?v=', 'embed/').replace('youtu.be/', 'youtube.com/embed/').split('&')[0]}
-                            title={g.title}
-                            className="w-full h-full"
-                            allowFullScreen
-                          />
+                          /(?:youtube\.com|youtu\.be)/.test(g.videoUrl) ? (
+                            <iframe
+                              src={g.videoUrl.replace('watch?v=', 'embed/').replace('youtu.be/', 'youtube.com/embed/').split('&')[0]}
+                              title={g.title}
+                              className="w-full h-full"
+                              allowFullScreen
+                            />
+                          ) : (
+                            <video src={g.videoUrl} className="w-full h-full object-cover bg-black" controls />
+                          )
                         ) : (
                           <div className="w-full h-full bg-overlay/10 flex items-center justify-center">
                             <div className="w-12 h-12 bg-red-600/20 rounded-full flex items-center justify-center text-red-500">
@@ -1084,6 +1282,7 @@ export default function Dashboard() {
                           <p className="text-faint text-[10px]">{g.category}</p>
                         </div>
                         <div className="flex items-center gap-1">
+                          <ViewBtn onClick={() => openPreview('gallery', g)} t={t} />
                           <EditBtn onClick={() => openForm('gallery', g)} t={t} />
                           <DeleteBtn onClick={() => deleteGalleryItem(g._id)} t={t} />
                         </div>
@@ -1096,7 +1295,7 @@ export default function Dashboard() {
           )}
 
           {/* === ARTICLES === */}
-          {activeTab === 'articles' && (
+          {activeTab === 'articles' && !loading && (
             <div className="animate-fadeIn">
               <PageHeader title={t('dash.articles')} subtitle={`${articles.length} ${t('dash.articleCount')}`} action={<AddBtn onClick={() => openForm('article')} t={t} />} />
               {articles.length === 0 ? (
@@ -1124,6 +1323,7 @@ export default function Dashboard() {
                         </div>
                       </div>
                       <div className="flex items-center gap-1 flex-shrink-0">
+                        <ViewBtn onClick={() => openPreview('article', ar)} t={t} />
                         <EditBtn onClick={() => openForm('article', ar)} t={t} />
                         <DeleteBtn onClick={() => deleteArticle(ar._id)} t={t} />
                       </div>
@@ -1135,7 +1335,7 @@ export default function Dashboard() {
           )}
 
           {/* === REVIEWS === */}
-          {activeTab === 'reviews' && (
+          {activeTab === 'reviews' && !loading && (
             <div className="animate-fadeIn">
               <PageHeader title={t('dash.reviews')} subtitle={`${reviews.length} ${t('dash.reviewCount')}`} />
               <div className="space-y-3">
@@ -1153,10 +1353,279 @@ export default function Dashboard() {
                           <p className="text-body text-xs mt-1 leading-relaxed">{r.text}</p>
                         </div>
                       </div>
-                      <DeleteBtn onClick={() => setReviews(reviews.filter((_, idx) => idx !== i))} t={t} />
+                      <DeleteBtn onClick={async () => { try { await apiCall(`/api/reviews/${r._id}`, 'DELETE'); setReviews(reviews.filter((_, idx) => idx !== i)); showToast(t('dash.deletedSuccess'), 'success') } catch (e) { showToast(e.message) } }} t={t} />
                     </div>
                   </div>
                 ))}
+              </div>
+            </div>
+          )}
+
+          {/* === SUBSCRIBERS === */}
+          {activeTab === 'subscribers' && !loading && (
+            <div className="animate-fadeIn">
+              <PageHeader title={t('dash.subscribers')} subtitle={`${subscribers.length} ${t('dash.subscriberCount')}`} />
+              {subscribers.length === 0 ? (
+                <div className="bg-gradient-to-b from-white/[0.03] to-transparent rounded-2xl border border-overlay/10">
+                  <EmptyState icon="Mail" title={t('dash.noSubscribers')} sub={t('dash.noSubscribersSub')} />
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {subscribers.map(s => (
+                    <div key={s._id} className="group bg-gradient-to-b from-white/[0.03] to-transparent rounded-2xl p-4 border border-overlay/10 flex items-center justify-between hover:border-primary/20 transition-all duration-500">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 bg-indigo-500/10 rounded-xl flex items-center justify-center text-indigo-400 flex-shrink-0">
+                          <Icons.Mail className="w-5 h-5" />
+                        </div>
+                        <div>
+                          <h3 className="text-heading font-bold text-sm">{s.email}</h3>
+                          <p className="text-faint text-[10px]">{s.createdAt}</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className={`text-[10px] px-2 py-1 rounded border ${
+                          s.status === 'confirmed' ? 'bg-green-500/15 text-green-400 border-green-500/30' :
+                          s.status === 'pending' ? 'bg-yellow-500/15 text-yellow-400 border-yellow-500/30' :
+                          'bg-gray-500/15 text-gray-400 border-gray-500/30'
+                        }`}>
+                          {s.status === 'confirmed' ? t('dash.statusConfirmedSub') :
+                           s.status === 'pending' ? t('dash.statusPending') :
+                           t('dash.statusUnsubscribed')}
+                        </span>
+                        <DeleteBtn onClick={() => deleteSubscriber(s._id)} t={t} />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* === SETTINGS === */}
+          {activeTab === 'settings' && !loading && (
+            <div className="animate-fadeIn">
+              <PageHeader title={t('dash.settings')} subtitle="" />
+
+              <div className="space-y-6">
+
+                {/* Site Info */}
+                <div className="bg-gradient-to-b from-white/[0.03] to-transparent rounded-2xl p-5 border border-overlay/10">
+                  <h3 className="text-heading font-bold text-sm mb-4 flex items-center gap-2">
+                    <span className="w-7 h-7 bg-primary/10 rounded-lg flex items-center justify-center text-primary">{renderIcon('Computer', 'w-4 h-4')}</span>
+                    {t('dash.settingsSiteInfo')}
+                  </h3>
+                  <div className="grid sm:grid-cols-2 gap-3">
+                    <div>
+                      <label className="text-faint text-xs mb-1 block">{lang === 'ar' ? 'اسم الموقع (عربي)' : 'Site Name (AR)'}</label>
+                      <input type="text" value={settingsForm.site_name || ''} onChange={e => handleSettingsChange('site_name', e.target.value)} className={inputCls} />
+                    </div>
+                    <div>
+                      <label className="text-faint text-xs mb-1 block">{lang === 'ar' ? 'اسم الموقع (إنجليزي)' : 'Site Name (EN)'}</label>
+                      <input type="text" value={settingsForm.site_name_en || ''} onChange={e => handleSettingsChange('site_name_en', e.target.value)} className={inputCls} />
+                    </div>
+                    <div>
+                      <label className="text-faint text-xs mb-1 block">{lang === 'ar' ? 'الشعار (عربي)' : 'Slogan (AR)'}</label>
+                      <input type="text" value={settingsForm.site_slogan || ''} onChange={e => handleSettingsChange('site_slogan', e.target.value)} className={inputCls} />
+                    </div>
+                    <div>
+                      <label className="text-faint text-xs mb-1 block">{lang === 'ar' ? 'الشعار (إنجليزي)' : 'Slogan (EN)'}</label>
+                      <input type="text" value={settingsForm.site_slogan_en || ''} onChange={e => handleSettingsChange('site_slogan_en', e.target.value)} className={inputCls} />
+                    </div>
+                    <div>
+                      <label className="text-faint text-xs mb-1 block">{lang === 'ar' ? 'الهاتف' : 'Phone'}</label>
+                      <input type="text" value={settingsForm.site_phone || ''} onChange={e => handleSettingsChange('site_phone', e.target.value)} className={inputCls} />
+                    </div>
+                    <div>
+                      <label className="text-faint text-xs mb-1 block">{lang === 'ar' ? 'واتساب' : 'WhatsApp'}</label>
+                      <input type="text" value={settingsForm.site_whatsapp || ''} onChange={e => handleSettingsChange('site_whatsapp', e.target.value)} className={inputCls} />
+                    </div>
+                    <div>
+                      <label className="text-faint text-xs mb-1 block">{lang === 'ar' ? 'البريد الإلكتروني' : 'Email'}</label>
+                      <input type="text" value={settingsForm.site_email || ''} onChange={e => handleSettingsChange('site_email', e.target.value)} className={inputCls} />
+                    </div>
+                    <div>
+                      <label className="text-faint text-xs mb-1 block">{lang === 'ar' ? 'ساعات العمل (عربي)' : 'Working Hours (AR)'}</label>
+                      <input type="text" value={settingsForm.site_working_hours || ''} onChange={e => handleSettingsChange('site_working_hours', e.target.value)} className={inputCls} />
+                    </div>
+                    <div>
+                      <label className="text-faint text-xs mb-1 block">{lang === 'ar' ? 'ساعات العمل (إنجليزي)' : 'Working Hours (EN)'}</label>
+                      <input type="text" value={settingsForm.site_working_hours_en || ''} onChange={e => handleSettingsChange('site_working_hours_en', e.target.value)} className={inputCls} />
+                    </div>
+                    <div className="sm:col-span-2">
+                      <label className="text-faint text-xs mb-1 block">{lang === 'ar' ? 'العنوان (عربي)' : 'Address (AR)'}</label>
+                      <input type="text" value={settingsForm.site_address || ''} onChange={e => handleSettingsChange('site_address', e.target.value)} className={inputCls} />
+                    </div>
+                    <div className="sm:col-span-2">
+                      <label className="text-faint text-xs mb-1 block">{lang === 'ar' ? 'العنوان (إنجليزي)' : 'Address (EN)'}</label>
+                      <input type="text" value={settingsForm.site_address_en || ''} onChange={e => handleSettingsChange('site_address_en', e.target.value)} className={inputCls} />
+                    </div>
+                    <div>
+                      <label className="text-faint text-xs mb-1 block">{lang === 'ar' ? 'اللوجو' : 'Logo'}</label>
+                      <label className="flex items-center gap-2 border-2 border-dashed border-overlay/15 rounded-xl p-3 cursor-pointer hover:border-primary/40 transition-all bg-overlay/5">
+                        {settingsForm.site_logo ? <img src={settingsForm.site_logo} alt="" className="w-8 h-8 rounded object-contain" /> : <Icons.Search className="w-4 h-4 text-faint" />}
+                        <span className="text-faint text-xs">{settingsForm.site_logo ? '✓' : (lang === 'ar' ? 'رفع لوجو' : 'Upload Logo')}</span>
+                        <input type="file" accept="image/*" className="hidden" onChange={e => { const f = e.target.files[0]; if (f) handleSettingsUpload('site_logo', f) }} />
+                      </label>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Background Images */}
+                <div className="bg-gradient-to-b from-white/[0.03] to-transparent rounded-2xl p-5 border border-overlay/10">
+                  <h3 className="text-heading font-bold text-sm mb-4 flex items-center gap-2">
+                    <span className="w-7 h-7 bg-primary/10 rounded-lg flex items-center justify-center text-primary">{renderIcon('Search', 'w-4 h-4')}</span>
+                    {t('dash.settingsBgImages')}
+                  </h3>
+                  <div className="space-y-4">
+                    {[
+                      { key: 'bg_home', label: lang === 'ar' ? 'الرئيسية' : 'Home' },
+                      { key: 'bg_about', label: lang === 'ar' ? 'من نحن' : 'About' },
+                      { key: 'bg_booking', label: lang === 'ar' ? 'الحجز' : 'Booking' },
+                      { key: 'bg_contact', label: lang === 'ar' ? 'تواصل معنا' : 'Contact' },
+                      { key: 'bg_courses', label: lang === 'ar' ? 'الدورات' : 'Courses' },
+                      { key: 'bg_login', label: lang === 'ar' ? 'الدخول' : 'Login' },
+                      { key: 'bg_services', label: lang === 'ar' ? 'الخدمات' : 'Services' },
+                      { key: 'bg_offers', label: lang === 'ar' ? 'العروض' : 'Offers' },
+                      { key: 'bg_articles', label: lang === 'ar' ? 'المقالات' : 'Articles' },
+                    ].map(bg => (
+                      <div key={bg.key} className="flex flex-col sm:flex-row sm:items-center gap-3 bg-overlay/5 rounded-xl p-3">
+                        <div className="flex items-center gap-3 flex-1">
+                          {settingsForm[bg.key] ? (
+                            <img src={settingsForm[bg.key]} alt="" className="w-16 h-12 rounded-lg object-cover flex-shrink-0" />
+                          ) : (
+                            <div className="w-16 h-12 rounded-lg bg-overlay/10 flex items-center justify-center flex-shrink-0"><Icons.Search className="w-4 h-4 text-faint" /></div>
+                          )}
+                          <div className="flex-1">
+                            <p className="text-heading text-xs font-bold">{bg.label}</p>
+                            <label className="inline-flex items-center gap-1 text-primary text-[10px] cursor-pointer hover:text-primary-light mt-1">
+                              <Icons.Edit className="w-3 h-3" />
+                              {lang === 'ar' ? 'تغيير الصورة' : 'Change Image'}
+                              <input type="file" accept="image/*" className="hidden" onChange={e => { const f = e.target.files[0]; if (f) handleSettingsUpload(bg.key, f) }} />
+                            </label>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <div className="flex flex-col">
+                            <label className="text-faint text-[10px] mb-0.5">X (%)</label>
+                            <input type="range" min="0" max="100" value={settingsForm[`${bg.key}_x`] || '50'} onChange={e => handleSettingsChange(`${bg.key}_x`, e.target.value)} className="w-20 accent-primary" />
+                          </div>
+                          <div className="flex flex-col">
+                            <label className="text-faint text-[10px] mb-0.5">Y (%)</label>
+                            <input type="range" min="0" max="100" value={settingsForm[`${bg.key}_y`] || '50'} onChange={e => handleSettingsChange(`${bg.key}_y`, e.target.value)} className="w-20 accent-primary" />
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Hero Texts */}
+                <div className="bg-gradient-to-b from-white/[0.03] to-transparent rounded-2xl p-5 border border-overlay/10">
+                  <h3 className="text-heading font-bold text-sm mb-4 flex items-center gap-2">
+                    <span className="w-7 h-7 bg-primary/10 rounded-lg flex items-center justify-center text-primary">{renderIcon('BookOpen', 'w-4 h-4')}</span>
+                    {t('dash.settingsHeroTexts')}
+                  </h3>
+                  <div className="space-y-4">
+                    <div className="bg-overlay/5 rounded-xl p-3">
+                      <p className="text-faint text-[10px] mb-2">{lang === 'ar' ? 'الرئيسية' : 'Home'}</p>
+                      <div className="grid sm:grid-cols-2 gap-2">
+                        <input type="text" placeholder={lang === 'ar' ? 'العنوان 1' : 'Title 1'} value={settingsForm.hero_home_title1 || ''} onChange={e => handleSettingsChange('hero_home_title1', e.target.value)} className={inputCls} />
+                        <input type="text" placeholder={lang === 'ar' ? 'العنوان 2' : 'Title 2'} value={settingsForm.hero_home_title2 || ''} onChange={e => handleSettingsChange('hero_home_title2', e.target.value)} className={inputCls} />
+                      </div>
+                      <textarea placeholder={lang === 'ar' ? 'الوصف' : 'Description'} value={settingsForm.hero_home_desc || ''} onChange={e => handleSettingsChange('hero_home_desc', e.target.value)} rows={2} className={inputCls + ' resize-none mt-2'} />
+                    </div>
+                    <div className="bg-overlay/5 rounded-xl p-3">
+                      <p className="text-faint text-[10px] mb-2">{lang === 'ar' ? 'من نحن' : 'About'}</p>
+                      <div className="grid sm:grid-cols-2 gap-2">
+                        <input type="text" placeholder={lang === 'ar' ? 'العنوان' : 'Title'} value={settingsForm.hero_about_title || ''} onChange={e => handleSettingsChange('hero_about_title', e.target.value)} className={inputCls} />
+                        <input type="text" placeholder={lang === 'ar' ? 'العنوان الفرعي' : 'Subtitle'} value={settingsForm.hero_about_subtitle || ''} onChange={e => handleSettingsChange('hero_about_subtitle', e.target.value)} className={inputCls} />
+                      </div>
+                    </div>
+                    <div className="bg-overlay/5 rounded-xl p-3">
+                      <p className="text-faint text-[10px] mb-2">{lang === 'ar' ? 'تواصل معنا' : 'Contact'}</p>
+                      <div className="grid sm:grid-cols-2 gap-2">
+                        <input type="text" placeholder={lang === 'ar' ? 'العنوان' : 'Title'} value={settingsForm.hero_contact_title || ''} onChange={e => handleSettingsChange('hero_contact_title', e.target.value)} className={inputCls} />
+                        <input type="text" placeholder={lang === 'ar' ? 'العنوان الفرعي' : 'Subtitle'} value={settingsForm.hero_contact_desc || ''} onChange={e => handleSettingsChange('hero_contact_desc', e.target.value)} className={inputCls} />
+                      </div>
+                    </div>
+                    <div className="bg-overlay/5 rounded-xl p-3">
+                      <p className="text-faint text-[10px] mb-2">{lang === 'ar' ? 'الخدمات' : 'Services'}</p>
+                      <div className="grid sm:grid-cols-2 gap-2">
+                        <input type="text" placeholder={lang === 'ar' ? 'العلامة' : 'Label'} value={settingsForm.hero_services_label || ''} onChange={e => handleSettingsChange('hero_services_label', e.target.value)} className={inputCls} />
+                        <input type="text" placeholder={lang === 'ar' ? 'العنوان' : 'Title'} value={settingsForm.hero_services_title || ''} onChange={e => handleSettingsChange('hero_services_title', e.target.value)} className={inputCls} />
+                      </div>
+                      <textarea placeholder={lang === 'ar' ? 'الوصف' : 'Description'} value={settingsForm.hero_services_desc || ''} onChange={e => handleSettingsChange('hero_services_desc', e.target.value)} rows={2} className={inputCls + ' resize-none mt-2'} />
+                    </div>
+                    <div className="bg-overlay/5 rounded-xl p-3">
+                      <p className="text-faint text-[10px] mb-2">{lang === 'ar' ? 'العروض' : 'Offers'}</p>
+                      <div className="grid sm:grid-cols-2 gap-2">
+                        <input type="text" placeholder={lang === 'ar' ? 'العنوان 1' : 'Title 1'} value={settingsForm.hero_offers_title1 || ''} onChange={e => handleSettingsChange('hero_offers_title1', e.target.value)} className={inputCls} />
+                        <input type="text" placeholder={lang === 'ar' ? 'العنوان 2' : 'Title 2'} value={settingsForm.hero_offers_title2 || ''} onChange={e => handleSettingsChange('hero_offers_title2', e.target.value)} className={inputCls} />
+                      </div>
+                      <textarea placeholder={lang === 'ar' ? 'الوصف' : 'Description'} value={settingsForm.hero_offers_desc || ''} onChange={e => handleSettingsChange('hero_offers_desc', e.target.value)} rows={2} className={inputCls + ' resize-none mt-2'} />
+                    </div>
+                    <div className="bg-overlay/5 rounded-xl p-3">
+                      <p className="text-faint text-[10px] mb-2">{lang === 'ar' ? 'المقالات' : 'Articles'}</p>
+                      <div className="grid sm:grid-cols-2 gap-2">
+                        <input type="text" placeholder={lang === 'ar' ? 'العلامة' : 'Label'} value={settingsForm.hero_articles_label || ''} onChange={e => handleSettingsChange('hero_articles_label', e.target.value)} className={inputCls} />
+                        <input type="text" placeholder={lang === 'ar' ? 'العنوان' : 'Title'} value={settingsForm.hero_articles_title || ''} onChange={e => handleSettingsChange('hero_articles_title', e.target.value)} className={inputCls} />
+                      </div>
+                      <textarea placeholder={lang === 'ar' ? 'الوصف' : 'Description'} value={settingsForm.hero_articles_desc || ''} onChange={e => handleSettingsChange('hero_articles_desc', e.target.value)} rows={2} className={inputCls + ' resize-none mt-2'} />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Workshop Video */}
+                <div className="bg-gradient-to-b from-white/[0.03] to-transparent rounded-2xl p-5 border border-overlay/10">
+                  <h3 className="text-heading font-bold text-sm mb-4 flex items-center gap-2">
+                    <span className="w-7 h-7 bg-primary/10 rounded-lg flex items-center justify-center text-primary">{renderIcon('Play', 'w-4 h-4')}</span>
+                    {t('dash.settingsVideo')}
+                  </h3>
+                  <div className="flex flex-col sm:flex-row gap-3 items-start">
+                    <div className="flex-1 w-full">
+                      <label className="text-faint text-xs mb-1 block">{lang === 'ar' ? 'رابط الفيديو (يوتيوب أو رابط مباشر)' : 'Video URL (YouTube or direct link)'}</label>
+                      <input type="text" placeholder="https://youtube.com/watch?v=... أو /workshop-video.mp4" value={settingsForm.workshop_video || ''} onChange={e => handleSettingsChange('workshop_video', e.target.value)} className={inputCls} />
+                      <label className="inline-flex items-center gap-1 text-primary text-[10px] cursor-pointer hover:text-primary-light mt-2">
+                        <Icons.Edit className="w-3 h-3" />
+                        {lang === 'ar' ? 'أو رفع فيديو من الجهاز' : 'Or upload from device'}
+                        <input type="file" accept="video/*" className="hidden" onChange={e => { const f = e.target.files[0]; if (f) handleSettingsUpload('workshop_video', f) }} />
+                      </label>
+                    </div>
+                    {settingsForm.workshop_video && /(?:youtube\.com|youtu\.be)/.test(settingsForm.workshop_video) && (
+                      <div className="w-full sm:w-48 rounded-lg overflow-hidden border border-overlay/10">
+                        <iframe src={settingsForm.workshop_video.replace('watch?v=', 'embed/').replace('youtu.be/', 'youtube.com/embed/').split('&')[0]} title="preview" className="w-full h-28" allowFullScreen />
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Security */}
+                <div className="bg-gradient-to-b from-white/[0.03] to-transparent rounded-2xl p-5 border border-overlay/10">
+                  <h3 className="text-heading font-bold text-sm mb-4 flex items-center gap-2">
+                    <span className="w-7 h-7 bg-primary/10 rounded-lg flex items-center justify-center text-primary">{renderIcon('Shield', 'w-4 h-4')}</span>
+                    {t('dash.settingsSecurity')}
+                  </h3>
+                  <div className="grid sm:grid-cols-2 gap-3">
+                    <div>
+                      <label className="text-faint text-xs mb-1 block">{lang === 'ar' ? 'اسم المستخدم' : 'Username'}</label>
+                      <input type="text" value={settingsForm.dashboard_user || ''} onChange={e => handleSettingsChange('dashboard_user', e.target.value)} className={inputCls} />
+                    </div>
+                    <div>
+                      <label className="text-faint text-xs mb-1 block">{lang === 'ar' ? 'كلمة المرور' : 'Password'}</label>
+                      <input type="text" value={settingsForm.dashboard_pass || ''} onChange={e => handleSettingsChange('dashboard_pass', e.target.value)} className={inputCls} />
+                    </div>
+                  </div>
+                  <div className="mt-3">
+                    <label className="text-faint text-xs mb-1 block">{lang === 'ar' ? 'مفتاح Resend API (للنشرة البريدية)' : 'Resend API Key (Newsletter)'}</label>
+                    <input type="text" placeholder="re_xxxxxxxxxxxxx" value={settingsForm.resend_api_key || ''} onChange={e => handleSettingsChange('resend_api_key', e.target.value)} className={inputCls} />
+                  </div>
+                </div>
+
+                {/* Save Button */}
+                <button onClick={handleSaveSettings} className="w-full bg-primary hover:bg-primary-dark text-white font-bold py-3.5 rounded-xl transition-all duration-300 text-sm hover:shadow-lg hover:shadow-primary/30 flex items-center justify-center gap-2">
+                  <Icons.CheckCircle className="w-4 h-4" />
+                  {t('dash.settingsSaveAll')}
+                </button>
               </div>
             </div>
           )}
@@ -1205,27 +1674,13 @@ export default function Dashboard() {
                       type="file"
                       accept="image/*"
                       className="hidden"
-                      onChange={e => {
+                      onChange={async (e) => {
                         const file = e.target.files[0]
                         if (!file) return
-                        const img = new Image()
-                        const canvas = document.createElement('canvas')
-                        const reader = new FileReader()
-                        reader.onloadend = () => {
-                          img.onload = () => {
-                            const maxSize = 800
-                            let { width, height } = img
-                            if (width > height && width > maxSize) { height = (height * maxSize) / width; width = maxSize }
-                            else if (height > maxSize) { width = (width * maxSize) / height; height = maxSize }
-                            canvas.width = width
-                            canvas.height = height
-                            const ctx = canvas.getContext('2d')
-                            ctx.drawImage(img, 0, 0, width, height)
-                            setFormData({ ...formData, image: canvas.toDataURL('image/jpeg', 0.7) })
-                          }
-                          img.src = reader.result
-                        }
-                        reader.readAsDataURL(file)
+                        try {
+                          const url = await uploadFile(file)
+                          setFormData({ ...formData, image: url })
+                        } catch (err) { showToast(err.message) }
                       }}
                     />
                   </label>
@@ -1234,29 +1689,20 @@ export default function Dashboard() {
               {formType === 'offer' && (
                 <>
                   <input type="number" min="0" placeholder={t('dash.discountPlaceholder')} value={formData.discount ?? ''} onChange={e => setFormData({ ...formData, discount: +e.target.value })} className={inputCls} />
-                  <select value={formData.category || ''} onChange={e => setFormData({ ...formData, category: e.target.value })} required className={inputCls}>
+                  <select value={formData.category || ''} onChange={e => setFormData({ ...formData, category: e.target.value, subcategory: '' })} required className={inputCls}>
                     <option value="" className="bg-dark">{t('dash.categoryPlaceholder')}</option>
-                    <option value="كشوف" className="bg-dark">كشوف</option>
-                    <option value="صيانة" className="bg-dark">صيانة</option>
-                    <option value="تكييف" className="bg-dark">تكييف</option>
-                    <option value="فرامل" className="bg-dark">فرامل</option>
-                    <option value="كهرباء" className="bg-dark">كهرباء</option>
-                    <option value="تنظيف" className="bg-dark">تنظيف</option>
+                    {Object.keys(offerCategoryMap).map(cat => (
+                      <option key={cat} value={cat} className="bg-dark">{cat}</option>
+                    ))}
                   </select>
-                  <select value={formData.icon || 'Wrench'} onChange={e => setFormData({ ...formData, icon: e.target.value })} className={inputCls}>
-                    <option value="Wrench" className="bg-dark">ميكانيكا</option>
-                    <option value="Car" className="bg-dark">عفشة</option>
-                    <option value="Shield" className="bg-dark">حماية</option>
-                    <option value="Bolt" className="bg-dark">كهرباء</option>
-                    <option value="Snowflake" className="bg-dark">تكييف</option>
-                    <option value="Search" className="bg-dark">فحص</option>
-                    <option value="Tag" className="bg-dark">سعر</option>
-                    <option value="Trophy" className="bg-dark">جودة</option>
-                    <option value="Gear" className="bg-dark">قطع غيار</option>
-                    <option value="Oil" className="bg-dark">زيت</option>
-                    <option value="Computer" className="bg-dark">كمبيوتر</option>
-                    <option value="Brake" className="bg-dark">فرامل</option>
-                  </select>
+                  {formData.category && offerCategoryMap[formData.category] && (
+                    <select value={formData.subcategory || ''} onChange={e => setFormData({ ...formData, subcategory: e.target.value })} className={inputCls}>
+                      <option value="" className="bg-dark">{lang === 'ar' ? 'اختر التصنيف الفرعي' : 'Select subcategory'}</option>
+                      {offerCategoryMap[formData.category].map(sub => (
+                        <option key={sub} value={sub} className="bg-dark">{sub}</option>
+                      ))}
+                    </select>
+                  )}
                   <div>
                     <label className="text-faint text-xs mb-2 block">{t('dash.eventImage')}</label>
                     <label className="flex flex-col items-center justify-center gap-2 border-2 border-dashed border-overlay/15 rounded-xl py-6 cursor-pointer hover:border-primary/40 transition-all duration-300 bg-overlay/5 hover:bg-overlay/10">
@@ -1272,34 +1718,50 @@ export default function Dashboard() {
                         type="file"
                         accept="image/*"
                         className="hidden"
-                        onChange={e => {
+                        onChange={async (e) => {
                           const file = e.target.files[0]
                           if (!file) return
-                          const img = new Image()
-                          const canvas = document.createElement('canvas')
-                          const reader = new FileReader()
-                          reader.onloadend = () => {
-                            img.onload = () => {
-                              const maxSize = 800
-                              let { width, height } = img
-                              if (width > height && width > maxSize) { height = (height * maxSize) / width; width = maxSize }
-                              else if (height > maxSize) { width = (width * maxSize) / height; height = maxSize }
-                              canvas.width = width
-                              canvas.height = height
-                              const ctx = canvas.getContext('2d')
-                              ctx.drawImage(img, 0, 0, width, height)
-                              setFormData({ ...formData, image: canvas.toDataURL('image/jpeg', 0.7) })
-                            }
-                            img.src = reader.result
-                          }
-                          reader.readAsDataURL(file)
+                          try {
+                            const url = await uploadFile(file)
+                            setFormData({ ...formData, image: url })
+                          } catch (err) { showToast(err.message) }
                         }}
                       />
                     </label>
                   </div>
                 </>
               )}
-              {formType === 'course' && <input type="text" placeholder={t('dash.durationPlaceholder')} value={formData.duration || ''} onChange={e => setFormData({ ...formData, duration: e.target.value })} required className={inputCls} />}
+              {formType === 'course' && (
+                <>
+                  <input type="text" placeholder={t('dash.durationPlaceholder')} value={formData.duration || ''} onChange={e => setFormData({ ...formData, duration: e.target.value })} required className={inputCls} />
+                  <div>
+                    <label className="text-faint text-xs mb-2 block">{t('dash.eventImage')}</label>
+                    <label className="flex flex-col items-center justify-center gap-2 border-2 border-dashed border-overlay/15 rounded-xl py-6 cursor-pointer hover:border-primary/40 transition-all duration-300 bg-overlay/5 hover:bg-overlay/10">
+                      <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
+                        {formData.image ? <img src={formData.image} alt="" className="w-16 h-16 rounded-lg object-cover" /> : <Icons.Search className="w-5 h-5" />}
+                      </div>
+                      {formData.image ? (
+                        <span className="text-green-400 text-xs font-medium">{t('dash.imageSelected')}</span>
+                      ) : (
+                        <span className="text-faint text-xs">{t('dash.uploadImage')}</span>
+                      )}
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={async (e) => {
+                          const file = e.target.files[0]
+                          if (!file) return
+                          try {
+                            const url = await uploadFile(file)
+                            setFormData({ ...formData, image: url })
+                          } catch (err) { showToast(err.message) }
+                        }}
+                      />
+                    </label>
+                  </div>
+                </>
+              )}
 
               {/* Gallery Form */}
               {formType === 'gallery' && (
@@ -1309,12 +1771,31 @@ export default function Dashboard() {
                       {lang === 'ar' ? 'صورة قبل/بعد' : 'Before/After Photo'}
                     </button>
                     <button type="button" onClick={() => setFormData({ ...formData, type: 'video' })} className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all duration-300 ${formData.type === 'video' ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'text-muted'}`}>
-                      {lang === 'ar' ? 'فيديو يوتيوب' : 'YouTube Video'}
+                      {lang === 'ar' ? 'رفع فيديو' : 'Upload Video'}
                     </button>
                   </div>
 
                   {formData.type === 'video' && (
-                    <input type="text" placeholder={lang === 'ar' ? 'رابط فيديو يوتيوب' : 'YouTube Video URL'} value={formData.videoUrl || ''} onChange={e => setFormData({ ...formData, videoUrl: e.target.value })} required className={inputCls} />
+                    <div>
+                      <label className="text-faint text-xs mb-1.5 block">{lang === 'ar' ? 'رابط يوتيوب' : 'YouTube URL'}</label>
+                      <input
+                        type="text"
+                        placeholder={lang === 'ar' ? 'https://youtube.com/watch?v=...' : 'https://youtube.com/watch?v=...'}
+                        value={formData.videoUrl || ''}
+                        onChange={e => setFormData({ ...formData, videoUrl: e.target.value })}
+                        className={inputCls}
+                      />
+                      {formData.videoUrl && /(?:youtube\.com|youtu\.be)/.test(formData.videoUrl) && (
+                        <div className="mt-2 rounded-xl overflow-hidden border border-overlay/10">
+                          <iframe
+                            src={formData.videoUrl.replace('watch?v=', 'embed/').replace('youtu.be/', 'youtube.com/embed/').split('&')[0]}
+                            title="preview"
+                            className="w-full h-32"
+                            allowFullScreen
+                          />
+                        </div>
+                      )}
+                    </div>
                   )}
 
                   {formData.type === 'photo' && (
@@ -1326,11 +1807,9 @@ export default function Dashboard() {
                             {formData.beforeImage ? <img src={formData.beforeImage} alt="" className="w-12 h-12 rounded-lg object-cover" /> : <Icons.Search className="w-4 h-4" />}
                           </div>
                           {formData.beforeImage ? <span className="text-green-400 text-xs">{t('dash.imageSelected')}</span> : <span className="text-faint text-xs">{t('dash.uploadImage')}</span>}
-                          <input type="file" accept="image/*" className="hidden" onChange={e => {
+                          <input type="file" accept="image/*" className="hidden" onChange={async (e) => {
                             const file = e.target.files[0]; if (!file) return
-                            const img = new Image(); const canvas = document.createElement('canvas'); const reader = new FileReader()
-                            reader.onloadend = () => { img.onload = () => { const maxSize = 800; let { width, height } = img; if (width > height && width > maxSize) { height = (height * maxSize) / width; width = maxSize } else if (height > maxSize) { width = (width * maxSize) / height; height = maxSize } canvas.width = width; canvas.height = height; canvas.getContext('2d').drawImage(img, 0, 0, width, height); setFormData({ ...formData, beforeImage: canvas.toDataURL('image/jpeg', 0.7) }) }; img.src = reader.result }
-                            reader.readAsDataURL(file)
+                            try { const url = await uploadFile(file); setFormData({ ...formData, beforeImage: url }) } catch (err) { showToast(err.message) }
                           }} />
                         </label>
                       </div>
@@ -1341,11 +1820,9 @@ export default function Dashboard() {
                             {formData.afterImage ? <img src={formData.afterImage} alt="" className="w-12 h-12 rounded-lg object-cover" /> : <Icons.Search className="w-4 h-4" />}
                           </div>
                           {formData.afterImage ? <span className="text-green-400 text-xs">{t('dash.imageSelected')}</span> : <span className="text-faint text-xs">{t('dash.uploadImage')}</span>}
-                          <input type="file" accept="image/*" className="hidden" onChange={e => {
+                          <input type="file" accept="image/*" className="hidden" onChange={async (e) => {
                             const file = e.target.files[0]; if (!file) return
-                            const img = new Image(); const canvas = document.createElement('canvas'); const reader = new FileReader()
-                            reader.onloadend = () => { img.onload = () => { const maxSize = 800; let { width, height } = img; if (width > height && width > maxSize) { height = (height * maxSize) / width; width = maxSize } else if (height > maxSize) { width = (width * maxSize) / height; height = maxSize } canvas.width = width; canvas.height = height; canvas.getContext('2d').drawImage(img, 0, 0, width, height); setFormData({ ...formData, afterImage: canvas.toDataURL('image/jpeg', 0.7) }) }; img.src = reader.result }
-                            reader.readAsDataURL(file)
+                            try { const url = await uploadFile(file); setFormData({ ...formData, afterImage: url }) } catch (err) { showToast(err.message) }
                           }} />
                         </label>
                       </div>
@@ -1363,9 +1840,45 @@ export default function Dashboard() {
                 </>
               )}
               {formType === 'service' && (
-                <select value={formData.icon || 'Wrench'} onChange={e => setFormData({ ...formData, icon: e.target.value })} className={inputCls}>
-                  {iconOptions.map(ic => <option key={ic} value={ic} className="bg-dark">{ic}</option>)}
-                </select>
+                <>
+                  <select value={formData.category || ''} onChange={e => setFormData({ ...formData, category: e.target.value })} className={inputCls}>
+                    <option value="" className="bg-dark">{lang === 'ar' ? 'اختر التصنيف' : 'Select category'}</option>
+                    {serviceCategories.map(cat => (
+                      <option key={cat} value={cat} className="bg-dark">{cat}</option>
+                    ))}
+                  </select>
+                  <select value={formData.icon || 'Wrench'} onChange={e => setFormData({ ...formData, icon: e.target.value })} className={inputCls}>
+                    {Object.entries(iconLabels).map(([val, label]) => (
+                      <option key={val} value={val} className="bg-dark">{label}</option>
+                    ))}
+                  </select>
+                  <div>
+                    <label className="text-faint text-xs mb-2 block">{lang === 'ar' ? 'صورة الخدمة' : 'Service Image'}</label>
+                    <label className="flex flex-col items-center justify-center gap-2 border-2 border-dashed border-overlay/15 rounded-xl py-6 cursor-pointer hover:border-primary/40 transition-all duration-300 bg-overlay/5 hover:bg-overlay/10">
+                      <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
+                        {formData.image ? <img src={formData.image} alt="" className="w-16 h-16 rounded-lg object-cover" /> : <Icons.Search className="w-5 h-5" />}
+                      </div>
+                      {formData.image ? (
+                        <span className="text-green-400 text-xs font-medium">{t('dash.imageSelected')}</span>
+                      ) : (
+                        <span className="text-faint text-xs">{t('dash.uploadImage')}</span>
+                      )}
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={async (e) => {
+                          const file = e.target.files[0]
+                          if (!file) return
+                          try {
+                            const url = await uploadFile(file)
+                            setFormData({ ...formData, image: url })
+                          } catch (err) { showToast(err.message) }
+                        }}
+                      />
+                    </label>
+                  </div>
+                </>
               )}
               {formType === 'article' && (
                 <>
@@ -1401,27 +1914,13 @@ export default function Dashboard() {
                         type="file"
                         accept="image/*"
                         className="hidden"
-                        onChange={e => {
+                        onChange={async (e) => {
                           const file = e.target.files[0]
                           if (!file) return
-                          const img = new Image()
-                          const canvas = document.createElement('canvas')
-                          const reader = new FileReader()
-                          reader.onloadend = () => {
-                            img.onload = () => {
-                              const maxSize = 800
-                              let { width, height } = img
-                              if (width > height && width > maxSize) { height = (height * maxSize) / width; width = maxSize }
-                              else if (height > maxSize) { width = (width * maxSize) / height; height = maxSize }
-                              canvas.width = width
-                              canvas.height = height
-                              const ctx = canvas.getContext('2d')
-                              ctx.drawImage(img, 0, 0, width, height)
-                              setFormData({ ...formData, image: canvas.toDataURL('image/jpeg', 0.7) })
-                            }
-                            img.src = reader.result
-                          }
-                          reader.readAsDataURL(file)
+                          try {
+                            const url = await uploadFile(file)
+                            setFormData({ ...formData, image: url })
+                          } catch (err) { showToast(err.message) }
                         }}
                       />
                     </label>
@@ -1430,7 +1929,7 @@ export default function Dashboard() {
               )}
               {formType === 'event' && formData.type === 'offer' && (
                 <>
-                  <div className="grid grid-cols-2 gap-2">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                     <input type="number" placeholder={t('dash.oldPricePlaceholder')} value={formData.oldPrice || ''} onChange={e => {
                       const oldPrice = +e.target.value
                       const newPrice = formData.newPrice || 0
@@ -1459,6 +1958,181 @@ export default function Dashboard() {
                 {t('dash.save')}
               </button>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Toast notifications */}
+      {toast && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[200] animate-fadeIn">
+          <div className={`px-5 py-3 rounded-xl shadow-2xl text-sm font-medium flex items-center gap-2 ${
+            toast.type === 'success' ? 'bg-green-600 text-white' : 'bg-red-600 text-white'
+          }`}>
+            {toast.type === 'success' ? <Icons.CheckCircle className="w-4 h-4" /> : <Icons.Shield className="w-4 h-4" />}
+            {toast.msg}
+          </div>
+        </div>
+      )}
+
+      {/* === PREVIEW MODAL === */}
+      {showPreview && previewData && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/70" onClick={closePreview}>
+          <div className="bg-gradient-to-b from-surface to-[#0a0a0f] rounded-2xl p-6 border border-overlay/20 max-w-md w-full shadow-2xl max-h-[85vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-5">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 bg-emerald-500/10 rounded-lg flex items-center justify-center text-emerald-400">
+                  <Icons.Eye className="w-4 h-4" />
+                </div>
+                <h3 className="text-heading font-bold text-lg">{t('dash.view')}</h3>
+              </div>
+              <button onClick={closePreview} className="w-8 h-8 rounded-lg flex items-center justify-center text-muted hover:text-heading hover:bg-overlay/10 transition-all">✕</button>
+            </div>
+
+            {/* Offer Preview */}
+            {previewType === 'offer' && (
+              <div className="space-y-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-14 h-14 bg-primary/10 rounded-xl flex items-center justify-center text-primary">{renderIcon(previewData.icon || 'Tag', 'w-7 h-7')}</div>
+                  <div>
+                    <h3 className="text-heading font-bold text-base">{previewData.title}</h3>
+                    <span className="text-faint text-xs">{previewData.category}{previewData.subcategory ? ` / ${previewData.subcategory}` : ''}</span>
+                  </div>
+                </div>
+                {previewData.image && <img src={previewData.image} alt={previewData.title} className="w-full h-40 rounded-xl object-cover" />}
+                {previewData.discount > 0 && (
+                  <div className="flex items-center gap-3 bg-primary/5 border border-primary/20 rounded-xl p-3">
+                    <span className="text-primary font-bold text-2xl">{previewData.discount}%</span>
+                    <span className="text-muted text-xs">{t('dash.discountPlaceholder')}</span>
+                  </div>
+                )}
+                {previewData.desc && <p className="text-body text-sm leading-relaxed">{previewData.desc}</p>}
+              </div>
+            )}
+
+            {/* Service Preview */}
+            {previewType === 'service' && (
+              <div className="space-y-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-14 h-14 bg-primary/10 rounded-xl flex items-center justify-center text-primary">{renderIcon(previewData.icon || 'Wrench', 'w-7 h-7')}</div>
+                  <div>
+                    <h3 className="text-heading font-bold text-base">{previewData.title}</h3>
+                    <span className="text-faint text-xs">{previewData.category || (lang === 'ar' ? 'عام' : 'General')}</span>
+                  </div>
+                </div>
+                {previewData.image && <img src={previewData.image} alt={previewData.title} className="w-full h-40 rounded-xl object-cover" />}
+                <p className="text-body text-sm leading-relaxed">{previewData.description}</p>
+              </div>
+            )}
+
+            {/* Course Preview */}
+            {previewType === 'course' && (
+              <div className="space-y-4">
+                <div className="flex items-center gap-3">
+                  {previewData.image ? (
+                    <img src={previewData.image} alt={previewData.title} className="w-14 h-14 rounded-xl object-cover" />
+                  ) : (
+                    <div className="w-14 h-14 bg-primary/10 rounded-xl flex items-center justify-center text-primary">{renderIcon('Gear', 'w-7 h-7')}</div>
+                  )}
+                  <div>
+                    <h3 className="text-heading font-bold text-base">{previewData.title}</h3>
+                    <span className="text-primary text-xs font-medium">{previewData.duration}</span>
+                  </div>
+                </div>
+                {previewData.image && <img src={previewData.image} alt={previewData.title} className="w-full h-40 rounded-xl object-cover" />}
+                <p className="text-body text-sm leading-relaxed">{previewData.desc}</p>
+              </div>
+            )}
+
+            {/* Event Preview */}
+            {previewType === 'event' && (
+              <div className="space-y-4">
+                <div className="flex items-center gap-3">
+                  {previewData.image ? (
+                    <img src={previewData.image} alt={previewData.title} className="w-14 h-14 rounded-xl object-cover" />
+                  ) : (
+                    <div className="w-14 h-14 bg-primary/10 rounded-xl flex items-center justify-center text-primary">{renderIcon('Bolt', 'w-7 h-7')}</div>
+                  )}
+                  <div className="flex-1">
+                    <h3 className="text-heading font-bold text-base">{previewData.title}</h3>
+                    <span className={`text-[10px] px-2 py-0.5 rounded ${previewData.type === 'offer' ? 'bg-amber-500/15 text-amber-400' : 'bg-blue-500/15 text-blue-400'}`}>
+                      {previewData.type === 'offer' ? t('dash.limitedOffer') : t('dash.post')}
+                    </span>
+                  </div>
+                </div>
+                {previewData.image && <img src={previewData.image} alt={previewData.title} className="w-full h-40 rounded-xl object-cover" />}
+                <p className="text-body text-sm leading-relaxed">{previewData.description}</p>
+                {previewData.type === 'offer' && previewData.discount > 0 && (
+                  <div className="flex items-center gap-3 bg-primary/5 border border-primary/20 rounded-xl p-3">
+                    <span className="text-primary font-bold text-2xl">{previewData.discount}%</span>
+                    <div className="flex flex-col">
+                      <span className="text-muted text-xs">{t('dash.discountPlaceholder')}</span>
+                      {previewData.oldPrice > 0 && (
+                        <span className="text-faint text-[10px] line-through">{previewData.oldPrice} • {previewData.newPrice}</span>
+                      )}
+                    </div>
+                    {previewData.expiryDate && <span className="text-faint text-[10px] mr-auto">{t('dash.expiryDate')}: {previewData.expiryDate}</span>}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Gallery Preview */}
+            {previewType === 'gallery' && (
+              <div className="space-y-4">
+                <div className="flex items-center gap-2">
+                  <span className={`text-[10px] font-bold px-2 py-0.5 rounded ${previewData.type === 'photo' ? 'bg-green-600/80 text-white' : 'bg-red-600/80 text-white'}`}>
+                    {previewData.type === 'photo' ? (lang === 'ar' ? 'صورة' : 'Photo') : (lang === 'ar' ? 'فيديو' : 'Video')}
+                  </span>
+                  <h3 className="text-heading font-bold text-base">{previewData.title}</h3>
+                </div>
+                <span className="text-faint text-xs">{previewData.category}</span>
+                {previewData.type === 'photo' ? (
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <p className="text-faint text-[10px] mb-1">{lang === 'ar' ? 'قبل' : 'Before'}</p>
+                      {previewData.beforeImage && <img src={previewData.beforeImage} alt="before" className="w-full h-32 rounded-xl object-cover" />}
+                    </div>
+                    <div>
+                      <p className="text-faint text-[10px] mb-1">{lang === 'ar' ? 'بعد' : 'After'}</p>
+                      {previewData.afterImage && <img src={previewData.afterImage} alt="after" className="w-full h-32 rounded-xl object-cover" />}
+                    </div>
+                  </div>
+                ) : (
+                  previewData.videoUrl && (
+                    /(?:youtube\.com|youtu\.be)/.test(previewData.videoUrl) ? (
+                      <iframe
+                        src={previewData.videoUrl.replace('watch?v=', 'embed/').replace('youtu.be/', 'youtube.com/embed/').split('&')[0]}
+                        title={previewData.title}
+                        className="w-full h-48 rounded-xl"
+                        allowFullScreen
+                      />
+                    ) : (
+                      <video src={previewData.videoUrl} className="w-full h-48 rounded-xl object-cover bg-black" controls />
+                    )
+                  )
+                )}
+              </div>
+            )}
+
+            {/* Article Preview */}
+            {previewType === 'article' && (
+              <div className="space-y-4">
+                {previewData.image && <img src={previewData.image} alt={previewData.title} className="w-full h-40 rounded-xl object-cover" />}
+                <div className="flex items-center gap-2">
+                  <span className="text-faint text-[10px] bg-overlay/10 px-1.5 py-0.5 rounded">{previewData.category}</span>
+                  <h3 className="text-heading font-bold text-base">{previewData.title}</h3>
+                </div>
+                {previewData.excerpt && <p className="text-muted text-sm font-medium">{previewData.excerpt}</p>}
+                {previewData.content && <p className="text-body text-sm leading-relaxed whitespace-pre-wrap">{previewData.content}</p>}
+                {previewData.tags && previewData.tags.length > 0 && (
+                  <div className="flex flex-wrap gap-1.5">
+                    {previewData.tags.map((tag, i) => (
+                      <span key={i} className="text-[10px] text-faint bg-overlay/5 px-2 py-0.5 rounded">#{tag}</span>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </div>
       )}

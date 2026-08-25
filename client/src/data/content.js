@@ -115,8 +115,8 @@ export const aboutText = {
   subtitleEn: 'Specialized expertise in car service and maintenance',
   owner: 'م/ أحمد عبد القادر',
   ownerEn: 'Eng. Ahmed Abdelkader',
-  ownerRole: 'المؤسس والمدير العام',
-  ownerRoleEn: 'Founder & General Manager',
+  ownerRole: 'المدير العام',
+  ownerRoleEn: 'General Manager',
   paragraphs: [
     'تأسست Automotive Academy عام 2023 على يد المهندس أحمد عبد القادر، برؤية واضحة لتقديم مفهوم متكامل لخدمات وصيانة السيارات، يجمع بين الخبرة الفنية، التشخيص الدقيق، جودة الخدمة، والاهتمام بتجربة العميل.',
     'نقدم خدمات متكاملة للسيارات في مكان واحد، بدايةً من أعمال الصيانة الدورية والفحص والتشخيص، وصولًا إلى الإصلاحات الميكانيكية والكهربائية وأعمال العفشة والسمكرة والدهان والتكييف.',

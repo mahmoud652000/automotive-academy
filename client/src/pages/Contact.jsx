@@ -2,8 +2,10 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import Icons from '../components/Icons'
 import CTABanner from '../components/CTABanner'
-import { contactMethods, branches, siteInfo } from '../data/content'
+import Toast, { useToast } from '../components/Toast'
+import { contactMethods, branches } from '../data/content'
 import { useLanguage } from '../context/LanguageContext'
+import { useSettings } from '../context/SettingsContext'
 
 const renderIcon = (name, className = 'w-6 h-6') => {
   const Icon = Icons[name]
@@ -12,6 +14,8 @@ const renderIcon = (name, className = 'w-6 h-6') => {
 
 export default function Contact() {
   const { lang, t } = useLanguage()
+  const { get } = useSettings()
+  const { toast, showToast } = useToast()
   const [form, setForm] = useState({ name: '', phone: '', email: '', subject: '', message: '' })
 
   const handleSubmit = (e) => {
@@ -23,17 +27,25 @@ export default function Contact() {
     })
       .then((res) => res.json())
       .then(() => {
-        alert(t('contact.success'))
+        showToast(t('contact.success'), 'success')
         setForm({ name: '', phone: '', email: '', subject: '', message: '' })
       })
-      .catch(() => alert(t('contact.error')))
+      .catch(() => showToast(t('contact.error')))
   }
 
   return (
     <div>
       {/* Hero banner */}
       <section className="relative w-full overflow-hidden">
-        <img src="/contact-bg.webp" alt={t('contact.title')} className="w-full h-auto block" />
+        <img src={get('bg_contact') || '/contact-bg.webp'} alt={t('contact.title')} className="w-full h-[200px] sm:h-auto block object-cover" style={{ objectPosition: `${get('bg_contact_x') || 50}% ${get('bg_contact_y') || 50}%` }} />
+        <div className="absolute inset-0 flex items-center bg-gradient-to-l from-[#0a0a0f]/90 via-[#0a0a0f]/50 to-transparent">
+          <div className="container-custom">
+            <div className="max-w-sm text-right">
+              <h1 className="text-xl sm:text-2xl md:text-4xl font-bold text-white mb-3 drop-shadow-lg">{get('hero_contact_title') || t('contact.heroTitle')}</h1>
+              <p className="text-xs sm:text-sm md:text-base text-white/80 leading-relaxed drop-shadow-md">{get('hero_contact_desc') || t('contact.heroDesc')}</p>
+            </div>
+          </div>
+        </div>
       </section>
 
       {/* Contact methods */}
@@ -42,7 +54,7 @@ export default function Contact() {
           {/* Title */}
           <div className="flex items-center justify-center gap-3 mb-8">
             <span className="w-12 md:w-20 h-px bg-primary" />
-            <h2 className="text-heading font-bold text-lg md:text-2xl whitespace-nowrap">{t('contact.title')}</h2>
+            <h2 className="text-heading font-bold text-base sm:text-lg md:text-2xl whitespace-nowrap overflow-hidden text-ellipsis">{t('contact.title')}</h2>
             <span className="w-12 md:w-20 h-px bg-primary" />
           </div>
 
@@ -198,6 +210,7 @@ export default function Contact() {
       </section>
 
       <CTABanner />
+      <Toast toast={toast} />
     </div>
   )
 }

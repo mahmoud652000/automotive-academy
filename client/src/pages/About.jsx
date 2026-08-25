@@ -3,6 +3,7 @@ import Icons from '../components/Icons'
 import CTABanner from '../components/CTABanner'
 import { values, brands, aboutStats, aboutText, aboutBulletPoints } from '../data/content'
 import { useLanguage } from '../context/LanguageContext'
+import { useSettings } from '../context/SettingsContext'
 
 const renderIcon = (name, className = 'w-6 h-6') => {
   const Icon = Icons[name]
@@ -11,20 +12,21 @@ const renderIcon = (name, className = 'w-6 h-6') => {
 
 export default function About() {
   const { lang, t } = useLanguage()
+  const { get } = useSettings()
 
   return (
     <div className="pt-20">
       {/* Hero */}
       <section className="relative min-h-[45vh] flex items-center overflow-hidden">
         <div className="absolute inset-0 z-0">
-          <img src="/hero-bg.png" alt="" className="w-full h-full object-cover" />
+          <img src={get('bg_about') || '/hero-bg.png'} alt="" className="w-full h-full object-cover" style={{ objectPosition: `${get('bg_about_x') || 50}% ${get('bg_about_y') || 50}%` }} />
           <div className="absolute inset-0 bg-gradient-to-l from-[#0a0a0f] via-[#0a0a0f]/85 to-[#0a0a0f]/50" />
         </div>
         <div className="container-custom relative z-10 w-full text-center">
-          <span className="text-primary font-medium text-sm">{t('about.label')}</span>
-          <h1 className="text-2xl md:text-3xl font-bold text-white mt-2 mb-2">{t('about.title')}</h1>
+          <span className="text-primary font-medium text-sm">{get('hero_about_title') || t('about.label')}</span>
+          <h1 className="text-2xl md:text-3xl font-bold text-white mt-2 mb-2">{get('hero_about_subtitle') || t('about.title')}</h1>
           <p className="text-white/80 text-sm md:text-base max-w-xl mx-auto leading-relaxed">
-            {t('about.subtitle')}
+            {get('hero_about_subtitle') || t('about.subtitle')}
           </p>
         </div>
       </section>
@@ -123,7 +125,7 @@ export default function About() {
             <h2 className="text-lg font-bold text-heading">{t('about.partnersTitle')}</h2>
             <p className="text-muted text-xs mt-1">{t('about.partnersDesc')}</p>
           </div>
-          <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-4">
+          <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-8 gap-3 sm:gap-4">
             {brands.map((brand, index) => (
               <div
                 key={index}

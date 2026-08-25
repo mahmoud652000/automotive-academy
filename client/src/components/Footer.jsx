@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { navLinks, siteInfo, services } from '../data/content'
+import { navLinks, services } from '../data/content'
 import { useLanguage } from '../context/LanguageContext'
+import { useSettings } from '../context/SettingsContext'
 import Logo from './Logo'
 import Icons from './Icons'
 
@@ -35,7 +36,7 @@ const socialLinks = [
     ),
   },
   {
-    href: `https://wa.me/${siteInfo.whatsapp}`,
+    href: `https://wa.me/201103197077`,
     label: 'WhatsApp',
     color: '#25D366',
     path: (
@@ -49,22 +50,42 @@ const socialLinks = [
 
 export default function Footer() {
   const { lang, t } = useLanguage()
+  const { get } = useSettings()
   const [email, setEmail] = useState('')
   const [subscribed, setSubscribed] = useState(false)
+  const [subMsg, setSubMsg] = useState('')
+
+  const phone = get('site_phone')
+  const whatsapp = get('site_whatsapp')
+  const emailVal = get('site_email')
 
   const contactItems = [
-    { icon: 'Phone', label: siteInfo.phone, href: `tel:${siteInfo.phone.replace(/\s/g, '')}` },
-    { icon: 'Mail', label: siteInfo.email, href: `mailto:${siteInfo.email}` },
-    { icon: 'MapPin', label: lang === 'ar' ? siteInfo.address : siteInfo.addressEn, href: null },
-    { icon: 'Clock', label: lang === 'ar' ? siteInfo.workingHours : siteInfo.workingHoursEn, href: null },
+    { icon: 'Phone', label: phone, href: `tel:${phone.replace(/\s/g, '')}` },
+    { icon: 'Mail', label: emailVal, href: `mailto:${emailVal}` },
+    { icon: 'MapPin', label: lang === 'ar' ? get('site_address') : get('site_address_en'), href: null },
+    { icon: 'Clock', label: lang === 'ar' ? get('site_working_hours') : get('site_working_hours_en'), href: null },
   ]
 
-  const handleSubscribe = (e) => {
+  const handleSubscribe = async (e) => {
     e.preventDefault()
-    if (email) {
-      setSubscribed(true)
-      setEmail('')
-      setTimeout(() => setSubscribed(false), 3000)
+    if (!email) return
+    try {
+      const res = await fetch('/api/subscribers', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      })
+      const data = await res.json()
+      if (data.success) {
+        setSubMsg(data.message)
+        setSubscribed(true)
+        setEmail('')
+        setTimeout(() => setSubscribed(false), 4000)
+      } else {
+        alert(data.message || 'حدث خطأ')
+      }
+    } catch {
+      alert('حدث خطأ، يرجى المحاولة مرة أخرى')
     }
   }
 
@@ -83,8 +104,8 @@ export default function Footer() {
             <div className="flex items-center gap-2.5 mb-3">
               <Logo className="h-10 w-auto flex-shrink-0" showText={false} />
               <div>
-                <h3 className="text-heading font-bold text-sm">{lang === 'ar' ? siteInfo.name : siteInfo.nameEn}</h3>
-                <p className="text-primary text-[10px] font-medium">{lang === 'ar' ? siteInfo.slogan : siteInfo.sloganEn}</p>
+                <h3 className="text-heading font-bold text-sm">{lang === 'ar' ? get('site_name') : get('site_name_en')}</h3>
+                <p className="text-primary text-[10px] font-medium">{lang === 'ar' ? get('site_slogan') : get('site_slogan_en')}</p>
               </div>
             </div>
             <p className="text-muted text-xs leading-relaxed mb-4 max-w-sm">
@@ -102,7 +123,7 @@ export default function Footer() {
               {subscribed ? (
                 <div className="flex items-center gap-2 text-green-400 bg-green-500/10 border border-green-500/20 rounded-lg px-3 py-2 text-xs">
                   <Icons.CheckCircle className="w-3.5 h-3.5" />
-                  {t('footer.subscribed')}
+                  {subMsg || t('footer.subscribed')}
                 </div>
               ) : (
                 <form onSubmit={handleSubscribe} className="flex gap-2">
@@ -195,11 +216,13 @@ export default function Footer() {
             <div className="mt-4">
               <p className="text-faint text-[11px] mb-2">{t('footer.followUs')}</p>
               <div className="flex gap-2">
-                {socialLinks.map((social) => (
+                {socialLinks.map((social) => {
+                  const href = social.label === 'WhatsApp' ? `https://wa.me/${get('site_whatsapp')}` : social.href
+                  return (
                   <a
                     key={social.label}
-                    href={social.href}
-                    target={social.href.startsWith('http') ? '_blank' : undefined}
+                    href={href}
+                    target={href.startsWith('http') ? '_blank' : undefined}
                     rel="noopener noreferrer"
                     aria-label={social.label}
                     className="w-8 h-8 rounded-lg flex items-center justify-center transition-all duration-300 hover:-translate-y-0.5 border border-overlay/5"
@@ -219,7 +242,8 @@ export default function Footer() {
                       {social.path}
                     </svg>
                   </a>
-                ))}
+                  )
+                })}
               </div>
             </div>
           </div>
@@ -231,7 +255,7 @@ export default function Footer() {
         <div className="container-custom py-3 flex flex-col sm:flex-row items-center justify-between gap-2">
           <p className="text-faint text-[11px] flex items-center gap-1.5 flex-wrap justify-center">
             <span>{t('footer.rights')}</span>
-            <span className="text-primary font-medium">{lang === 'ar' ? siteInfo.name : siteInfo.nameEn}</span>
+            <span className="text-primary font-medium">{lang === 'ar' ? get('site_name') : get('site_name_en')}</span>
             <span className="text-overlay/20">|</span>
             <span>{t('footer.developerPrefix')}</span>
             <a href="https://wa.me/201024949382" target="_blank" rel="noopener noreferrer" className="text-heading font-medium hover:text-primary transition-colors">{t('footer.developer')}</a>

@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react'
 import { useLanguage } from '../context/LanguageContext'
+import { useSettings } from '../context/SettingsContext'
 import Icons from '../components/Icons'
 import CTABanner from '../components/CTABanner'
 
 export default function Articles() {
   const { lang, t } = useLanguage()
+  const { get } = useSettings()
   const [articles, setArticles] = useState([])
   const [selectedArticle, setSelectedArticle] = useState(null)
   const [activeCategory, setActiveCategory] = useState('all')
@@ -45,7 +47,7 @@ export default function Articles() {
       <section className="relative pt-32 pb-16 overflow-hidden bg-[#0a0a0f]">
         {/* Background image */}
         <div className="absolute inset-0 z-0">
-          <img src="/articles-bg.webp" alt="" className="w-full h-full object-cover" />
+          <img src={get('bg_articles') || '/articles-bg.webp'} alt="" className="w-full h-full object-cover" style={{ objectPosition: `${get('bg_articles_x') || 50}% ${get('bg_articles_y') || 50}%` }} />
           <div className="absolute inset-0 bg-[#0a0a0f]/65" />
         </div>
         <div className="absolute top-0 right-1/4 w-96 h-96 bg-primary/5 rounded-full blur-3xl" />
@@ -54,11 +56,11 @@ export default function Articles() {
           <span className="inline-flex items-center gap-2 text-primary font-bold text-sm mb-3">
             <span className="w-8 h-px bg-primary" />
             <Icons.BookOpen className="w-4 h-4" />
-            {t('articles.label')}
+            {get('hero_articles_label') || t('articles.label')}
             <span className="w-8 h-px bg-primary" />
           </span>
-          <h1 className="text-3xl md:text-4xl font-bold text-white mb-3">{t('articles.title')}</h1>
-          <p className="text-white/70 text-sm md:text-base max-w-xl mx-auto">{t('articles.desc')}</p>
+          <h1 className="text-3xl md:text-4xl font-bold text-white mb-3">{get('hero_articles_title') || t('articles.title')}</h1>
+          <p className="text-white/70 text-sm md:text-base max-w-xl mx-auto">{get('hero_articles_desc') || t('articles.desc')}</p>
         </div>
       </section>
 
@@ -227,7 +229,7 @@ export default function Articles() {
       {selectedArticle && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80" onClick={() => setSelectedArticle(null)}>
           <div
-            className="bg-[#0a0a0f] rounded-2xl border border-white/10 max-w-2xl w-full shadow-2xl overflow-hidden flex flex-col max-h-[85vh]"
+            className="relative bg-[#0a0a0f] rounded-2xl border border-white/10 max-w-2xl w-full shadow-2xl overflow-hidden flex flex-col max-h-[85vh]"
             onClick={e => e.stopPropagation()}
           >
               {/* Close button */}

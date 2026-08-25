@@ -4,6 +4,7 @@ import { AnimatePresence } from 'framer-motion'
 import { AuthProvider, useAuth } from './context/AuthContext'
 import { ThemeProvider } from './context/ThemeContext'
 import { LanguageProvider } from './context/LanguageContext'
+import { SettingsProvider } from './context/SettingsContext'
 import Intro from './components/Intro'
 import Navbar from './components/Navbar'
 import Footer from './components/Footer'
@@ -22,9 +23,12 @@ import Booking from './pages/Booking'
 import Login from './pages/Login'
 import Dashboard from './pages/Dashboard'
 import NotFound from './pages/NotFound'
+import NewsletterConfirm from './pages/NewsletterConfirm'
+import NewsletterUnsubscribe from './pages/NewsletterUnsubscribe'
 
 function ProtectedRoute({ children }) {
-  const { isLoggedIn } = useAuth()
+  const { isLoggedIn, authLoaded } = useAuth()
+  if (!authLoaded) return null
   return isLoggedIn ? children : <Navigate to="/login" replace />
 }
 
@@ -44,6 +48,8 @@ function AnimatedRoutes() {
         <Route path="/contact" element={<PageTransition><Contact /></PageTransition>} />
         <Route path="/booking" element={<PageTransition><Booking /></PageTransition>} />
         <Route path="/login" element={<PageTransition><Login /></PageTransition>} />
+        <Route path="/newsletter/confirm/:token" element={<NewsletterConfirm />} />
+        <Route path="/newsletter/unsubscribe/:token" element={<NewsletterUnsubscribe />} />
         <Route path="/dashboard" element={
           <ProtectedRoute>
             <Dashboard />
@@ -73,14 +79,14 @@ function AppContent() {
 
 function DashboardLayout({ children }) {
   const location = useLocation()
-  const isDashboard = location.pathname === '/dashboard'
+  const hideChrome = location.pathname === '/dashboard' || location.pathname.startsWith('/newsletter/')
 
   return (
     <>
-      {!isDashboard && <Navbar />}
+      {!hideChrome && <Navbar />}
       {children}
-      {!isDashboard && <Footer />}
-      {!isDashboard && <WhatsAppButton />}
+      {!hideChrome && <Footer />}
+      {!hideChrome && <WhatsAppButton />}
     </>
   )
 }
@@ -89,9 +95,11 @@ export default function App() {
   return (
     <ThemeProvider>
       <LanguageProvider>
-        <AuthProvider>
-          <AppContent />
-        </AuthProvider>
+        <SettingsProvider>
+          <AuthProvider>
+            <AppContent />
+          </AuthProvider>
+        </SettingsProvider>
       </LanguageProvider>
     </ThemeProvider>
   )

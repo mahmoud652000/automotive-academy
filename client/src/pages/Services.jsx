@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import Icons from '../components/Icons'
 import { services as defaultServices } from '../data/content'
 import { useLanguage } from '../context/LanguageContext'
+import { useSettings } from '../context/SettingsContext'
 
 const renderIcon = (name, className = 'w-6 h-6') => {
   const Icon = Icons[name]
@@ -11,12 +12,13 @@ const renderIcon = (name, className = 'w-6 h-6') => {
 
 export default function Services() {
   const { lang, t } = useLanguage()
+  const { get } = useSettings()
   const [services, setServices] = useState(defaultServices)
 
   useEffect(() => {
     fetch('/api/services')
       .then(r => r.json())
-      .then(d => { if (d.success && d.data?.length) setServices(d.data) })
+      .then(d => { if (d.success) setServices(d.data) })
       .catch(() => {})
   }, [])
 
@@ -25,13 +27,13 @@ export default function Services() {
       {/* Hero with background */}
       <section className="relative min-h-[45vh] flex items-center overflow-hidden">
         <div className="absolute inset-0 z-0">
-          <img src="/services-bg.png" alt="" className="w-full h-full object-cover" />
+          <img src={get('bg_services') || '/services-bg.png'} alt="" className="w-full h-full object-cover" style={{ objectPosition: `${get('bg_services_x') || 50}% ${get('bg_services_y') || 50}%` }} />
           <div className="absolute inset-0 bg-gradient-to-l from-[#0a0a0f] via-[#0a0a0f]/80 to-[#0a0a0f]/30" />
         </div>
         <div className="container-custom text-center relative z-10 w-full">
-          <span className="text-primary font-medium">{t('services.label')}</span>
-          <h1 className="text-3xl md:text-4xl font-bold text-white mt-2 mb-3">{t('services.title')}</h1>
-          <p className="text-white/80 text-base max-w-2xl mx-auto">{t('services.desc')}</p>
+          <span className="text-primary font-medium">{get('hero_services_label') || t('services.label')}</span>
+          <h1 className="text-3xl md:text-4xl font-bold text-white mt-2 mb-3">{get('hero_services_title') || t('services.title')}</h1>
+          <p className="text-white/80 text-base max-w-2xl mx-auto">{get('hero_services_desc') || t('services.desc')}</p>
         </div>
       </section>
 

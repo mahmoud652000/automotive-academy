@@ -1,53 +1,50 @@
 import express from 'express'
-import Contact from '../models/Contact.js'
+import db, { formatRow, formatRows, prepareBody, buildInsert, buildUpdate } from '../db.js'
 
 const router = express.Router()
+const table = 'contacts'
 
-// POST /api/contacts - Submit a contact message
-router.post('/', async (req, res) => {
+// POST /api/contacts
+router.post('/', (req, res) => {
   try {
-    const contact = new Contact(req.body)
-    const saved = await contact.save()
-    res.status(201).json({ success: true, data: saved })
+    const data = prepareBody(req.body, table)
+    const { sql, values } = buildInsert(table, data)
+    const info = db.prepare(sql).run(...values)
+    const row = db.prepare('SELECT * FROM contacts WHERE id = ?').get(info.lastInsertRowid)
+    res.status(201).json({ success: true, data: formatRow(row, table) })
   } catch (error) {
     res.status(400).json({ success: false, message: error.message })
   }
 })
 
-// GET /api/contacts - Get all contact messages
-router.get('/', async (req, res) => {
+// GET /api/contacts
+router.get('/', (req, res) => {
   try {
-    const contacts = await Contact.find().sort({ createdAt: -1 })
-    res.json({ success: true, count: contacts.length, data: contacts })
+    const rows = db.prepare('SELECT * FROM contacts ORDER BY created_at DESC').all()
+    res.json({ success: true, count: rows.length, data: formatRows(rows, table) })
   } catch (error) {
     res.status(500).json({ success: false, message: error.message })
   }
 })
 
-// PATCH /api/contacts/:id - Update contact status
-router.patch('/:id', async (req, res) => {
+// PATCH /api/contacts/:id — update status
+router.patch('/:id', (req, res) => {
   try {
-    const contact = await Contact.findByIdAndUpdate(
-      req.params.id,
-      { status: req.body.status },
-      { new: true }
-    )
-    if (!contact) {
-      return res.status(404).json({ success: false, message: 'الرسالة غير موجودة' })
-    }
-    res.json({ success: true, data: contact })
+    const info = db.prepare("UPDATE contacts SET status = ?, updated_at = datetime('now') WHERE id = ?")
+      .run(req.body.status, Number(req.params.id))
+    if (info.changes === 0) return res.status(404).json({ success: false, message: 'الرسالة غير موجودة' })
+    const row = db.prepare('SELECT * FROM contacts WHERE id = ?').get(Number(req.params.id))
+    res.json({ success: true, data: formatRow(row, table) })
   } catch (error) {
     res.status(400).json({ success: false, message: error.message })
   }
 })
 
-// DELETE /api/contacts/:id - Delete a contact message
-router.delete('/:id', async (req, res) => {
+// DELETE /api/contacts/:id
+router.delete('/:id', (req, res) => {
   try {
-    const contact = await Contact.findByIdAndDelete(req.params.id)
-    if (!contact) {
-      return res.status(404).json({ success: false, message: 'الرسالة غير موجودة' })
-    }
+    const info = db.prepare('DELETE FROM contacts WHERE id = ?').run(Number(req.params.id))
+    if (info.changes === 0) return res.status(404).json({ success: false, message: 'الرسالة غير موجودة' })
     res.json({ success: true, message: 'تم حذف الرسالة' })
   } catch (error) {
     res.status(500).json({ success: false, message: error.message })

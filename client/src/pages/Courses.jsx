@@ -1,11 +1,15 @@
 import { useState, useEffect } from 'react'
 import Icons from '../components/Icons'
 import CTABanner from '../components/CTABanner'
-import { courses as defaultCourses, siteInfo, timeSlots } from '../data/content'
+import Toast, { useToast } from '../components/Toast'
+import { courses as defaultCourses, timeSlots } from '../data/content'
 import { useLanguage } from '../context/LanguageContext'
+import { useSettings } from '../context/SettingsContext'
 
 export default function Courses() {
   const { lang, t } = useLanguage()
+  const { get } = useSettings()
+  const { toast, showToast } = useToast()
   const [selectedCourse, setSelectedCourse] = useState(null)
   const [form, setForm] = useState({ name: '', phone: '', course: '', date: '', time: '' })
   const [submitted, setSubmitted] = useState(false)
@@ -14,7 +18,7 @@ export default function Courses() {
   useEffect(() => {
     fetch('/api/courses')
       .then(r => r.json())
-      .then(d => { if (d.success && d.data?.length) setCourses(d.data) })
+      .then(d => { if (d.success) setCourses(d.data) })
       .catch(() => {})
   }, [])
 
@@ -33,7 +37,7 @@ export default function Courses() {
     })
       .then((res) => res.json())
       .then(() => setSubmitted(true))
-      .catch(() => alert(t('courses.enrollError')))
+      .catch(() => showToast(t('courses.enrollError')))
   }
 
   return (
@@ -41,7 +45,7 @@ export default function Courses() {
       {/* Hero */}
       <section className="relative py-16 md:py-20 flex items-center overflow-hidden bg-[#0a0a0f]">
         <div className="absolute inset-0 z-0">
-          <img src="/courses-bg.webp" alt="" className="w-full h-full object-cover" />
+          <img src={get('bg_courses') || '/courses-bg.webp'} alt="" className="w-full h-full object-cover" style={{ objectPosition: `${get('bg_courses_x') || 50}% ${get('bg_courses_y') || 50}%` }} />
           <div className="absolute inset-0 bg-gradient-to-l from-[#0a0a0f] via-[#0a0a0f]/80 to-transparent" />
         </div>
         <div className="container-custom relative z-10 w-full">
@@ -162,7 +166,7 @@ export default function Courses() {
                     required
                     className="w-full bg-overlay/10 border border-overlay/20 rounded-lg px-4 py-2.5 text-heading placeholder-overlay/50 focus:border-primary focus:bg-overlay/15 focus:outline-none text-sm"
                   />
-                  <div className="grid grid-cols-2 gap-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <input
                       type="date"
                       value={form.date}
@@ -184,7 +188,7 @@ export default function Courses() {
                     {t('courses.confirmEnroll')}
                   </button>
                 </form>
-                <p className="text-faint text-[10px] text-center mt-3">{t('courses.orCall')} {siteInfo.phone}</p>
+                <p className="text-faint text-[10px] text-center mt-3">{t('courses.orCall')} {get('site_phone')}</p>
               </>
             )}
           </div>
@@ -192,6 +196,7 @@ export default function Courses() {
       )}
 
       <CTABanner />
+      <Toast toast={toast} />
     </div>
   )
 }

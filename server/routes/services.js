@@ -1,66 +1,62 @@
 import express from 'express'
-import Service from '../models/Service.js'
+import db, { formatRow, formatRows, prepareBody, buildInsert, buildUpdate } from '../db.js'
 
 const router = express.Router()
+const table = 'services'
 
-// GET /api/services - Get all services
-router.get('/', async (req, res) => {
+// GET /api/services
+router.get('/', (req, res) => {
   try {
-    const services = await Service.find().sort({ createdAt: -1 })
-    res.json({ success: true, count: services.length, data: services })
+    const rows = db.prepare('SELECT * FROM services ORDER BY created_at DESC').all()
+    res.json({ success: true, count: rows.length, data: formatRows(rows, table) })
   } catch (error) {
     res.status(500).json({ success: false, message: error.message })
   }
 })
 
-// POST /api/services - Create a service
-router.post('/', async (req, res) => {
+// POST /api/services
+router.post('/', (req, res) => {
   try {
-    const service = new Service(req.body)
-    const saved = await service.save()
-    res.status(201).json({ success: true, data: saved })
+    const data = prepareBody(req.body, table)
+    const { sql, values } = buildInsert(table, data)
+    const info = db.prepare(sql).run(...values)
+    const row = db.prepare('SELECT * FROM services WHERE id = ?').get(info.lastInsertRowid)
+    res.status(201).json({ success: true, data: formatRow(row, table) })
   } catch (error) {
     res.status(400).json({ success: false, message: error.message })
   }
 })
 
-// GET /api/services/:id - Get a single service
-router.get('/:id', async (req, res) => {
+// GET /api/services/:id
+router.get('/:id', (req, res) => {
   try {
-    const service = await Service.findById(req.params.id)
-    if (!service) {
-      return res.status(404).json({ success: false, message: 'الخدمة غير موجودة' })
-    }
-    res.json({ success: true, data: service })
+    const row = db.prepare('SELECT * FROM services WHERE id = ?').get(Number(req.params.id))
+    if (!row) return res.status(404).json({ success: false, message: 'الخدمة غير موجودة' })
+    res.json({ success: true, data: formatRow(row, table) })
   } catch (error) {
     res.status(500).json({ success: false, message: error.message })
   }
 })
 
-// PUT /api/services/:id - Update a service
-router.put('/:id', async (req, res) => {
+// PUT /api/services/:id
+router.put('/:id', (req, res) => {
   try {
-    const service = await Service.findByIdAndUpdate(
-      req.params.id,
-      req.body,
-      { new: true, runValidators: true }
-    )
-    if (!service) {
-      return res.status(404).json({ success: false, message: 'الخدمة غير موجودة' })
-    }
-    res.json({ success: true, data: service })
+    const data = prepareBody(req.body, table)
+    const { sql, values } = buildUpdate(table, data)
+    const info = db.prepare(sql).run(...values, Number(req.params.id))
+    if (info.changes === 0) return res.status(404).json({ success: false, message: 'الخدمة غير موجودة' })
+    const row = db.prepare('SELECT * FROM services WHERE id = ?').get(Number(req.params.id))
+    res.json({ success: true, data: formatRow(row, table) })
   } catch (error) {
     res.status(400).json({ success: false, message: error.message })
   }
 })
 
-// DELETE /api/services/:id - Delete a service
-router.delete('/:id', async (req, res) => {
+// DELETE /api/services/:id
+router.delete('/:id', (req, res) => {
   try {
-    const service = await Service.findByIdAndDelete(req.params.id)
-    if (!service) {
-      return res.status(404).json({ success: false, message: 'الخدمة غير موجودة' })
-    }
+    const info = db.prepare('DELETE FROM services WHERE id = ?').run(Number(req.params.id))
+    if (info.changes === 0) return res.status(404).json({ success: false, message: 'الخدمة غير موجودة' })
     res.json({ success: true, message: 'تم حذف الخدمة' })
   } catch (error) {
     res.status(500).json({ success: false, message: error.message })

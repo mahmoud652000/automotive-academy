@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { useLanguage } from '../context/LanguageContext'
+import { useSettings } from '../context/SettingsContext'
 import Icons from '../components/Icons'
 
 export default function Login() {
@@ -10,6 +11,7 @@ export default function Login() {
   const [error, setError] = useState('')
   const { login } = useAuth()
   const { t } = useLanguage()
+  const { get } = useSettings()
   const navigate = useNavigate()
 
   const handleSubmit = (e) => {
@@ -24,7 +26,7 @@ export default function Login() {
   return (
     <div className="pt-20 min-h-screen flex items-center justify-center bg-dark relative overflow-hidden">
       <div className="absolute inset-0 z-0">
-        <img src="/hero-bg.png" alt="" className="w-full h-full object-cover opacity-20" />
+        <img src={get('bg_login') || '/hero-bg.png'} alt="" className="w-full h-full object-cover opacity-20" style={{ objectPosition: `${get('bg_login_x') || 50}% ${get('bg_login_y') || 50}%` }} />
         <div className="absolute inset-0 bg-gradient-to-b from-[#0a0a0f]/80 to-[#0a0a0f]" />
       </div>
       <div className="absolute top-0 right-1/4 w-72 h-72 bg-primary/10 rounded-full blur-3xl" />
@@ -34,7 +36,7 @@ export default function Login() {
         <div className="bg-overlay/10 rounded-2xl p-8 border border-overlay/20 shadow-2xl">
           {/* Logo */}
           <div className="text-center mb-6">
-            <img src="/logo.png" alt="Automotive Academy" className="w-32 h-auto mx-auto mb-3" />
+            <img src={get('site_logo') || '/logo.png'} alt={get('site_name') || 'Automotive Academy'} className="w-32 h-auto mx-auto mb-3" />
             <h1 className="text-heading font-bold text-xl">{t('login.title')}</h1>
             <p className="text-muted text-xs mt-1">{t('login.sub')}</p>
           </div>
@@ -92,11 +94,6 @@ export default function Login() {
             <Link to="/" className="text-muted hover:text-primary text-xs transition-colors">
               {t('login.back')}
             </Link>
-          </div>
-
-          <div className="mt-4 bg-overlay/5 rounded-lg p-3 text-center">
-            <p className="text-faint text-[10px]">{t('login.demoData')}</p>
-            <p className="text-muted text-xs mt-1">admin / admin123</p>
           </div>
         </div>
       </div>

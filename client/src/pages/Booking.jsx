@@ -1,8 +1,10 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import Icons from '../components/Icons'
+import Toast, { useToast } from '../components/Toast'
 import { services, siteInfo, bookingSteps, timeSlots } from '../data/content'
 import { useLanguage } from '../context/LanguageContext'
+import { useSettings } from '../context/SettingsContext'
 
 const renderIcon = (name, className = 'w-5 h-5') => {
   const Icon = Icons[name]
@@ -27,6 +29,8 @@ const Field = ({ icon, children, label }) => (
 
 export default function Booking() {
   const { lang, t } = useLanguage()
+  const { get } = useSettings()
+  const { toast, showToast } = useToast()
   const [form, setForm] = useState({ name: '', phone: '', carModel: '', service: '', date: '', time: '', notes: '' })
   const [submitted, setSubmitted] = useState(false)
   const [currentStep, setCurrentStep] = useState(1)
@@ -49,7 +53,7 @@ export default function Booking() {
     })
       .then((res) => res.json())
       .then(() => setSubmitted(true))
-      .catch(() => alert(t('booking.bookingError')))
+      .catch(() => showToast(t('booking.bookingError')))
   }
 
   const resetForm = () => {
@@ -61,10 +65,10 @@ export default function Booking() {
   const stepLabels = [t('booking.step1Label'), t('booking.step2Label'), t('booking.step3Label'), t('booking.step4Label')]
 
   const contactItems = [
-    { icon: 'Phone', label: siteInfo.phone, href: `tel:${siteInfo.phone.replace(/\s/g, '')}` },
-    { icon: 'Mail', label: siteInfo.email, href: `mailto:${siteInfo.email}` },
-    { icon: 'MapPin', label: lang === 'ar' ? siteInfo.address : siteInfo.addressEn, href: null },
-    { icon: 'Clock', label: lang === 'ar' ? siteInfo.workingHours : siteInfo.workingHoursEn, href: null },
+    { icon: 'Phone', label: get('site_phone'), href: `tel:${(get('site_phone') || '').replace(/\s/g, '')}` },
+    { icon: 'Mail', label: get('site_email'), href: `mailto:${get('site_email')}` },
+    { icon: 'MapPin', label: lang === 'ar' ? get('site_address') : get('site_address_en'), href: null },
+    { icon: 'Clock', label: lang === 'ar' ? get('site_working_hours') : get('site_working_hours_en'), href: null },
   ]
 
   return (
@@ -72,7 +76,7 @@ export default function Booking() {
       {/* ===== HERO ===== */}
       <section className="relative py-10 md:py-14 overflow-hidden bg-dark">
         <div className="absolute inset-0 z-0">
-          <img src="/hero-bg.png" alt="" className="w-full h-full object-cover opacity-40" />
+          <img src={get('bg_booking') || '/hero-bg.png'} alt="" className="w-full h-full object-cover opacity-40" style={{ objectPosition: `${get('bg_booking_x') || 50}% ${get('bg_booking_y') || 50}%` }} />
           <div className="absolute inset-0 bg-gradient-to-b from-[#0a0a0f]/60 via-[#0a0a0f]/70 to-[#0a0a0f]" />
         </div>
         <div className="absolute -top-20 right-1/4 w-72 h-72 bg-primary/10 rounded-full blur-3xl" />
@@ -390,6 +394,7 @@ export default function Booking() {
           </section>
         </>
       )}
+      <Toast toast={toast} />
     </div>
   )
 }

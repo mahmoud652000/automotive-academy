@@ -176,6 +176,8 @@ export const translations = {
 
     // ===== Contact Page =====
     'contact.title': 'طرق التواصل معنا',
+    'contact.heroTitle': 'نحن هنا لخدمتك',
+    'contact.heroDesc': 'مركز Automotive Academy — حيث تلتقي الخبرة بأحدث التقنيات لخدمة سيارتك على أعلى مستوى',
     'contact.sendMsg': 'أرسل لنا رسالة',
     'contact.sendMsgSub': 'سنرد عليك في أقرب وقت ممكن',
     'contact.fullName': 'الاسم بالكامل',
@@ -247,6 +249,25 @@ export const translations = {
     'notfound.goHome': 'العودة للرئيسية',
     'notfound.contactSupport': 'تواصل مع الدعم',
 
+    // ===== Newsletter =====
+    'newsletter.checkEmail': 'تم تسجيل اشتراكك! تحقق من بريدك الإلكتروني لتأكيد الاشتراك.',
+    'newsletter.alreadySubscribed': 'أنت مشترك بالفعل في النشرة البريدية.',
+    'newsletter.resendConfirmation': 'تم إرسال إيميل التأكيد مرة أخرى، تحقق من بريدك.',
+    'newsletter.subscribeError': 'حدث خطأ، يرجى المحاولة مرة أخرى.',
+    'newsletter.confirmTitle': 'تأكيد الاشتراك',
+    'newsletter.confirmSuccess': 'تم تأكيد اشتراكك في النشرة البريدية بنجاح!',
+    'newsletter.confirmSuccessDesc': 'ستصلك آخر الأخبار والعروض والمقالات مباشرة على بريدك الإلكتروني.',
+    'newsletter.alreadyConfirmed': 'تم تأكيد اشتراكك مسبقاً.',
+    'newsletter.confirmError': 'رابط التأكيد غير صالح أو منتهي الصلاحية.',
+    'newsletter.unsubscribeTitle': 'إلغاء الاشتراك',
+    'newsletter.unsubscribeSuccess': 'تم إلغاء اشتراكك في النشرة البريدية بنجاح.',
+    'newsletter.unsubscribeSuccessDesc': 'لن تصلك رسائل من النشرة البريدية بعد الآن. يمكنك إعادة الاشتراك في أي وقت.',
+    'newsletter.alreadyUnsubscribed': 'تم إلغاء اشتراكك مسبقاً.',
+    'newsletter.unsubscribeError': 'رابط إلغاء الاشتراك غير صالح.',
+    'newsletter.backHome': 'العودة للرئيسية',
+    'newsletter.confirming': 'جاري تأكيد الاشتراك...',
+    'newsletter.unsubscribing': 'جاري إلغاء الاشتراك...',
+
     // ===== CTABanner =====
     'cta.title': 'جاهز للعناية بسيارتك؟',
     'cta.desc': 'احجز موعدك الآن واحصل على فحص مجاني لسيارتك',
@@ -279,10 +300,21 @@ export const translations = {
     // ===== Dashboard =====
     'dash.welcome': 'أهلاً،',
     'dash.overviewSub': 'إليك نظفة عامة على نشاط الموقع اليوم',
+    'dash.loading': 'جاري التحميل...',
     'dash.groupGeneral': 'عام',
     'dash.groupBookings': 'الحجوزات',
     'dash.groupContent': 'المحتوى',
     'dash.groupContact': 'التواصل',
+    'dash.groupSettings': 'الإعدادات',
+    'dash.settings': 'الإعدادات العامة',
+    'dash.settingsSiteInfo': 'معلومات الموقع',
+    'dash.settingsBgImages': 'صور الخلفيات',
+    'dash.settingsHeroTexts': 'النصوص على الخلفية',
+    'dash.settingsVideo': 'الفيديو',
+    'dash.settingsSecurity': 'الأمان',
+    'dash.settingsBgPosition': 'موضع الصورة',
+    'dash.settingsSaveAll': 'حفظ كل الإعدادات',
+    'dash.settingsSaved': 'تم حفظ الإعدادات بنجاح',
     'dash.overview': 'نظرة عامة',
     'dash.serviceBookings': 'حجوزات الخدمات',
     'dash.courseBookings': 'حجوزات الدورات',
@@ -324,6 +356,8 @@ export const translations = {
     'dash.delete': 'حذف',
     'dash.edit': 'تعديل',
     'dash.add': 'إضافة',
+    'dash.view': 'معاينة',
+    'dash.deletedSuccess': 'تم الحذف بنجاح',
     'dash.print': 'طباعة PDF',
     'dash.save': 'حفظ',
     'dash.editTitle': 'تعديل',
@@ -368,6 +402,15 @@ export const translations = {
     'dash.articleImage': 'صورة المقال',
     'dash.noArticles': 'لا توجد مقالات بعد',
     'dash.noArticlesSub': 'أضف مقالاً جديداً ليظهر في صفحة المقالات',
+
+    // Dashboard - Subscribers
+    'dash.subscribers': 'المشتركون',
+    'dash.subscriberCount': 'مشترك',
+    'dash.noSubscribers': 'لا يوجد مشتركون بعد',
+    'dash.noSubscribersSub': 'عند اشتراك زوار الموقع في النشرة البريدية سيظهرون هنا',
+    'dash.statusPending': 'بانتظار التأكيد',
+    'dash.statusConfirmedSub': 'مؤكد',
+    'dash.statusUnsubscribed': 'ألغى الاشتراك',
   },
 
   en: {
@@ -547,6 +590,8 @@ export const translations = {
 
     // ===== Contact Page =====
     'contact.title': 'Ways to Contact Us',
+    'contact.heroTitle': 'We Are Here For You',
+    'contact.heroDesc': 'Automotive Academy Center — where expertise meets the latest technology to serve your car at the highest level',
     'contact.sendMsg': 'Send Us a Message',
     'contact.sendMsgSub': 'We will reply as soon as possible',
     'contact.fullName': 'Full Name',
@@ -618,6 +663,25 @@ export const translations = {
     'notfound.goHome': 'Go Home',
     'notfound.contactSupport': 'Contact Support',
 
+    // ===== Newsletter =====
+    'newsletter.checkEmail': 'Subscription registered! Check your email to confirm.',
+    'newsletter.alreadySubscribed': 'You are already subscribed to the newsletter.',
+    'newsletter.resendConfirmation': 'Confirmation email sent again, check your inbox.',
+    'newsletter.subscribeError': 'An error occurred, please try again.',
+    'newsletter.confirmTitle': 'Confirm Subscription',
+    'newsletter.confirmSuccess': 'Your newsletter subscription has been confirmed!',
+    'newsletter.confirmSuccessDesc': 'You will receive the latest news, offers, and articles directly to your email.',
+    'newsletter.alreadyConfirmed': 'Your subscription was already confirmed.',
+    'newsletter.confirmError': 'The confirmation link is invalid or expired.',
+    'newsletter.unsubscribeTitle': 'Unsubscribe',
+    'newsletter.unsubscribeSuccess': 'You have been unsubscribed from the newsletter.',
+    'newsletter.unsubscribeSuccessDesc': 'You will no longer receive newsletter emails. You can re-subscribe at any time.',
+    'newsletter.alreadyUnsubscribed': 'You were already unsubscribed.',
+    'newsletter.unsubscribeError': 'The unsubscribe link is invalid.',
+    'newsletter.backHome': 'Back to Home',
+    'newsletter.confirming': 'Confirming subscription...',
+    'newsletter.unsubscribing': 'Unsubscribing...',
+
     // ===== CTABanner =====
     'cta.title': 'Ready to Care for Your Car?',
     'cta.desc': 'Book your appointment now and get a free car inspection',
@@ -650,10 +714,21 @@ export const translations = {
     // ===== Dashboard =====
     'dash.welcome': 'Welcome,',
     'dash.overviewSub': "Here's an overview of today's site activity",
+    'dash.loading': 'Loading...',
     'dash.groupGeneral': 'General',
     'dash.groupBookings': 'Bookings',
     'dash.groupContent': 'Content',
     'dash.groupContact': 'Contact',
+    'dash.groupSettings': 'Settings',
+    'dash.settings': 'General Settings',
+    'dash.settingsSiteInfo': 'Site Information',
+    'dash.settingsBgImages': 'Background Images',
+    'dash.settingsHeroTexts': 'Hero Texts',
+    'dash.settingsVideo': 'Video',
+    'dash.settingsSecurity': 'Security',
+    'dash.settingsBgPosition': 'Image Position',
+    'dash.settingsSaveAll': 'Save All Settings',
+    'dash.settingsSaved': 'Settings saved successfully',
     'dash.overview': 'Overview',
     'dash.serviceBookings': 'Service Bookings',
     'dash.courseBookings': 'Course Bookings',
@@ -695,6 +770,8 @@ export const translations = {
     'dash.delete': 'Delete',
     'dash.edit': 'Edit',
     'dash.add': 'Add',
+    'dash.view': 'View',
+    'dash.deletedSuccess': 'Deleted successfully',
     'dash.print': 'Print PDF',
     'dash.save': 'Save',
     'dash.editTitle': 'Edit',
@@ -739,5 +816,14 @@ export const translations = {
     'dash.articleImage': 'Article Image',
     'dash.noArticles': 'No articles yet',
     'dash.noArticlesSub': 'Add a new article to display on the articles page',
+
+    // Dashboard - Subscribers
+    'dash.subscribers': 'Subscribers',
+    'dash.subscriberCount': 'subscribers',
+    'dash.noSubscribers': 'No subscribers yet',
+    'dash.noSubscribersSub': 'When visitors subscribe to the newsletter they will appear here',
+    'dash.statusPending': 'Pending',
+    'dash.statusConfirmedSub': 'Confirmed',
+    'dash.statusUnsubscribed': 'Unsubscribed',
   }
 }

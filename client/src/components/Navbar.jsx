@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react'
 import { Link, NavLink } from 'react-router-dom'
-import { navLinks, siteInfo } from '../data/content'
+import { navLinks } from '../data/content'
 import Logo from './Logo'
 import { useAuth } from '../context/AuthContext'
 import { useTheme } from '../context/ThemeContext'
 import { useLanguage } from '../context/LanguageContext'
+import { useSettings } from '../context/SettingsContext'
 import Icons from './Icons'
 
 export default function Navbar() {
@@ -12,6 +13,7 @@ export default function Navbar() {
   const { isLoggedIn, logout } = useAuth()
   const { theme, toggleTheme } = useTheme()
   const { lang, toggleLang, t } = useLanguage()
+  const { get } = useSettings()
 
   useEffect(() => {
     const handleScroll = () => {
@@ -58,10 +60,10 @@ export default function Navbar() {
             </div>
             <div className="flex flex-col leading-tight">
               <h1 className="text-heading font-bold text-[10px] sm:text-sm lg:text-base whitespace-nowrap">
-                {lang === 'ar' ? siteInfo.name : siteInfo.nameEn}
+                {lang === 'ar' ? get('site_name') : get('site_name_en')}
               </h1>
               <p className="text-primary text-[7px] sm:text-[9px] lg:text-[10px] font-medium whitespace-nowrap">
-                {lang === 'ar' ? siteInfo.slogan : siteInfo.sloganEn}
+                {lang === 'ar' ? get('site_slogan') : get('site_slogan_en')}
               </p>
             </div>
           </Link>

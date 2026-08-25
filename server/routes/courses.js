@@ -1,66 +1,62 @@
 import express from 'express'
-import Course from '../models/Course.js'
+import db, { formatRow, formatRows, prepareBody, buildInsert, buildUpdate } from '../db.js'
 
 const router = express.Router()
+const table = 'courses'
 
-// GET /api/courses - Get all courses
-router.get('/', async (req, res) => {
+// GET /api/courses
+router.get('/', (req, res) => {
   try {
-    const courses = await Course.find().sort({ createdAt: -1 })
-    res.json({ success: true, count: courses.length, data: courses })
+    const rows = db.prepare('SELECT * FROM courses ORDER BY created_at DESC').all()
+    res.json({ success: true, count: rows.length, data: formatRows(rows, table) })
   } catch (error) {
     res.status(500).json({ success: false, message: error.message })
   }
 })
 
-// POST /api/courses - Create a course
-router.post('/', async (req, res) => {
+// POST /api/courses
+router.post('/', (req, res) => {
   try {
-    const course = new Course(req.body)
-    const saved = await course.save()
-    res.status(201).json({ success: true, data: saved })
+    const data = prepareBody(req.body, table)
+    const { sql, values } = buildInsert(table, data)
+    const info = db.prepare(sql).run(...values)
+    const row = db.prepare('SELECT * FROM courses WHERE id = ?').get(info.lastInsertRowid)
+    res.status(201).json({ success: true, data: formatRow(row, table) })
   } catch (error) {
     res.status(400).json({ success: false, message: error.message })
   }
 })
 
-// GET /api/courses/:id - Get a single course
-router.get('/:id', async (req, res) => {
+// GET /api/courses/:id
+router.get('/:id', (req, res) => {
   try {
-    const course = await Course.findById(req.params.id)
-    if (!course) {
-      return res.status(404).json({ success: false, message: 'الدورة غير موجودة' })
-    }
-    res.json({ success: true, data: course })
+    const row = db.prepare('SELECT * FROM courses WHERE id = ?').get(Number(req.params.id))
+    if (!row) return res.status(404).json({ success: false, message: 'الدورة غير موجودة' })
+    res.json({ success: true, data: formatRow(row, table) })
   } catch (error) {
     res.status(500).json({ success: false, message: error.message })
   }
 })
 
-// PUT /api/courses/:id - Update a course
-router.put('/:id', async (req, res) => {
+// PUT /api/courses/:id
+router.put('/:id', (req, res) => {
   try {
-    const course = await Course.findByIdAndUpdate(
-      req.params.id,
-      req.body,
-      { new: true, runValidators: true }
-    )
-    if (!course) {
-      return res.status(404).json({ success: false, message: 'الدورة غير موجودة' })
-    }
-    res.json({ success: true, data: course })
+    const data = prepareBody(req.body, table)
+    const { sql, values } = buildUpdate(table, data)
+    const info = db.prepare(sql).run(...values, Number(req.params.id))
+    if (info.changes === 0) return res.status(404).json({ success: false, message: 'الدورة غير موجودة' })
+    const row = db.prepare('SELECT * FROM courses WHERE id = ?').get(Number(req.params.id))
+    res.json({ success: true, data: formatRow(row, table) })
   } catch (error) {
     res.status(400).json({ success: false, message: error.message })
   }
 })
 
-// DELETE /api/courses/:id - Delete a course
-router.delete('/:id', async (req, res) => {
+// DELETE /api/courses/:id
+router.delete('/:id', (req, res) => {
   try {
-    const course = await Course.findByIdAndDelete(req.params.id)
-    if (!course) {
-      return res.status(404).json({ success: false, message: 'الدورة غير موجودة' })
-    }
+    const info = db.prepare('DELETE FROM courses WHERE id = ?').run(Number(req.params.id))
+    if (info.changes === 0) return res.status(404).json({ success: false, message: 'الدورة غير موجودة' })
     res.json({ success: true, message: 'تم حذف الدورة' })
   } catch (error) {
     res.status(500).json({ success: false, message: error.message })
