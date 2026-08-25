@@ -25,7 +25,8 @@ const app = express()
 
 app.use(cors())
 app.use(express.json({ limit: '10mb' }))
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')))
+const uploadsDir = process.env.VERCEL ? '/tmp/uploads' : path.join(__dirname, 'uploads')
+app.use('/uploads', express.static(uploadsDir))
 
 app.use('/api/bookings', bookingsRouter)
 app.use('/api/contacts', contactsRouter)
