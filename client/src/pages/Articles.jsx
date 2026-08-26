@@ -44,7 +44,7 @@ export default function Articles() {
   return (
     <div>
       {/* ============ HERO ============ */}
-      <section className="relative pt-24 sm:pt-28 lg:pt-28 pb-10 sm:pb-12 md:pb-16 overflow-hidden bg-dark">
+      <section className="relative pt-20 sm:pt-24 lg:pt-28 pb-10 sm:pb-12 md:pb-16 overflow-hidden bg-dark">
         {/* Background image */}
         <div className="absolute inset-0 z-0">
           <img src={get('bg_articles') || '/articles-bg.webp'} alt="" className="w-full h-full object-cover" style={{ objectPosition: `${get('bg_articles_x') || 50}% ${get('bg_articles_y') || 50}%` }} />

@@ -68,7 +68,11 @@ export default function About() {
                   <div className="w-24 h-24 mx-auto mb-4 relative">
                     <div className="absolute inset-0 bg-primary/15 rounded-full blur-md" />
                     <div className="relative w-24 h-24 bg-gradient-to-br from-primary/20 to-primary/5 rounded-full flex items-center justify-center border-2 border-primary/30">
-                      <span className="text-3xl font-bold text-primary">أ</span>
+                      <svg className="w-10 h-10 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M12 2L2 7l10 5 10-5-10-5z" />
+                        <path d="M2 17l10 5 10-5" />
+                        <path d="M2 12l10 5 10-5" />
+                      </svg>
                     </div>
                   </div>
                   <h3 className="text-heading font-bold text-lg">{lang === 'ar' ? aboutText.owner : aboutText.ownerEn}</h3>

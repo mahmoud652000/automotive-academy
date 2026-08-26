@@ -116,15 +116,15 @@ export default function Navbar() {
           </div>
         </div>
 
-        {/* ===== Mobile: compact header ===== */}
-        <div className="flex lg:hidden items-center justify-between h-14 sm:h-16">
+        {/* ===== Mobile: professional header ===== */}
+        <div className="flex lg:hidden items-center justify-between h-16 sm:h-20">
 
           {/* Menu Button */}
           <button
-            className="w-10 h-10 rounded-xl flex items-center justify-center text-heading hover:bg-overlay/10 transition-all duration-300 bg-overlay/5"
+            className="w-11 h-11 rounded-xl flex items-center justify-center text-heading hover:bg-overlay/10 transition-all duration-300 bg-overlay/5"
             onClick={() => setIsOpen(!isOpen)}
           >
-            <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+            <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
               {isOpen ? (
                 <>
                   <line x1="18" y1="6" x2="6" y2="18" />
@@ -143,8 +143,9 @@ export default function Navbar() {
           {/* Centered Logo */}
           <Link to="/" className="flex items-center justify-center absolute left-1/2 -translate-x-1/2">
             <div className="relative flex-shrink-0">
-              <div className="absolute -inset-1 bg-primary/20 rounded-lg blur-sm opacity-0 hover:opacity-100 transition-opacity duration-300" />
-              <Logo className="relative h-8 w-auto" showText={false} />
+              <div className="absolute -inset-3 bg-primary/25 rounded-2xl blur-lg opacity-50" />
+              <div className="absolute -inset-1 bg-primary/10 rounded-xl blur-sm" />
+              <Logo className="relative h-12 w-auto drop-shadow-[0_2px_12px_rgba(220,38,38,0.4)]" showText={false} />
             </div>
           </Link>
 
@@ -159,8 +160,8 @@ export default function Navbar() {
       {/* ===== Mobile Fullscreen Menu ===== */}
       {isOpen && (
         <>
-          <div className="lg:hidden fixed inset-0 top-14 sm:top-16 bg-black/50 z-40" onClick={() => setIsOpen(false)} />
-          <div className="lg:hidden fixed top-14 sm:top-16 right-0 left-0 bottom-0 overflow-y-auto bg-surface z-50 animate-fadeIn">
+          <div className="lg:hidden fixed inset-0 top-16 sm:top-20 bg-black/50 z-40" onClick={() => setIsOpen(false)} />
+          <div className="lg:hidden fixed top-16 sm:top-20 right-0 left-0 bottom-0 overflow-y-auto bg-surface z-50 animate-fadeIn">
             <div className="px-4 py-4 space-y-1">
               {navLinks.map((link) => (
                 <NavLink

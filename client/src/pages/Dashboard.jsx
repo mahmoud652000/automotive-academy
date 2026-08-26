@@ -789,7 +789,7 @@ export default function Dashboard() {
                         }`}
                       >
                         {activeTab === tab.id && (
-                          <span className="absolute right-0 top-1/2 -translate-y-1/2 w-1 h-5 bg-white rounded-l-full" />
+                          <span className="absolute right-0 top-1/2 -translate-y-1/2 w-1 h-5 bg-primary rounded-l-full" />
                         )}
                         {renderIcon(tab.icon, 'w-3.5 h-3.5')}
                         {tab.name}
@@ -1635,7 +1635,7 @@ export default function Dashboard() {
       {/* === ADD FORM MODAL === */}
       {showForm && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/70" onClick={closeForm}>
-          <div className="bg-gradient-to-b from-surface to-[#0a0a0f] rounded-2xl p-6 border border-overlay/20 max-w-md w-full shadow-2xl" onClick={e => e.stopPropagation()}>
+          <div className="bg-gradient-to-b from-surface to-dark rounded-2xl p-6 border border-overlay/20 max-w-md w-full shadow-2xl" onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-2.5">
                 <div className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center text-primary">
@@ -1977,7 +1977,7 @@ export default function Dashboard() {
       {/* === PREVIEW MODAL === */}
       {showPreview && previewData && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/70" onClick={closePreview}>
-          <div className="bg-gradient-to-b from-surface to-[#0a0a0f] rounded-2xl p-6 border border-overlay/20 max-w-md w-full shadow-2xl max-h-[85vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+          <div className="bg-gradient-to-b from-surface to-dark rounded-2xl p-6 border border-overlay/20 max-w-md w-full shadow-2xl max-h-[85vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-5">
               <div className="flex items-center gap-2.5">
                 <div className="w-8 h-8 bg-emerald-500/10 rounded-lg flex items-center justify-center text-emerald-400">

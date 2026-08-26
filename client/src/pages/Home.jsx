@@ -161,7 +161,7 @@ export default function Home() {
           <div className="hero-overlay-left" />
         </div>
 
-        <div className="container-custom relative z-10 py-8 pt-24 sm:pt-28 lg:pt-28">
+        <div className="container-custom relative z-10 py-8 pt-20 sm:pt-24 lg:pt-28">
           <div className="flex flex-col lg:flex-row items-center lg:items-start justify-between gap-6 lg:gap-8">
             {/* Right Side - Text */}
             <div className="flex-1 lg:pt-8 lg:ps-8 text-center lg:text-start">
