@@ -14,14 +14,14 @@ export const siteInfo = {
 
 export const navLinks = [
   { name: 'الرئيسية', nameEn: 'Home', path: '/' },
+  { name: 'من نحن', nameEn: 'About', path: '/about' },
   { name: 'الخدمات', nameEn: 'Services', path: '/services' },
-  { name: 'الحجز', nameEn: 'Booking', path: '/booking' },
-  { name: 'العروض', nameEn: 'Offers', path: '/offers' },
   { name: 'الدورات', nameEn: 'Courses', path: '/courses' },
+  { name: 'العروض', nameEn: 'Offers', path: '/offers' },
   { name: 'معرضنا', nameEn: 'Gallery', path: '/gallery' },
   { name: 'المقالات', nameEn: 'Articles', path: '/articles' },
-  { name: 'من نحن', nameEn: 'About', path: '/about' },
   { name: 'تواصل معنا', nameEn: 'Contact', path: '/contact' },
+  { name: 'الحجز', nameEn: 'Booking', path: '/booking' },
 ]
 
 export const heroBadges = [
@@ -223,7 +223,7 @@ export const team = [
 
 export const brands = [
   { name: 'Bosch', logo: 'https://cdn.freebiesupply.com/logos/large/2x/bosch-logo-png-transparent.png' },
-  { name: 'Liqui Moly', logo: 'https://cdn.freebiesupply.com/logos/large/2x/liqui-moly-logo-png-transparent.png' },
+  { name: 'Shell', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7d/Shell_logo.svg/2048px-Shell_logo.svg.png' },
   { name: 'Castrol', logo: 'https://cdn.freebiesupply.com/logos/large/2x/castrol-logo-png-transparent.png' },
   { name: 'Mann Filter', logo: 'https://cdn.freebiesupply.com/logos/large/2x/mann-filter-logo-png-transparent.png' },
   { name: 'NGK', logo: 'https://cdn.freebiesupply.com/logos/large/2x/ngk-logo-png-transparent.png' },

@@ -13,6 +13,9 @@ export default function Home() {
   const { get } = useSettings()
   const { toast, showToast } = useToast()
   const [bookingForm, setBookingForm] = useState({ name: '', phone: '', service: '', date: '', time: '' })
+  const [bookingSubmitted, setBookingSubmitted] = useState(false)
+  const [showWhatsappReview, setShowWhatsappReview] = useState(false)
+  const [lastBooking, setLastBooking] = useState(null)
   const [reviewForm, setReviewForm] = useState({ name: '', role: '', text: '', rating: 5 })
   const [showReviewForm, setShowReviewForm] = useState(false)
   const [reviewSubmitted, setReviewSubmitted] = useState(false)
@@ -25,6 +28,7 @@ export default function Home() {
 
   const handleSubmit = (e) => {
     e.preventDefault()
+    setLastBooking({ ...bookingForm })
     fetch('/api/bookings', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -32,10 +36,33 @@ export default function Home() {
     })
       .then((res) => res.json())
       .then(() => {
-        showToast(t('home.bookingSuccess'), 'success')
+        setBookingSubmitted(true)
         setBookingForm({ name: '', phone: '', service: '', date: '', time: '' })
       })
       .catch(() => showToast(t('home.bookingError')))
+  }
+
+  const buildWhatsappMessage = () => {
+    const b = lastBooking || bookingForm
+    const lines = [
+      `🚗 *طلب حجز جديد - Automotive Academy*`,
+      ``,
+      `👤 ${lang === 'ar' ? 'الاسم' : 'Name'}: ${b.name || '—'}`,
+      `📱 ${lang === 'ar' ? 'الهاتف' : 'Phone'}: ${b.phone || '—'}`,
+      `🔧 ${lang === 'ar' ? 'الخدمة' : 'Service'}: ${b.service || '—'}`,
+      `📅 ${lang === 'ar' ? 'التاريخ' : 'Date'}: ${b.date || '—'}`,
+      `⏰ ${lang === 'ar' ? 'الوقت' : 'Time'}: ${b.time || '—'}`,
+    ]
+    return encodeURIComponent(lines.join('\n'))
+  }
+
+  const sendWhatsapp = () => {
+    const phone = get('site_whatsapp') || '201103197077'
+    const msg = buildWhatsappMessage()
+    window.open(`https://wa.me/${phone}?text=${msg}`, '_blank')
+    setShowWhatsappReview(false)
+    setBookingSubmitted(false)
+    showToast(t('booking.whatsappSent'), 'success')
   }
 
   const handleReviewSubmit = (e) => {
@@ -128,91 +155,124 @@ export default function Home() {
   return (
     <div>
       {/* ============ HERO SECTION ============ */}
-      <section className="relative min-h-[90vh] flex items-center overflow-hidden">
+      <section className="relative min-h-[85vh] sm:min-h-[90vh] flex items-center overflow-hidden">
         <div className="absolute inset-0 z-0">
           <img src={get('bg_home') || '/hero-bg.png'} alt={lang === 'ar' ? 'ورشة Automotive Academy' : 'Automotive Academy Workshop'} className="w-full h-full object-cover" style={{ objectPosition: `${get('bg_home_x') || 50}% ${get('bg_home_y') || 50}%` }} />
-          <div className="absolute inset-0 bg-gradient-to-l from-[#0a0a0f] via-[#0a0a0f]/85 to-[#0a0a0f]/30" />
+          <div className="hero-overlay-left" />
         </div>
 
-        <div className="container-custom relative z-10 py-12 pt-28 sm:pt-32">
-          <div className="flex flex-col lg:flex-row items-center lg:items-start justify-between gap-8">
+        <div className="container-custom relative z-10 py-8 pt-24 sm:pt-28 lg:pt-28">
+          <div className="flex flex-col lg:flex-row items-center lg:items-start justify-between gap-6 lg:gap-8">
             {/* Right Side - Text */}
-            <div className="flex-1 lg:pt-8 lg:pr-8 text-center lg:text-right">
-              <span className="inline-block text-primary font-bold text-sm tracking-wide mb-4 flex items-center gap-2 lg:justify-start justify-center">
+            <div className="flex-1 lg:pt-8 lg:ps-8 text-center lg:text-start">
+              <span className="inline-block text-primary font-bold text-xs sm:text-sm tracking-wide mb-3 sm:mb-4 flex items-center gap-2 lg:justify-start justify-center">
                 <span className="w-8 h-px bg-primary" />
                 {t('home.heroBadge')}
               </span>
-              <h1 className="text-3xl md:text-5xl font-bold text-white leading-tight mb-5">
-                {get('hero_home_title1') || t('home.heroTitle1')}<br /><span className="text-primary">{get('hero_home_title2') || t('home.heroTitle2')}</span>
+              <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-on-hero leading-tight mb-4 sm:mb-5">
+                {lang === 'ar' ? (get('hero_home_title1') || t('home.heroTitle1')) : t('home.heroTitle1')}<br /><span className="text-primary">{lang === 'ar' ? (get('hero_home_title2') || t('home.heroTitle2')) : t('home.heroTitle2')}</span>
               </h1>
-              <p className="text-white/80 text-base md:text-lg mb-8 max-w-lg mx-auto lg:mx-0 leading-relaxed">
-                {get('hero_home_desc') || t('home.heroDesc')}
+              <p className="text-on-hero-secondary text-sm sm:text-base md:text-lg mb-6 sm:mb-8 max-w-lg mx-auto lg:mx-0 leading-relaxed">
+                {lang === 'ar' ? (get('hero_home_desc') || t('home.heroDesc')) : t('home.heroDesc')}
               </p>
 
               {/* Trust Badges */}
-              <div className="flex flex-wrap gap-3 justify-center lg:justify-start">
+              <div className="flex flex-wrap gap-2 sm:gap-3 justify-center lg:justify-start">
                 {heroBadges.map((badge, index) => (
-                  <div key={index} className="flex items-center gap-2 bg-white/10 rounded-full px-4 py-2 border border-white/10 hover:border-primary/30 transition-colors">
-                    <span className="text-primary">{renderIcon(badge.icon, 'w-5 h-5')}</span>
-                    <span className="text-white text-sm font-medium">{lang === 'ar' ? badge.text : badge.textEn}</span>
+                  <div key={index} className="flex items-center gap-2 bg-white/10 rounded-full px-3 sm:px-4 py-1.5 sm:py-2 border border-white/15 hover:border-primary/30 transition-colors">
+                    <span className="text-primary">{renderIcon(badge.icon, 'w-4 h-4 sm:w-5 sm:h-5')}</span>
+                    <span className="text-on-hero text-xs sm:text-sm font-medium">{lang === 'ar' ? badge.text : badge.textEn}</span>
                   </div>
                 ))}
               </div>
             </div>
 
-            {/* Left Side - Booking Form */}
-            <div className="w-full max-w-sm bg-white/5 backdrop-blur-2xl rounded-2xl p-5 sm:p-6 border border-white/20 shadow-2xl shadow-primary/10 flex-shrink-0">
+            {/* Left Side - Booking Form / Success */}
+            <div className="relative w-full max-w-sm bg-black/40 backdrop-blur-2xl rounded-2xl p-4 sm:p-5 md:p-6 border border-white/15 shadow-2xl shadow-primary/10 flex-shrink-0">
               <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-white/10 to-transparent pointer-events-none" />
-              <div className="mb-5 relative z-10">
-                <h3 className="text-xl font-bold text-white mb-1">{t('home.bookNow')}</h3>
-                <p className="text-white/70 text-xs">{t('home.bookSub')}</p>
+              {bookingSubmitted ? (
+                <div className="relative z-10 text-center py-4">
+                  <div className="w-16 h-16 mx-auto mb-4 bg-green-500/20 rounded-full flex items-center justify-center border border-green-500/30">
+                    <Icons.CheckCircle className="w-9 h-9 text-green-400" />
+                  </div>
+                  <h3 className="text-on-hero font-bold text-lg mb-2">{t('booking.successTitle')}</h3>
+                  <p className="text-on-hero-secondary text-xs leading-relaxed mb-5">
+                    {t('booking.successDesc2')}<br />
+                    {t('booking.successDesc3')} {lastBooking?.phone} {t('booking.successDesc4')}
+                  </p>
+                  <div className="space-y-2.5">
+                    <button
+                      onClick={() => setShowWhatsappReview(true)}
+                      className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2.5 rounded-lg transition-all duration-300 text-sm flex items-center justify-center gap-2 hover:shadow-lg hover:shadow-green-500/30"
+                    >
+                      <svg className="w-4 h-4" viewBox="0 0 32 32" fill="currentColor">
+                        <path d="M16.003 0h-.006C7.17 0 0 7.172 0 16c0 3.5 1.128 6.744 3.046 9.354L1.05 31.27l6.072-1.938A15.9 15.9 0 0 0 16.003 32C24.828 32 32 24.828 32 16S24.828 0 16.003 0z"/>
+                      </svg>
+                      {t('booking.sendWhatsapp')}
+                    </button>
+                    <button
+                      onClick={() => setBookingSubmitted(false)}
+                      className="w-full border border-white/20 text-on-hero hover:bg-white/10 font-bold py-2.5 rounded-lg transition-all duration-300 text-sm"
+                    >
+                      {t('booking.bookAnother')}
+                    </button>
+                  </div>
+                </div>
+              ) : (
+              <>
+              <div className="mb-4 sm:mb-5 relative z-10">
+                <h3 className="text-on-hero font-bold text-lg sm:text-xl mb-1">{t('home.bookNow')}</h3>
+                <p className="text-on-hero-secondary text-xs">{t('home.bookSub')}</p>
               </div>
-              <form onSubmit={handleSubmit} className="space-y-3 relative z-10">
+              <form onSubmit={handleSubmit} className="space-y-2.5 sm:space-y-3 relative z-10">
                 <div className="relative">
                   <select
                     value={bookingForm.service}
                     onChange={(e) => setBookingForm({ ...bookingForm, service: e.target.value })}
                     required
-                    className="w-full bg-white/10 backdrop-blur-md border border-white/20 rounded-lg pr-3 pl-9 py-2.5 text-white text-sm placeholder-white/50 focus:border-primary focus:bg-white/15 focus:outline-none transition-all appearance-none"
+                    className="w-full bg-white/10 border border-white/20 rounded-lg pr-3 pl-9 py-2.5 text-on-hero text-sm placeholder-on-hero-faint focus:border-primary focus:bg-white/15 focus:outline-none transition-all appearance-none"
                   >
-                    <option value="" className="bg-surface">{t('home.selectService')}</option>
-                    {services.map((s) => (<option key={s.id} value={lang === 'ar' ? s.title : s.titleEn} className="bg-surface">{lang === 'ar' ? s.title : s.titleEn}</option>))}
+                    <option value="" className="bg-surface text-heading">{t('home.selectService')}</option>
+                    {services.map((s) => (<option key={s.id} value={lang === 'ar' ? s.title : s.titleEn} className="bg-surface text-heading">{lang === 'ar' ? s.title : s.titleEn}</option>))}
+                    <option value={lang === 'ar' ? 'أخرى' : 'Other'} className="bg-surface text-heading">{lang === 'ar' ? 'أخرى' : 'Other'}</option>
                   </select>
-                  <span className="absolute top-1/2 -translate-y-1/2 left-3 text-gray-400 pointer-events-none">{renderIcon('Wrench', 'w-4 h-4')}</span>
+                  <span className="absolute top-1/2 -translate-y-1/2 left-3 text-on-hero-tertiary pointer-events-none">{renderIcon('Wrench', 'w-4 h-4')}</span>
                 </div>
                 <div className="relative">
                   <input type="text" placeholder={t('home.fullName')} value={bookingForm.name} onChange={(e) => setBookingForm({ ...bookingForm, name: e.target.value })} required
-                    className="w-full bg-white/10 backdrop-blur-md border border-white/20 rounded-lg pr-3 pl-9 py-2.5 text-white text-sm placeholder-white/50 focus:border-primary focus:bg-white/15 focus:outline-none transition-all" />
-                  <span className="absolute top-1/2 -translate-y-1/2 left-3 text-gray-400 pointer-events-none">{renderIcon('User', 'w-4 h-4')}</span>
+                    className="w-full bg-white/10 border border-white/20 rounded-lg pr-3 pl-9 py-2.5 text-on-hero text-sm placeholder-on-hero-faint focus:border-primary focus:bg-white/15 focus:outline-none transition-all" />
+                  <span className="absolute top-1/2 -translate-y-1/2 left-3 text-on-hero-tertiary pointer-events-none">{renderIcon('User', 'w-4 h-4')}</span>
                 </div>
                 <div className="relative">
                   <input type="tel" placeholder={t('home.phone')} value={bookingForm.phone} onChange={(e) => setBookingForm({ ...bookingForm, phone: e.target.value })} required
-                    className="w-full bg-white/10 backdrop-blur-md border border-white/20 rounded-lg pr-3 pl-9 py-2.5 text-white text-sm placeholder-white/50 focus:border-primary focus:bg-white/15 focus:outline-none transition-all" />
-                  <span className="absolute top-1/2 -translate-y-1/2 left-3 text-gray-400 pointer-events-none">{renderIcon('Phone', 'w-4 h-4')}</span>
+                    className="w-full bg-white/10 border border-white/20 rounded-lg pr-3 pl-9 py-2.5 text-on-hero text-sm placeholder-on-hero-faint focus:border-primary focus:bg-white/15 focus:outline-none transition-all" />
+                  <span className="absolute top-1/2 -translate-y-1/2 left-3 text-on-hero-tertiary pointer-events-none">{renderIcon('Phone', 'w-4 h-4')}</span>
                 </div>
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-2 gap-2 sm:gap-3">
                   <div className="relative">
                     <input type="date" dir="ltr" value={bookingForm.date} onChange={(e) => setBookingForm({ ...bookingForm, date: e.target.value })} required
-                      className="w-full bg-white/10 backdrop-blur-md border border-white/20 rounded-lg pr-3 pl-8 py-2.5 text-white text-sm focus:border-primary focus:bg-white/15 focus:outline-none transition-all" />
-                    <span className="absolute top-1/2 -translate-y-1/2 left-2.5 text-gray-400 pointer-events-none">{renderIcon('Calendar', 'w-4 h-4')}</span>
+                      className="w-full bg-white/10 border border-white/20 rounded-lg pr-3 pl-8 py-2.5 text-on-hero text-sm focus:border-primary focus:bg-white/15 focus:outline-none transition-all" />
+                    <span className="absolute top-1/2 -translate-y-1/2 left-2.5 text-on-hero-tertiary pointer-events-none">{renderIcon('Calendar', 'w-4 h-4')}</span>
                   </div>
                   <div className="relative">
                     <select value={bookingForm.time} onChange={(e) => setBookingForm({ ...bookingForm, time: e.target.value })} required
-                      className="w-full bg-white/10 backdrop-blur-md border border-white/20 rounded-lg pr-3 pl-8 py-2.5 text-white text-sm focus:border-primary focus:bg-white/15 focus:outline-none transition-all appearance-none">
-                      <option value="" className="bg-surface">{lang === 'ar' ? 'الوقت' : 'Time'}</option>
-                      {['09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00','19:00','20:00'].map(time => <option key={time} className="bg-surface">{time}</option>)}
+                      className="w-full bg-white/10 border border-white/20 rounded-lg pr-3 pl-8 py-2.5 text-on-hero text-sm focus:border-primary focus:bg-white/15 focus:outline-none transition-all appearance-none">
+                      <option value="" className="bg-surface text-heading">{lang === 'ar' ? 'الوقت' : 'Time'}</option>
+                      {['09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00','19:00','20:00'].map(time => <option key={time} className="bg-surface text-heading">{time}</option>)}
                     </select>
-                    <span className="absolute top-1/2 -translate-y-1/2 left-2.5 text-gray-400 pointer-events-none">{renderIcon('Clock', 'w-4 h-4')}</span>
+                    <span className="absolute top-1/2 -translate-y-1/2 left-2.5 text-on-hero-tertiary pointer-events-none">{renderIcon('Clock', 'w-4 h-4')}</span>
                   </div>
                 </div>
-                <button type="submit" className="w-full bg-primary hover:bg-primary-dark text-white font-bold py-3 rounded-lg transition-all duration-300 text-sm hover:shadow-lg hover:shadow-primary/30">
+                <button type="submit" className="w-full bg-primary hover:bg-primary-dark text-white font-bold py-2.5 sm:py-3 rounded-lg transition-all duration-300 text-sm hover:shadow-lg hover:shadow-primary/30">
                   {t('home.confirmBooking')}
                 </button>
               </form>
-              <div className="mt-4 pt-4 border-t border-white/5 text-center">
-                <p className="text-gray-400 text-xs mb-0.5">{t('home.orCall')}</p>
+              <div className="mt-3 sm:mt-4 pt-3 sm:pt-4 border-t border-white/10 text-center">
+                <p className="text-on-hero-tertiary text-xs mb-0.5">{t('home.orCall')}</p>
                 <a href={`tel:${(get('site_phone') || '').replace(/\s/g, '')}`} className="text-primary font-bold text-base hover:text-primary-light transition-colors">{get('site_phone')}</a>
               </div>
+              </>
+              )}
             </div>
           </div>
         </div>
@@ -247,19 +307,17 @@ export default function Home() {
           </div>
         </div>
       )}
-
-      {/* ============ TESTIMONIALS ============ */}
-      <section className="py-10 md:py-14 relative overflow-hidden bg-dark">
+      <section className="py-8 sm:py-10 md:py-14 relative overflow-hidden bg-dark">
         <div className="absolute top-0 right-0 w-96 h-96 bg-primary/5 rounded-full blur-3xl" />
         <div className="container-custom relative z-10">
-          <div className="flex flex-col sm:flex-row items-center justify-between mb-8 gap-3">
+          <div className="flex flex-col sm:flex-row items-center justify-between mb-6 sm:mb-8 gap-3">
             <div className="text-center flex-1">
-              <span className="text-primary font-bold text-sm flex items-center justify-center gap-2 mb-2">
+              <span className="text-primary font-bold text-xs sm:text-sm flex items-center justify-center gap-2 mb-2">
                 <span className="w-8 h-px bg-primary" />
                 {t('home.testimonialsLabel')}
                 <span className="w-8 h-px bg-primary" />
               </span>
-              <h2 className="text-2xl md:text-3xl font-bold text-heading">{t('home.testimonialsTitle')}</h2>
+              <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-heading">{t('home.testimonialsTitle')}</h2>
             </div>
             <button
               onClick={() => setShowReviewForm(true)}
@@ -316,7 +374,7 @@ export default function Home() {
               <div className="flex items-center justify-center gap-3 mt-6">
                 <button
                   onClick={prevSlide}
-                  className="w-9 h-9 rounded-lg bg-overlay/5 border border-overlay/10 text-white hover:bg-primary hover:border-primary flex items-center justify-center transition-all duration-300"
+                  className="w-9 h-9 rounded-lg bg-overlay/5 border border-overlay/10 text-heading hover:bg-primary hover:border-primary flex items-center justify-center transition-all duration-300"
                 >
                   <Icons.ArrowLeft className="w-4 h-4 rotate-180" />
                 </button>
@@ -331,7 +389,7 @@ export default function Home() {
                 </div>
                 <button
                   onClick={nextSlide}
-                  className="w-9 h-9 rounded-lg bg-overlay/5 border border-overlay/10 text-white hover:bg-primary hover:border-primary flex items-center justify-center transition-all duration-300"
+                  className="w-9 h-9 rounded-lg bg-overlay/5 border border-overlay/10 text-heading hover:bg-primary hover:border-primary flex items-center justify-center transition-all duration-300"
                 >
                   <Icons.ArrowLeft className="w-4 h-4" />
                 </button>
@@ -343,8 +401,8 @@ export default function Home() {
 
       {/* Add Review Modal */}
       {showReviewForm && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/70 -sm" onClick={() => setShowReviewForm(false)}>
-          <div className="bg-gradient-to-b from-surface to-[#0a0a0f] rounded-2xl p-6 border border-overlay/20 max-w-md w-full shadow-2xl" onClick={(e) => e.stopPropagation()}>
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/70" onClick={() => setShowReviewForm(false)}>
+          <div className="bg-gradient-to-b from-surface to-dark rounded-2xl p-6 border border-overlay/20 max-w-md w-full shadow-2xl" onClick={(e) => e.stopPropagation()}>
             {reviewSubmitted ? (
               <div className="text-center py-4">
                 <div className="w-16 h-16 bg-green-600/20 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -410,30 +468,30 @@ export default function Home() {
       )}
 
       {/* ============ WHY CHOOSE US + STATS ============ */}
-      <section className="py-10 md:py-14 bg-surface relative overflow-hidden">
+      <section className="py-8 sm:py-10 md:py-14 bg-surface relative overflow-hidden">
         <div className="absolute top-0 right-0 w-72 h-72 bg-primary/8 rounded-full blur-3xl" />
         <div className="absolute bottom-0 left-0 w-72 h-72 bg-primary/5 rounded-full blur-3xl" />
         <div className="container-custom relative z-10">
-          <div className="text-center mb-8">
+          <div className="text-center mb-6 sm:mb-8">
             <span className="text-primary font-bold text-xs mb-2 block">{t('home.whyLabel')}</span>
-            <h2 className="text-xl md:text-3xl font-bold text-heading">
+            <h2 className="text-lg sm:text-xl md:text-3xl font-bold text-heading">
               {t('home.whyTitle1')} <span className="text-primary">{t('home.whyTitle2')}</span>{t('home.whyTitle3')}
             </h2>
           </div>
 
           {/* Features grid */}
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 mb-8">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2.5 sm:gap-3 mb-8">
             {features.map((item, index) => (
               <div
                 key={index}
-                className="group relative bg-gradient-to-b from-white/[0.04] to-transparent rounded-xl p-4 border border-overlay/5 hover:border-primary/30 transition-all duration-500 hover:-translate-y-1 text-center overflow-hidden"
+                className="group relative bg-gradient-to-b from-white/[0.04] to-transparent rounded-xl p-3 sm:p-4 border border-overlay/5 hover:border-primary/30 transition-all duration-500 hover:-translate-y-1 text-center overflow-hidden"
               >
                 <div className="absolute -top-6 -right-6 w-20 h-20 bg-primary/5 rounded-full blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                <div className="relative w-10 h-10 mx-auto mb-2.5 bg-primary/10 rounded-lg flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-white group-hover:rotate-6 group-hover:scale-110 transition-all duration-300">
-                  {renderIcon(item.icon, 'w-5 h-5')}
+                <div className="relative w-9 h-9 sm:w-10 sm:h-10 mx-auto mb-2 sm:mb-2.5 bg-primary/10 rounded-lg flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-white group-hover:rotate-6 group-hover:scale-110 transition-all duration-300">
+                  {renderIcon(item.icon, 'w-4 h-4 sm:w-5 sm:h-5')}
                 </div>
-                <h4 className="text-heading font-bold text-xs mb-0.5 group-hover:text-primary transition-colors">{lang === 'ar' ? item.title : item.titleEn}</h4>
-                <p className="text-faint text-[10px] leading-snug">{lang === 'ar' ? item.desc : item.descEn}</p>
+                <h4 className="text-heading font-bold text-[11px] sm:text-xs mb-0.5 group-hover:text-primary transition-colors">{lang === 'ar' ? item.title : item.titleEn}</h4>
+                <p className="text-faint text-[9px] sm:text-[10px] leading-snug">{lang === 'ar' ? item.desc : item.descEn}</p>
               </div>
             ))}
           </div>
@@ -449,7 +507,7 @@ export default function Home() {
             <div className="flex items-center justify-center gap-2 md:gap-4 mb-6 flex-wrap">
               {carBrands.map((group, i) => (
                 <div key={i} className="flex items-center gap-2 md:gap-4">
-                  {i > 0 && <span className="text-white/10 text-sm">|</span>}
+                  {i > 0 && <span className="text-overlay/10 text-sm">|</span>}
                   <span className="text-faint hover:text-primary transition-colors text-xs md:text-sm font-medium cursor-default">{lang === 'ar' ? group.category : group.categoryEn}</span>
                 </div>
               ))}
@@ -461,9 +519,9 @@ export default function Home() {
                 {[...allCarBrands, ...allCarBrands].map((brand, index) => (
                   <div
                     key={index}
-                    className="group flex flex-col items-center justify-center gap-1.5 bg-overlay/5 rounded-xl px-4 py-3 border border-overlay/5 hover:border-primary/30 transition-all duration-300 hover:-translate-y-1 flex-shrink-0 mx-2"
+                    className="group flex flex-col items-center justify-center gap-1.5 bg-overlay/5 rounded-xl px-3 py-2.5 sm:px-4 sm:py-3 border border-overlay/5 hover:border-primary/30 transition-all duration-300 hover:-translate-y-1 flex-shrink-0 mx-1.5 sm:mx-2"
                   >
-                    <div className="w-14 h-14 flex items-center justify-center">
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 lg:w-14 lg:h-14 flex items-center justify-center">
                       <img
                         src={brand.logo}
                         alt={brand.name}
@@ -471,7 +529,7 @@ export default function Home() {
                         className="max-w-full max-h-full object-contain transition-transform duration-300 group-hover:scale-110"
                       />
                     </div>
-                    <p className="text-muted text-[10px] group-hover:text-heading transition-colors whitespace-nowrap">{lang === 'ar' ? brand.nameAr : brand.name}</p>
+                    <p className="text-muted text-[9px] sm:text-[10px] group-hover:text-heading transition-colors whitespace-nowrap">{lang === 'ar' ? brand.nameAr : brand.name}</p>
                   </div>
                 ))}
               </div>
@@ -482,41 +540,41 @@ export default function Home() {
 
       {/* ============ EVENTS (الأحداث) ============ */}
       {events.length > 0 && (
-        <section className="py-10 md:py-14 bg-dark relative overflow-hidden">
+        <section className="py-8 sm:py-10 md:py-14 bg-dark relative overflow-hidden">
           {/* Background decoration */}
           <div className="absolute top-0 right-1/4 w-96 h-96 bg-primary/5 rounded-full blur-3xl" />
           <div className="absolute bottom-0 left-1/4 w-96 h-96 bg-primary/3 rounded-full blur-3xl" />
 
           <div className="container-custom relative z-10">
             {/* Section header */}
-            <div className="text-center mb-8">
-              <span className="text-primary font-bold text-sm flex items-center justify-center gap-2 mb-2">
+            <div className="text-center mb-6 sm:mb-8">
+              <span className="text-primary font-bold text-xs sm:text-sm flex items-center justify-center gap-2 mb-2">
                 <span className="w-8 h-px bg-primary" />
                 {t('home.eventsLabel')}
                 <span className="w-8 h-px bg-primary" />
               </span>
-              <h2 className="text-2xl md:text-3xl font-bold text-heading">{t('home.eventsTitle')}</h2>
+              <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-heading">{t('home.eventsTitle')}</h2>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
               {events.map((event) => (
-                <div
-                  key={event._id}
-                  className={`group relative rounded-2xl overflow-hidden border transition-all duration-500 hover:-translate-y-1 ${
-                    event.type === 'offer'
-                      ? 'border-primary/20 bg-gradient-to-br from-surface to-[#0a0a0f] hover:shadow-2xl hover:shadow-primary/10'
-                      : 'border-overlay/10 bg-surface hover:border-primary/20 hover:shadow-2xl hover:shadow-black/30'
-                  }`}
-                >
+                 <div
+                   key={event._id}
+                   className={`group relative rounded-2xl overflow-hidden border transition-all duration-500 hover:-translate-y-1 ${
+                     event.type === 'offer'
+                       ? 'border-primary/20 bg-gradient-to-br from-surface to-dark hover:shadow-2xl hover:shadow-primary/10'
+                       : 'border-overlay/10 bg-surface hover:border-primary/20 hover:shadow-2xl hover:shadow-black/30'
+                   }`}
+                 >
                   {event.type === 'offer' ? (
                     /* ===== OFFER CARD ===== */
                     <>
-                      {event.image && (
-                        <div className="absolute inset-0">
-                          <img src={event.image} alt="" className="w-full h-full object-cover opacity-20 group-hover:opacity-30 group-hover:scale-105 transition-all duration-700" />
-                          <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0f] via-[#0a0a0f]/85 to-[#0a0a0f]/40" />
-                        </div>
-                      )}
+                       {event.image && (
+                         <div className="absolute inset-0">
+                           <img src={event.image} alt="" className="w-full h-full object-cover opacity-20 group-hover:opacity-30 group-hover:scale-105 transition-all duration-700" />
+                           <div className="hero-overlay-dual" />
+                         </div>
+                       )}
                       {!event.image && <div className="absolute -top-20 -right-10 w-60 h-60 bg-primary/10 rounded-full blur-3xl opacity-50 group-hover:opacity-100 transition-opacity duration-500" />}
 
                       <div className="relative z-10 p-6 md:p-8 min-h-[280px] flex flex-col justify-center">
@@ -534,20 +592,20 @@ export default function Home() {
                             <span className="text-5xl md:text-6xl font-bold text-primary leading-none">{event.discount}</span>
                             <div className="flex flex-col">
                               <span className="text-2xl font-bold text-primary">%</span>
-                              <span className="text-xs font-bold text-white -mt-1">{t('home.discount')}</span>
+                              <span className="text-xs font-bold text-on-hero -mt-1">{t('home.discount')}</span>
                             </div>
                           </div>
                         )}
 
                         {/* Title */}
-                        <h3 className="text-white font-bold text-base md:text-lg text-center mb-2">{event.title}</h3>
-                        <p className="text-white/60 text-xs text-center leading-relaxed mb-4 max-w-md mx-auto">{event.description}</p>
+                         <h3 className="text-on-hero font-bold text-base md:text-lg text-center mb-2">{event.title}</h3>
+                         <p className="text-on-hero-tertiary text-xs text-center leading-relaxed mb-4 max-w-md mx-auto">{event.description}</p>
 
                         {/* Prices */}
                         {event.newPrice > 0 && (
                           <div className="flex items-center justify-center gap-3 mb-4">
                             {event.oldPrice > 0 && (
-                              <span className="text-white/30 line-through text-sm">{event.oldPrice} {lang === 'ar' ? 'ج.م' : 'EGP'}</span>
+                               <span className="text-on-hero-faint line-through text-sm">{event.oldPrice} {lang === 'ar' ? 'ج.م' : 'EGP'}</span>
                             )}
                             <span className="text-primary font-bold text-xl">{event.newPrice} {lang === 'ar' ? 'ج.م' : 'EGP'}</span>
                           </div>
@@ -555,7 +613,7 @@ export default function Home() {
 
                         {/* Expiry */}
                         {event.expiryDate && (
-                          <p className="text-white/40 text-[10px] text-center mb-5 flex items-center justify-center gap-1">
+                           <p className="text-on-hero-faint text-[10px] text-center mb-5 flex items-center justify-center gap-1">
                             <Icons.Clock className="w-3 h-3" />
                             {t('home.offerUntil')} {event.expiryDate}
                           </p>
@@ -613,9 +671,9 @@ export default function Home() {
       )}
 
       {/* ============ ABOUT US PREVIEW ============ */}
-      <section className="py-10 md:py-14 bg-surface relative overflow-hidden">
+      <section className="py-8 sm:py-10 md:py-14 bg-surface relative overflow-hidden">
         <div className="container-custom">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
+          <div className="grid lg:grid-cols-2 gap-6 sm:gap-8 lg:gap-12 items-center">
             {/* Video */}
             <div className="relative group lg:sticky lg:top-24 lg:self-start">
               <div className="absolute -inset-4 bg-primary/10 rounded-3xl blur-2xl opacity-50 group-hover:opacity-100 transition-opacity duration-500" />
@@ -677,16 +735,16 @@ export default function Home() {
       </section>
 
       {/* ============ BOOKING STEPS ============ */}
-      <section className="py-10 md:py-14 bg-dark relative overflow-hidden">
+      <section className="py-8 sm:py-10 md:py-14 bg-dark relative overflow-hidden">
         <div className="absolute top-1/2 right-1/3 w-96 h-96 bg-primary/5 rounded-full blur-3xl" />
         <div className="container-custom relative z-10">
-          <div className="text-center mb-12">
-            <span className="text-primary font-bold text-sm flex items-center justify-center gap-2 mb-3">
+          <div className="text-center mb-8 sm:mb-12">
+            <span className="text-primary font-bold text-xs sm:text-sm flex items-center justify-center gap-2 mb-2 sm:mb-3">
               <span className="w-8 h-px bg-primary" />
               {t('home.bookingStepsLabel')}
               <span className="w-8 h-px bg-primary" />
             </span>
-            <h2 className="text-2xl md:text-3xl font-bold text-heading">{t('home.bookingStepsTitle')}</h2>
+            <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-heading">{t('home.bookingStepsTitle')}</h2>
           </div>
 
           {/* Timeline */}
@@ -694,27 +752,27 @@ export default function Home() {
             {/* Connecting line */}
             <div className="hidden lg:block absolute top-12 right-[12%] left-[12%] h-px bg-gradient-to-l from-primary/0 via-primary/30 to-primary/0" />
 
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 relative">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 relative">
               {bookingSteps.map((step, index) => {
                 const stepIcons = ['Calendar', 'User', 'CheckCircle', 'Clock']
                 const Icon = Icons[stepIcons[index]]
                 return (
                   <div key={index} className="relative group text-center">
                     {/* Icon circle */}
-                    <div className="relative w-24 h-24 mx-auto mb-5">
+                    <div className="relative w-16 h-16 sm:w-20 sm:h-20 lg:w-24 lg:h-24 mx-auto mb-3 sm:mb-5">
                       <div className="absolute inset-0 bg-primary/10 rounded-full blur-md group-hover:bg-primary/20 transition-all duration-500" />
-                      <div className="relative w-24 h-24 bg-surface rounded-full flex items-center justify-center border-2 border-primary/20 group-hover:border-primary group-hover:bg-primary transition-all duration-500 group-hover:scale-110">
-                        {Icon && <Icon className="w-9 h-9 text-primary group-hover:text-white transition-colors duration-300" />}
+                      <div className="relative w-16 h-16 sm:w-20 sm:h-20 lg:w-24 lg:h-24 bg-surface rounded-full flex items-center justify-center border-2 border-primary/20 group-hover:border-primary group-hover:bg-primary transition-all duration-500 group-hover:scale-110">
+                        {Icon && <Icon className="w-6 h-6 sm:w-8 sm:h-8 lg:w-9 lg:h-9 text-primary group-hover:text-white transition-colors duration-300" />}
                         {/* Step number badge */}
-                        <div className="absolute -top-1 -right-1 w-8 h-8 bg-primary text-white rounded-full flex items-center justify-center text-sm font-bold border-4 border-dark group-hover:scale-110 transition-transform duration-300">
+                        <div className="absolute -top-1 -right-1 w-7 h-7 sm:w-8 sm:h-8 bg-primary text-white rounded-full flex items-center justify-center text-xs sm:text-sm font-bold border-4 border-dark group-hover:scale-110 transition-transform duration-300">
                           {step.num}
                         </div>
                       </div>
                     </div>
 
                     {/* Text */}
-                    <h4 className="text-heading font-bold text-base mb-2 group-hover:text-primary transition-colors">{lang === 'ar' ? step.title : step.titleEn}</h4>
-                    <p className="text-muted text-sm leading-relaxed max-w-[200px] mx-auto">{lang === 'ar' ? step.desc : step.descEn}</p>
+                    <h4 className="text-heading font-bold text-sm sm:text-base mb-2 group-hover:text-primary transition-colors">{lang === 'ar' ? step.title : step.titleEn}</h4>
+                    <p className="text-muted text-xs sm:text-sm leading-relaxed max-w-[200px] mx-auto">{lang === 'ar' ? step.desc : step.descEn}</p>
                   </div>
                 )
               })}
@@ -724,6 +782,49 @@ export default function Home() {
       </section>
 
       <CTABanner />
+      {/* ===== WhatsApp Review Modal (from Home booking) ===== */}
+      {showWhatsappReview && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/70" onClick={() => setShowWhatsappReview(false)}>
+          <div className="bg-surface rounded-2xl p-5 sm:p-6 border border-overlay/20 max-w-md w-full shadow-2xl" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-heading font-bold text-base sm:text-lg flex items-center gap-2">
+                <svg className="w-5 h-5 text-green-500" viewBox="0 0 32 32" fill="currentColor">
+                  <path d="M16.003 0h-.006C7.17 0 0 7.172 0 16c0 3.5 1.128 6.744 3.046 9.354L1.05 31.27l6.072-1.938A15.9 15.9 0 0 0 16.003 32C24.828 32 32 24.828 32 16S24.828 0 16.003 0z"/>
+                </svg>
+                {t('booking.whatsappReview')}
+              </h3>
+              <button onClick={() => setShowWhatsappReview(false)} className="text-muted hover:text-heading transition-colors text-xl">✕</button>
+            </div>
+            <div className="bg-overlay/5 rounded-xl p-4 border border-overlay/10 space-y-2 mb-5">
+              <div className="grid grid-cols-2 gap-2 text-xs">
+                <div className="flex items-center gap-2 text-muted"><Icons.User className="w-3.5 h-3.5 text-faint" /> {lastBooking?.name}</div>
+                <div className="flex items-center gap-2 text-muted"><Icons.Phone className="w-3.5 h-3.5 text-faint" /> {lastBooking?.phone}</div>
+                <div className="flex items-center gap-2 text-muted"><Icons.Wrench className="w-3.5 h-3.5 text-faint" /> {lastBooking?.service}</div>
+                <div className="flex items-center gap-2 text-muted"><Icons.Calendar className="w-3.5 h-3.5 text-faint" /> {lastBooking?.date}</div>
+                <div className="flex items-center gap-2 text-muted"><Icons.Clock className="w-3.5 h-3.5 text-faint" /> {lastBooking?.time}</div>
+              </div>
+            </div>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowWhatsappReview(false)}
+                className="flex-1 border border-overlay/10 text-heading hover:bg-overlay/5 font-bold py-3 rounded-xl transition-all duration-300 text-sm"
+              >
+                {t('booking.whatsappCancel')}
+              </button>
+              <button
+                onClick={sendWhatsapp}
+                className="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-xl transition-all duration-300 text-sm flex items-center justify-center gap-2 hover:shadow-lg hover:shadow-green-500/30"
+              >
+                <svg className="w-5 h-5" viewBox="0 0 32 32" fill="currentColor">
+                  <path d="M16.003 0h-.006C7.17 0 0 7.172 0 16c0 3.5 1.128 6.744 3.046 9.354L1.05 31.27l6.072-1.938A15.9 15.9 0 0 0 16.003 32C24.828 32 32 24.828 32 16S24.828 0 16.003 0z"/>
+                </svg>
+                {t('booking.whatsappConfirm')}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <Toast toast={toast} />
     </div>
   )

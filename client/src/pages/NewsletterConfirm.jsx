@@ -26,7 +26,7 @@ export default function NewsletterConfirm() {
   return (
     <div className="min-h-screen bg-dark flex items-center justify-center p-4">
       <div className="max-w-md w-full">
-        <div className="bg-gradient-to-b from-surface to-[#0a0a0f] rounded-2xl border border-overlay/10 p-8 text-center">
+        <div className="bg-gradient-to-b from-surface to-dark rounded-2xl border border-overlay/10 p-8 text-center">
           {status === 'loading' && (
             <>
               <div className="w-16 h-16 mx-auto mb-5 border-2 border-primary/20 border-t-primary rounded-full animate-spin" />

@@ -6,11 +6,11 @@ export default function NotFound() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-dark">
-      <div className="container-custom">
+      <div className="container-custom px-4">
         <div className="max-w-lg mx-auto text-center">
-          <div className="text-9xl font-black text-primary mb-6">404</div>
-          <h1 className="text-4xl font-bold text-heading mb-4">{t('notfound.title')}</h1>
-          <p className="text-muted text-lg mb-8">
+          <div className="text-7xl sm:text-8xl md:text-9xl font-black text-primary mb-4 sm:mb-6">404</div>
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-heading mb-3 sm:mb-4">{t('notfound.title')}</h1>
+          <p className="text-muted text-base sm:text-lg mb-6 sm:mb-8">
             {t('notfound.desc')}
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">

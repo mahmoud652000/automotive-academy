@@ -23,24 +23,28 @@ export default function Navbar() {
     return () => window.removeEventListener('scroll', handleScroll)
   }, [isOpen])
 
-  const ThemeToggle = () => (
+  const ThemeToggle = ({ mobile = false }) => (
     <button
       onClick={toggleTheme}
-      className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg flex items-center justify-center transition-all duration-300 hover:bg-overlay/10 flex-shrink-0"
+      className={`rounded-xl flex items-center justify-center transition-all duration-300 hover:bg-overlay/10 flex-shrink-0 ${
+        mobile ? 'w-10 h-10' : 'w-9 h-9'
+      } ${theme === 'light' ? 'bg-amber-50' : 'bg-white/5'}`}
       title={theme === 'dark' ? t('nav.themeLight') : t('nav.themeDark')}
     >
       {theme === 'dark' ? (
-        <Icons.Sun className="w-4 h-4 text-amber-400" />
+        <Icons.Sun className="w-5 h-5 text-amber-400" />
       ) : (
-        <Icons.Moon className="w-4 h-4 text-slate-600" />
+        <Icons.Moon className="w-5 h-5 text-slate-700" />
       )}
     </button>
   )
 
-  const LangToggle = () => (
+  const LangToggle = ({ mobile = false }) => (
     <button
       onClick={toggleLang}
-      className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg flex items-center justify-center transition-all duration-300 hover:bg-overlay/10 text-xs font-bold text-heading flex-shrink-0"
+      className={`rounded-xl flex items-center justify-center transition-all duration-300 hover:bg-overlay/10 font-bold text-heading flex-shrink-0 ${
+        mobile ? 'w-10 h-10 text-sm' : 'w-9 h-9 text-xs'
+      } bg-overlay/5`}
       title={t('nav.langSwitch')}
     >
       {lang === 'ar' ? 'EN' : 'ع'}
@@ -50,32 +54,33 @@ export default function Navbar() {
   return (
     <nav className="fixed top-0 w-full z-50 bg-surface border-b border-overlay/10">
       <div className="container-custom">
-        <div className="flex items-center justify-between h-14 sm:h-16">
+        {/* ===== Desktop (lg+): organized header ===== */}
+        <div className="hidden lg:flex items-center justify-between h-16">
 
-          {/* ===== Logo + Brand ===== */}
+          {/* Logo + Brand */}
           <Link to="/" className="flex items-center gap-2 group flex-shrink-0">
             <div className="relative flex-shrink-0">
               <div className="absolute -inset-1 bg-primary/20 rounded-lg blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-              <Logo className="relative h-7 sm:h-9 lg:h-10 w-auto" showText={false} />
+              <Logo className="relative h-9 w-auto" showText={false} />
             </div>
             <div className="flex flex-col leading-tight">
-              <h1 className="text-heading font-bold text-[10px] sm:text-sm lg:text-base whitespace-nowrap">
+              <h1 className="text-heading font-bold text-sm whitespace-nowrap">
                 {lang === 'ar' ? get('site_name') : get('site_name_en')}
               </h1>
-              <p className="text-primary text-[7px] sm:text-[9px] lg:text-[10px] font-medium whitespace-nowrap">
+              <p className="text-primary text-[10px] font-medium whitespace-nowrap">
                 {lang === 'ar' ? get('site_slogan') : get('site_slogan_en')}
               </p>
             </div>
           </Link>
 
-          {/* ===== Desktop Nav Links ===== */}
-          <div className="hidden lg:flex items-center gap-0.5">
+          {/* Nav Links */}
+          <div className="flex items-center gap-0.5">
             {navLinks.map((link) => (
               <NavLink
                 key={link.path}
                 to={link.path}
                 className={({ isActive }) =>
-                  `font-medium text-sm whitespace-nowrap transition-all py-2 px-2.5 rounded-lg ${
+                  `font-medium text-[13px] whitespace-nowrap transition-all py-2 px-2.5 rounded-lg ${
                     isActive
                       ? 'text-primary bg-primary/10'
                       : 'text-body hover:text-heading hover:bg-overlay/5'
@@ -87,44 +92,66 @@ export default function Navbar() {
             ))}
           </div>
 
-          {/* ===== Desktop Actions ===== */}
-          <div className="hidden lg:flex items-center gap-2 flex-shrink-0">
+          {/* Actions */}
+          <div className="flex items-center gap-1.5 flex-shrink-0">
             <LangToggle />
             <ThemeToggle />
 
-            <Link to="/booking" className="bg-primary hover:bg-primary-dark text-white font-bold text-xs px-3.5 py-2 rounded-lg transition-all duration-300 hover:shadow-lg hover:shadow-primary/30 flex items-center gap-1 whitespace-nowrap">
-              {t('nav.bookNow')}
-              <Icons.ArrowLeft className="w-3 h-3" />
-            </Link>
-
             {isLoggedIn ? (
-              <div className="flex items-center gap-1.5">
-                <Link to="/dashboard" className="flex items-center gap-1 text-body hover:text-primary transition-colors text-xs border border-overlay/10 px-2.5 py-2 rounded-lg hover:border-primary/30 whitespace-nowrap">
+              <div className="flex items-center gap-1">
+                <Link to="/dashboard" className="flex items-center gap-1.5 text-heading hover:text-primary transition-colors text-xs border border-overlay/20 px-2.5 py-2 rounded-lg hover:border-primary/30 whitespace-nowrap">
                   <Icons.Computer className="w-3.5 h-3.5" />
                   {t('nav.dashboard')}
                 </Link>
-                <button onClick={logout} className="text-red-400 hover:text-red-300 w-8 h-8 rounded-lg hover:bg-red-500/10 flex items-center justify-center transition-colors" title={t('nav.logout')}>
+                <button onClick={logout} className="text-red-500 hover:text-red-400 w-9 h-9 rounded-lg hover:bg-red-500/10 flex items-center justify-center transition-colors" title={t('nav.logout')}>
                   <Icons.Shield className="w-3.5 h-3.5" />
                 </button>
               </div>
             ) : (
-              <Link to="/login" className="flex items-center gap-1 text-body hover:text-primary transition-colors text-xs border border-overlay/10 px-2.5 py-2 rounded-lg hover:border-primary/30 whitespace-nowrap">
+              <Link to="/login" className="flex items-center gap-1.5 text-heading hover:text-primary transition-colors text-xs border border-overlay/20 px-2.5 py-2 rounded-lg hover:border-primary/30 whitespace-nowrap">
                 <Icons.User className="w-3.5 h-3.5" />
                 {t('nav.login')}
               </Link>
             )}
           </div>
+        </div>
 
-          {/* ===== Mobile Toggles ===== */}
-          <div className="lg:hidden flex items-center gap-1 flex-shrink-0">
-            <LangToggle />
-            <ThemeToggle />
-            <button
-              className="text-heading text-xl w-8 h-8 flex items-center justify-center"
-              onClick={() => setIsOpen(!isOpen)}
-            >
-              {isOpen ? '✕' : '☰'}
-            </button>
+        {/* ===== Mobile: compact header ===== */}
+        <div className="flex lg:hidden items-center justify-between h-14 sm:h-16">
+
+          {/* Menu Button */}
+          <button
+            className="w-10 h-10 rounded-xl flex items-center justify-center text-heading hover:bg-overlay/10 transition-all duration-300 bg-overlay/5"
+            onClick={() => setIsOpen(!isOpen)}
+          >
+            <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+              {isOpen ? (
+                <>
+                  <line x1="18" y1="6" x2="6" y2="18" />
+                  <line x1="6" y1="6" x2="18" y2="18" />
+                </>
+              ) : (
+                <>
+                  <line x1="3" y1="6" x2="21" y2="6" />
+                  <line x1="3" y1="12" x2="21" y2="12" />
+                  <line x1="3" y1="18" x2="21" y2="18" />
+                </>
+              )}
+            </svg>
+          </button>
+
+          {/* Centered Logo */}
+          <Link to="/" className="flex items-center justify-center absolute left-1/2 -translate-x-1/2">
+            <div className="relative flex-shrink-0">
+              <div className="absolute -inset-1 bg-primary/20 rounded-lg blur-sm opacity-0 hover:opacity-100 transition-opacity duration-300" />
+              <Logo className="relative h-8 w-auto" showText={false} />
+            </div>
+          </Link>
+
+          {/* Lang + Theme */}
+          <div className="flex items-center gap-1.5 flex-shrink-0">
+            <LangToggle mobile />
+            <ThemeToggle mobile />
           </div>
         </div>
       </div>
@@ -133,7 +160,7 @@ export default function Navbar() {
       {isOpen && (
         <>
           <div className="lg:hidden fixed inset-0 top-14 sm:top-16 bg-black/50 z-40" onClick={() => setIsOpen(false)} />
-          <div className="lg:hidden fixed top-14 sm:top-16 right-0 left-0 bottom-0 overflow-y-auto bg-surface z-50">
+          <div className="lg:hidden fixed top-14 sm:top-16 right-0 left-0 bottom-0 overflow-y-auto bg-surface z-50 animate-fadeIn">
             <div className="px-4 py-4 space-y-1">
               {navLinks.map((link) => (
                 <NavLink
@@ -141,7 +168,7 @@ export default function Navbar() {
                   to={link.path}
                   onClick={() => setIsOpen(false)}
                   className={({ isActive }) =>
-                    `block py-3 px-4 rounded-lg font-medium text-sm transition-colors ${
+                    `block py-3.5 px-4 rounded-xl font-medium text-sm transition-colors ${
                       isActive ? 'text-primary bg-primary/10' : 'text-body hover:text-heading hover:bg-overlay/5'
                     }`
                   }
@@ -158,11 +185,11 @@ export default function Navbar() {
                   {t('nav.bookNow')}
                 </Link>
                 {isLoggedIn ? (
-                  <Link to="/dashboard" onClick={() => setIsOpen(false)} className="block py-3 px-4 text-primary font-medium text-sm">
+                  <Link to="/dashboard" onClick={() => setIsOpen(false)} className="block py-3.5 px-4 text-primary font-medium text-sm">
                     {t('nav.dashboard')}
                   </Link>
                 ) : (
-                  <Link to="/login" onClick={() => setIsOpen(false)} className="block py-3 px-4 text-body font-medium text-sm">
+                  <Link to="/login" onClick={() => setIsOpen(false)} className="block py-3.5 px-4 text-body font-medium text-sm">
                     {t('nav.login')}
                   </Link>
                 )}

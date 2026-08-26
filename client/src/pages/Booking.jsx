@@ -34,6 +34,7 @@ export default function Booking() {
   const [form, setForm] = useState({ name: '', phone: '', carModel: '', service: '', date: '', time: '', notes: '' })
   const [submitted, setSubmitted] = useState(false)
   const [currentStep, setCurrentStep] = useState(1)
+  const [showWhatsappReview, setShowWhatsappReview] = useState(false)
 
   const set = (key) => (e) => setForm({ ...form, [key]: e.target.value })
 
@@ -62,6 +63,29 @@ export default function Booking() {
     setForm({ name: '', phone: '', carModel: '', service: '', date: '', time: '', notes: '' })
   }
 
+  const buildWhatsappMessage = () => {
+    const lines = [
+      `🚗 *طلب حجز جديد - Automotive Academy*`,
+      ``,
+      `👤 ${lang === 'ar' ? 'الاسم' : 'Name'}: ${form.name}`,
+      `📱 ${lang === 'ar' ? 'الهاتف' : 'Phone'}: ${form.phone}`,
+      `🚙 ${lang === 'ar' ? 'موديل السيارة' : 'Car Model'}: ${form.carModel}`,
+      `🔧 ${lang === 'ar' ? 'الخدمة' : 'Service'}: ${form.service}`,
+      `📅 ${lang === 'ar' ? 'التاريخ' : 'Date'}: ${form.date}`,
+      `⏰ ${lang === 'ar' ? 'الوقت' : 'Time'}: ${form.time}`,
+    ]
+    if (form.notes) lines.push(`📝 ${lang === 'ar' ? 'ملاحظات' : 'Notes'}: ${form.notes}`)
+    return encodeURIComponent(lines.join('\n'))
+  }
+
+  const sendWhatsapp = () => {
+    const phone = get('site_whatsapp') || '201103197077'
+    const msg = buildWhatsappMessage()
+    window.open(`https://wa.me/${phone}?text=${msg}`, '_blank')
+    setShowWhatsappReview(false)
+    showToast(t('booking.whatsappSent'), 'success')
+  }
+
   const stepLabels = [t('booking.step1Label'), t('booking.step2Label'), t('booking.step3Label'), t('booking.step4Label')]
 
   const contactItems = [
@@ -72,23 +96,22 @@ export default function Booking() {
   ]
 
   return (
-    <div className="pt-16 min-h-screen">
+    <div className="pt-14 sm:pt-16 lg:pt-20 min-h-screen">
       {/* ===== HERO ===== */}
-      <section className="relative py-10 md:py-14 overflow-hidden bg-dark">
+      <section className="relative py-8 sm:py-10 md:py-14 overflow-hidden bg-dark">
         <div className="absolute inset-0 z-0">
           <img src={get('bg_booking') || '/hero-bg.png'} alt="" className="w-full h-full object-cover opacity-40" style={{ objectPosition: `${get('bg_booking_x') || 50}% ${get('bg_booking_y') || 50}%` }} />
-          <div className="absolute inset-0 bg-gradient-to-b from-[#0a0a0f]/60 via-[#0a0a0f]/70 to-[#0a0a0f]" />
+          <div className="hero-overlay-bottom" />
         </div>
-        <div className="absolute -top-20 right-1/4 w-72 h-72 bg-primary/10 rounded-full blur-3xl" />
 
         <div className="container-custom relative z-10 text-center">
-          <span className="text-primary font-bold text-sm flex items-center justify-center gap-2 mb-3">
+          <span className="text-primary font-bold text-xs sm:text-sm flex items-center justify-center gap-2 mb-2 sm:mb-3">
             <span className="w-8 h-px bg-primary" />
             {t('booking.label')}
             <span className="w-8 h-px bg-primary" />
           </span>
-          <h1 className="text-3xl md:text-5xl font-bold text-white mb-3">{t('booking.title')}</h1>
-          <p className="text-white/80 text-base max-w-2xl mx-auto">{t('booking.desc')}</p>
+          <h1 className="text-2xl sm:text-3xl md:text-5xl font-bold text-on-hero mb-2 sm:mb-3">{t('booking.title')}</h1>
+          <p className="text-on-hero-secondary text-sm sm:text-base max-w-2xl mx-auto">{t('booking.desc')}</p>
         </div>
       </section>
 
@@ -114,6 +137,15 @@ export default function Booking() {
                   {t('booking.bookAnother')}
                   <Icons.ArrowLeft className="w-4 h-4" />
                 </button>
+                <button
+                  onClick={() => setShowWhatsappReview(true)}
+                  className="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-8 rounded-xl transition-all duration-300 text-sm hover:shadow-lg hover:shadow-green-500/30 flex items-center justify-center gap-2"
+                >
+                  <svg className="w-5 h-5" viewBox="0 0 32 32" fill="currentColor">
+                    <path d="M16.003 0h-.006C7.17 0 0 7.172 0 16c0 3.5 1.128 6.744 3.046 9.354L1.05 31.27l6.072-1.938A15.9 15.9 0 0 0 16.003 32C24.828 32 32 24.828 32 16S24.828 0 16.003 0z"/>
+                  </svg>
+                  {t('booking.sendWhatsapp')}
+                </button>
                 <Link to="/" className="border border-overlay/10 text-heading hover:bg-overlay/5 font-bold py-3 px-8 rounded-xl transition-all duration-300 text-sm flex items-center justify-center gap-2">
                   {t('booking.backHome')}
                 </Link>
@@ -124,9 +156,9 @@ export default function Booking() {
       ) : (
         <>
           {/* ===== BOOKING FORM + SIDEBAR ===== */}
-          <section className="py-6 md:py-8 bg-dark relative">
+          <section className="py-4 sm:py-6 md:py-8 bg-dark relative">
             <div className="container-custom">
-              <div className="grid lg:grid-cols-3 gap-6">
+              <div className="grid lg:grid-cols-3 gap-4 sm:gap-6">
 
                 {/* === Form === */}
                 <div className="lg:col-span-2">
@@ -353,38 +385,38 @@ export default function Booking() {
           </section>
 
           {/* ===== STEPS ===== */}
-          <section className="py-10 md:py-14 bg-surface relative overflow-hidden">
+          <section className="py-8 sm:py-10 md:py-14 bg-surface relative overflow-hidden">
             <div className="absolute top-1/2 right-1/3 w-96 h-96 bg-primary/5 rounded-full blur-3xl" />
             <div className="container-custom relative z-10">
-              <div className="text-center mb-10">
-                <span className="text-primary font-bold text-sm flex items-center justify-center gap-2 mb-2">
+              <div className="text-center mb-8 sm:mb-10">
+                <span className="text-primary font-bold text-xs sm:text-sm flex items-center justify-center gap-2 mb-2">
                   <span className="w-8 h-px bg-primary" />
                   {t('booking.stepsLabel')}
                   <span className="w-8 h-px bg-primary" />
                 </span>
-                <h2 className="text-2xl md:text-3xl font-bold text-heading">{t('booking.stepsTitle')}</h2>
+                <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-heading">{t('booking.stepsTitle')}</h2>
               </div>
               <div className="relative">
                 {/* Connecting line */}
                 <div className="hidden lg:block absolute top-12 right-[12%] left-[12%] h-px bg-gradient-to-l from-primary/0 via-primary/30 to-primary/0" />
 
-                <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 relative">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 relative">
                   {bookingSteps.map((step, index) => {
                     const stepIcons = ['Calendar', 'User', 'CheckCircle', 'Clock']
                     const Icon = Icons[stepIcons[index]]
                     return (
                       <div key={index} className="relative group text-center">
-                        <div className="relative w-24 h-24 mx-auto mb-5">
+                        <div className="relative w-16 h-16 sm:w-20 sm:h-20 lg:w-24 lg:h-24 mx-auto mb-3 sm:mb-5">
                           <div className="absolute inset-0 bg-primary/10 rounded-full blur-md group-hover:bg-primary/20 transition-all duration-500" />
-                          <div className="relative w-24 h-24 bg-surface rounded-full flex items-center justify-center border-2 border-primary/20 group-hover:border-primary group-hover:bg-primary transition-all duration-500 group-hover:scale-110">
-                            {Icon && <Icon className="w-9 h-9 text-primary group-hover:text-white transition-colors duration-300" />}
-                            <div className="absolute -top-1 -right-1 w-8 h-8 bg-primary text-white rounded-full flex items-center justify-center text-sm font-bold border-4 border-surface group-hover:scale-110 transition-transform duration-300">
+                          <div className="relative w-16 h-16 sm:w-20 sm:h-20 lg:w-24 lg:h-24 bg-surface rounded-full flex items-center justify-center border-2 border-primary/20 group-hover:border-primary group-hover:bg-primary transition-all duration-500 group-hover:scale-110">
+                            {Icon && <Icon className="w-6 h-6 sm:w-8 sm:h-8 lg:w-9 lg:h-9 text-primary group-hover:text-white transition-colors duration-300" />}
+                            <div className="absolute -top-1 -right-1 w-7 h-7 sm:w-8 sm:h-8 bg-primary text-white rounded-full flex items-center justify-center text-xs sm:text-sm font-bold border-4 border-surface group-hover:scale-110 transition-transform duration-300">
                               {step.num}
                             </div>
                           </div>
                         </div>
-                        <h4 className="text-heading font-bold text-base mb-2 group-hover:text-primary transition-colors">{lang === 'ar' ? step.title : step.titleEn}</h4>
-                        <p className="text-muted text-sm leading-relaxed max-w-[200px] mx-auto">{lang === 'ar' ? step.desc : step.descEn}</p>
+                        <h4 className="text-heading font-bold text-sm sm:text-base mb-2 group-hover:text-primary transition-colors">{lang === 'ar' ? step.title : step.titleEn}</h4>
+                        <p className="text-muted text-xs sm:text-sm leading-relaxed max-w-[200px] mx-auto">{lang === 'ar' ? step.desc : step.descEn}</p>
                       </div>
                     )
                   })}
@@ -394,6 +426,59 @@ export default function Booking() {
           </section>
         </>
       )}
+
+      {/* ===== WhatsApp Review Modal ===== */}
+      {showWhatsappReview && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/70" onClick={() => setShowWhatsappReview(false)}>
+          <div className="bg-surface rounded-2xl p-5 sm:p-6 border border-overlay/20 max-w-md w-full shadow-2xl" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-heading font-bold text-base sm:text-lg flex items-center gap-2">
+                <svg className="w-5 h-5 text-green-500" viewBox="0 0 32 32" fill="currentColor">
+                  <path d="M16.003 0h-.006C7.17 0 0 7.172 0 16c0 3.5 1.128 6.744 3.046 9.354L1.05 31.27l6.072-1.938A15.9 15.9 0 0 0 16.003 32C24.828 32 32 24.828 32 16S24.828 0 16.003 0z"/>
+                </svg>
+                {t('booking.whatsappReview')}
+              </h3>
+              <button onClick={() => setShowWhatsappReview(false)} className="text-muted hover:text-heading transition-colors text-xl">✕</button>
+            </div>
+
+            <div className="bg-overlay/5 rounded-xl p-4 border border-overlay/10 space-y-2 mb-5">
+              <div className="grid grid-cols-2 gap-2 text-xs">
+                <div className="flex items-center gap-2 text-muted"><Icons.User className="w-3.5 h-3.5 text-faint" /> {form.name}</div>
+                <div className="flex items-center gap-2 text-muted"><Icons.Phone className="w-3.5 h-3.5 text-faint" /> {form.phone}</div>
+                <div className="flex items-center gap-2 text-muted"><Icons.Car className="w-3.5 h-3.5 text-faint" /> {form.carModel}</div>
+                <div className="flex items-center gap-2 text-muted"><Icons.Wrench className="w-3.5 h-3.5 text-faint" /> {form.service}</div>
+                <div className="flex items-center gap-2 text-muted"><Icons.Calendar className="w-3.5 h-3.5 text-faint" /> {form.date}</div>
+                <div className="flex items-center gap-2 text-muted"><Icons.Clock className="w-3.5 h-3.5 text-faint" /> {form.time}</div>
+              </div>
+              {form.notes && (
+                <div className="pt-2 border-t border-overlay/5">
+                  <p className="text-faint text-[10px] mb-1">{t('booking.notes')}</p>
+                  <p className="text-muted text-xs">{form.notes}</p>
+                </div>
+              )}
+            </div>
+
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowWhatsappReview(false)}
+                className="flex-1 border border-overlay/10 text-heading hover:bg-overlay/5 font-bold py-3 rounded-xl transition-all duration-300 text-sm"
+              >
+                {t('booking.whatsappCancel')}
+              </button>
+              <button
+                onClick={sendWhatsapp}
+                className="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-xl transition-all duration-300 text-sm flex items-center justify-center gap-2 hover:shadow-lg hover:shadow-green-500/30"
+              >
+                <svg className="w-5 h-5" viewBox="0 0 32 32" fill="currentColor">
+                  <path d="M16.003 0h-.006C7.17 0 0 7.172 0 16c0 3.5 1.128 6.744 3.046 9.354L1.05 31.27l6.072-1.938A15.9 15.9 0 0 0 16.003 32C24.828 32 32 24.828 32 16S24.828 0 16.003 0z"/>
+                </svg>
+                {t('booking.whatsappConfirm')}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <Toast toast={toast} />
     </div>
   )

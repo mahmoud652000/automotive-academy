@@ -98,9 +98,9 @@ export default function Footer() {
       <div className="absolute top-0 right-1/4 w-72 h-72 bg-primary/5 rounded-full blur-3xl pointer-events-none" />
 
       <div className="container-custom py-8 md:py-10 relative z-10">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-6 lg:gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-6 lg:gap-8">
           {/* Column 1: Brand + Newsletter */}
-          <div className="lg:col-span-4">
+          <div className="sm:col-span-2 lg:col-span-4">
             <div className="flex items-center gap-2.5 mb-3">
               <Logo className="h-10 w-auto flex-shrink-0" showText={false} />
               <div>
@@ -120,6 +120,7 @@ export default function Footer() {
                 </div>
                 <h4 className="text-heading font-bold text-xs">{t('footer.newsletter')}</h4>
               </div>
+              <p className="text-muted text-[11px] leading-relaxed mb-2.5">{t('footer.newsletterSub')}</p>
               {subscribed ? (
                 <div className="flex items-center gap-2 text-green-400 bg-green-500/10 border border-green-500/20 rounded-lg px-3 py-2 text-xs">
                   <Icons.CheckCircle className="w-3.5 h-3.5" />
@@ -133,7 +134,7 @@ export default function Footer() {
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder={t('footer.emailPlaceholder')}
                     required
-                    className="flex-1 bg-overlay/5 border border-overlay/10 rounded-lg px-3 py-2 text-heading placeholder-faint text-xs focus:border-primary focus:bg-overlay/10 focus:outline-none transition-all duration-300"
+                    className="flex-1 bg-overlay/5 border border-overlay/10 rounded-lg px-3 py-2 text-heading placeholder-faint text-xs focus:border-primary focus:bg-overlay/10 focus:outline-none transition-all duration-300 min-w-0"
                   />
                   <button type="submit" className="bg-primary hover:bg-primary-dark text-white font-bold text-xs px-4 py-2 rounded-lg transition-all duration-300 hover:shadow-lg hover:shadow-primary/30 whitespace-nowrap">
                     {t('footer.subscribe')}
@@ -193,7 +194,7 @@ export default function Footer() {
                     <div className="w-7 h-7 bg-overlay/5 rounded-lg flex items-center justify-center text-primary border border-overlay/5 group-hover:bg-primary/10 transition-all duration-300 flex-shrink-0">
                       {Icon && <Icon className="w-3.5 h-3.5" />}
                     </div>
-                    <span className="text-muted group-hover:text-heading transition-colors text-xs leading-relaxed pt-1">
+                    <span className="text-muted group-hover:text-heading transition-colors text-xs leading-relaxed pt-1 break-words">
                       {item.label}
                     </span>
                   </div>
@@ -225,7 +226,7 @@ export default function Footer() {
                     target={href.startsWith('http') ? '_blank' : undefined}
                     rel="noopener noreferrer"
                     aria-label={social.label}
-                    className="w-8 h-8 rounded-lg flex items-center justify-center transition-all duration-300 hover:-translate-y-0.5 border border-overlay/5"
+                    className="w-9 h-9 rounded-lg flex items-center justify-center transition-all duration-300 hover:-translate-y-0.5 border border-overlay/5"
                     style={{ color: social.color }}
                     onMouseEnter={(e) => {
                       e.currentTarget.style.backgroundColor = social.color
@@ -261,8 +262,8 @@ export default function Footer() {
             <a href="https://wa.me/201024949382" target="_blank" rel="noopener noreferrer" className="text-heading font-medium hover:text-primary transition-colors">{t('footer.developer')}</a>
           </p>
           <div className="flex gap-5 text-[11px] text-faint">
-            <a href="#" className="hover:text-primary transition-colors">{t('footer.privacy')}</a>
-            <a href="#" className="hover:text-primary transition-colors">{t('footer.terms')}</a>
+            <Link to="/privacy" className="hover:text-primary transition-colors">{t('footer.privacy')}</Link>
+            <Link to="/terms" className="hover:text-primary transition-colors">{t('footer.terms')}</Link>
           </div>
         </div>
       </div>

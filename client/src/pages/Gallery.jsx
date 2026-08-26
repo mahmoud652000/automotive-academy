@@ -194,22 +194,22 @@ export default function Gallery() {
   const videos = filtered.filter(i => i.type === 'video')
 
   return (
-    <div className="pt-20">
+    <div className="pt-16 sm:pt-20 lg:pt-20">
       {/* Hero */}
       <section className="relative overflow-hidden">
         <div className="absolute inset-0 z-0">
           <img src="/gallery-hero.webp" alt={t('gallery.title')} className="w-full h-full object-cover" />
-          <div className="absolute inset-0 bg-gradient-to-l from-[#0a0a0f] via-[#0a0a0f]/70 to-transparent" />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0f] via-transparent to-[#0a0a0f]/30" />
+          <div className="hero-overlay-left" />
+          <div className="hero-overlay-dual" />
         </div>
-        <div className="container-custom relative z-10 py-10 md:py-14 text-right">
-          <span className="text-primary font-bold text-sm flex items-center gap-2 mb-2">
+        <div className="container-custom relative z-10 py-8 sm:py-10 md:py-14 text-start">
+          <span className="text-primary font-bold text-xs sm:text-sm flex items-center gap-2 mb-2">
             {t('gallery.label')}
             <span className="w-8 h-px bg-primary" />
           </span>
-          <h1 className="text-4xl md:text-5xl font-bold text-white mb-2 drop-shadow-2xl">{t('gallery.title')}</h1>
-          <p className="text-primary font-bold text-base md:text-lg mb-2 drop-shadow-lg">{t('gallery.subtitle')}</p>
-          <p className="text-white/60 text-xs md:text-sm max-w-lg mr-0 ml-auto leading-relaxed drop-shadow-lg">{t('gallery.desc')}</p>
+          <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-on-hero mb-2 drop-shadow-2xl">{t('gallery.title')}</h1>
+          <p className="text-primary font-bold text-sm sm:text-base md:text-lg mb-2 drop-shadow-lg">{t('gallery.subtitle')}</p>
+          <p className="text-on-hero-tertiary text-xs md:text-sm max-w-lg me-0 ms-auto leading-relaxed drop-shadow-lg">{t('gallery.desc')}</p>
         </div>
       </section>
 
@@ -243,7 +243,7 @@ export default function Gallery() {
           <div className="container-custom relative z-10">
             <div className="flex items-center gap-3 mb-6">
               <div className="w-9 h-9 bg-red-500/10 rounded-lg flex items-center justify-center text-red-500">
-                <svg className="w-4.5 h-4.5" viewBox="0 0 24 24" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
               </div>
               <div>
                 <h2 className="text-lg md:text-xl font-bold text-heading">{t('gallery.videos')}</h2>
@@ -251,7 +251,7 @@ export default function Gallery() {
               </div>
             </div>
 
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-5">
               {videos.map(video => (
                 <div
                   key={video._id}
@@ -324,8 +324,8 @@ export default function Gallery() {
                         )}
                         {/* Title overlay on hover */}
                         <div className="absolute bottom-0 right-0 left-0 p-4 transform translate-y-2 group-hover:translate-y-0 transition-transform duration-300">
-                          <h3 className="text-white font-bold text-sm mb-1 line-clamp-1">{lang === 'ar' ? video.title : (video.titleEn || video.title)}</h3>
-                          <div className="flex items-center gap-1.5 text-white/60 text-[10px]">
+                           <h3 className="text-on-hero font-bold text-sm mb-1 line-clamp-1">{lang === 'ar' ? video.title : (video.titleEn || video.title)}</h3>
+                           <div className="flex items-center gap-1.5 text-on-hero-secondary text-[10px]">
                             <svg className="w-3 h-3 text-red-500" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
                             <span>{lang === 'ar' ? 'اضغط للمشاهدة' : 'Click to watch'}</span>
                           </div>
@@ -347,7 +347,7 @@ export default function Gallery() {
           <div className="container-custom relative z-10">
             <div className="flex items-center gap-3 mb-6">
               <div className="w-9 h-9 bg-primary/10 rounded-lg flex items-center justify-center text-primary">
-                <Icons.Search className="w-4.5 h-4.5" />
+                <Icons.Search className="w-4 h-4" />
               </div>
               <div>
                 <h2 className="text-lg md:text-xl font-bold text-heading">{t('gallery.photos')}</h2>
@@ -355,7 +355,7 @@ export default function Gallery() {
               </div>
             </div>
 
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-5">
               {photos.map(photo => (
                 <BeforeAfterSlider
                   key={photo._id}
@@ -385,7 +385,7 @@ export default function Gallery() {
       {/* Photo detail modal */}
       {selectedPhoto && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm" onClick={() => setSelectedPhoto(null)}>
-          <div className="bg-gradient-to-b from-surface to-[#0a0a0f] rounded-2xl border border-overlay/20 max-w-3xl w-full shadow-2xl overflow-hidden" onClick={e => e.stopPropagation()}>
+          <div             className="bg-gradient-to-b from-surface to-dark rounded-2xl border border-overlay/20 max-w-3xl w-full shadow-2xl overflow-hidden" onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between p-4 border-b border-overlay/10">
               <h3 className="text-heading font-bold text-lg">{lang === 'ar' ? selectedPhoto.title : (selectedPhoto.titleEn || selectedPhoto.title)}</h3>
               <button onClick={() => setSelectedPhoto(null)} className="w-8 h-8 rounded-lg flex items-center justify-center text-muted hover:text-heading hover:bg-overlay/10 transition-all">✕</button>

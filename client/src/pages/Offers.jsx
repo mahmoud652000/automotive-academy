@@ -95,39 +95,35 @@ export default function Offers() {
     : offers.filter((o) => (lang === 'ar' ? o.category : o.categoryEn) === activeCategory)
 
   return (
-    <div className="pt-20">
+    <div className="pt-16 sm:pt-20 lg:pt-20">
       {/* ============ HERO ============ */}
-      <section className="relative py-12 md:py-20 overflow-hidden bg-dark">
+      <section className="relative py-8 sm:py-12 md:py-20 overflow-hidden bg-dark">
         <div className="absolute inset-0 z-0">
-          <img src={get('bg_offers') || '/offers-bg.png'} alt="" className="w-full h-full object-cover opacity-60" style={{ objectPosition: `${get('bg_offers_x') || 50}% ${get('bg_offers_y') || 50}%` }} />
-          <div className="absolute inset-0 bg-gradient-to-l from-[#0a0a0f] via-[#0a0a0f]/60 to-[#0a0a0f]/20" />
+          <img src="/offers-hero-bg.png" alt="" className="w-full h-full object-cover opacity-70" />
+          <div className="hero-overlay-left" />
         </div>
+        <div className="absolute bottom-0 left-1/4 w-96 h-96 bg-primary/5 rounded-full blur-3xl" />
         <div className="container-custom relative z-10">
-          <div className="grid lg:grid-cols-3 gap-8 items-center">
+          <div className="grid lg:grid-cols-3 gap-6 sm:gap-8 items-center">
             <div className="lg:col-span-2">
-              <div className="flex items-center gap-2 text-faint text-xs sm:text-sm mb-4">
-                <Link to="/" className="hover:text-primary transition-colors">{t('offers.breadcrumbHome')}</Link>
-                <span className="text-primary">/</span>
-                <span className="text-primary">{t('offers.breadcrumbCurrent')}</span>
-              </div>
-              <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold text-white mb-4 leading-tight">
-                <span className="text-primary">{get('hero_offers_title1') || t('offers.title1')}</span> {get('hero_offers_title2') || t('offers.title2')}
-              </h1>
-              <p className="text-white/80 text-sm md:text-lg max-w-2xl">
-                {get('hero_offers_desc') || t('offers.desc')}
+               <h1 className="text-2xl sm:text-3xl md:text-5xl lg:text-6xl font-bold text-on-hero mb-3 sm:mb-4 leading-tight">
+                 <span className="text-primary">{lang === 'ar' ? (get('hero_offers_title1') || t('offers.title1')) : t('offers.title1')}</span> {lang === 'ar' ? (get('hero_offers_title2') || t('offers.title2')) : t('offers.title2')}
+               </h1>
+               <p className="text-on-hero-secondary text-xs sm:text-sm md:text-lg max-w-2xl">
+                {lang === 'ar' ? (get('hero_offers_desc') || t('offers.desc')) : t('offers.desc')}
               </p>
             </div>
             <div className="relative group">
               <div className="absolute -inset-2 bg-primary/10 rounded-3xl blur-xl opacity-50 group-hover:opacity-100 transition-opacity duration-500" />
-              <div className="relative bg-surface rounded-2xl p-6 border-2 border-dashed border-primary/30 text-center">
+              <div className="relative bg-surface rounded-2xl p-4 sm:p-6 border-2 border-dashed border-primary/30 text-center">
                 <div className="flex justify-center mb-3">
-                  <div className="w-14 h-14 bg-primary/20 rounded-full flex items-center justify-center">
-                    <span className="text-primary text-2xl font-bold">%</span>
+                  <div className="w-12 h-12 sm:w-14 sm:h-14 bg-primary/20 rounded-full flex items-center justify-center">
+                    <span className="text-primary text-xl sm:text-2xl font-bold">%</span>
                   </div>
                 </div>
-                <h3 className="text-heading font-bold text-lg mb-2">{t('offers.renewedTitle')}</h3>
-                <p className="text-muted text-sm mb-1">{t('offers.renewedSub1')}</p>
-                <p className="text-primary text-sm font-medium">{t('offers.renewedSub2')}</p>
+                <h3 className="text-heading font-bold text-base sm:text-lg mb-2">{t('offers.renewedTitle')}</h3>
+                <p className="text-muted text-xs sm:text-sm mb-1">{t('offers.renewedSub1')}</p>
+                <p className="text-primary text-xs sm:text-sm font-medium">{t('offers.renewedSub2')}</p>
               </div>
             </div>
           </div>
@@ -185,7 +181,7 @@ export default function Offers() {
             </div>
           </div>
 
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4">
             {filteredOffers.map((offer, index) => {
               const theme = cardThemes[index % cardThemes.length]
               return (
@@ -200,12 +196,12 @@ export default function Offers() {
                       alt={lang === 'ar' ? offer.title : offer.titleEn}
                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-[#0B1120] via-[#0B1120]/40 to-transparent" />
+                    <div className="card-img-overlay" />
                     <div className={`absolute -top-8 -right-8 w-32 h-32 ${theme.glow} rounded-full blur-2xl`} />
 
                     {/* Big number watermark */}
                     <div className="absolute bottom-1 left-3 z-10">
-                      <span className="text-5xl font-bold text-white/10">{offer.id}</span>
+                      <span className="text-5xl font-bold text-overlay/10">{offer.id}</span>
                     </div>
 
                     {/* Icon */}
@@ -275,14 +271,14 @@ export default function Offers() {
         {/* Background image */}
         <div className="absolute inset-0">
           <img src="/offers-newsletter.webp" alt="" className="w-full h-full object-cover" />
-          <div className="absolute inset-0 bg-gradient-to-l from-[#0a0a0f]/70 via-[#0a0a0f]/50 to-[#0a0a0f]/10" />
+          <div className="hero-overlay-left-fade" />
         </div>
 
         <div className="container-custom relative z-10 py-12 md:py-16">
           <div className="grid md:grid-cols-2 gap-8 items-center">
               <div>
-                <h2 className="text-3xl md:text-4xl font-bold text-white mb-3 drop-shadow-lg">{t('offers.newsletterTitle')}</h2>
-                <p className="text-white/70 text-sm md:text-base leading-relaxed drop-shadow">
+                 <h2 className="text-3xl md:text-4xl font-bold text-on-hero mb-3 drop-shadow-lg">{t('offers.newsletterTitle')}</h2>
+                <p className="text-on-hero-secondary text-sm md:text-base leading-relaxed drop-shadow">
                   {t('offers.newsletterDesc')}
                 </p>
               </div>
@@ -301,9 +297,9 @@ export default function Offers() {
                       onChange={(e) => setNewsletterEmail(e.target.value)}
                       placeholder={t('offers.emailPlaceholder')}
                       required
-                      className="w-full bg-white/10 border border-white/20 rounded-lg pr-4 pl-10 py-3.5 text-white placeholder-white/50 text-sm focus:outline-none focus:bg-white/15 focus:border-white/40 transition-all"
-                    />
-                    <span className="absolute top-1/2 -translate-y-1/2 left-3 text-white/50">
+                       className="w-full bg-overlay/10 border border-overlay/20 rounded-lg pr-4 pl-10 py-3.5 text-on-hero placeholder-on-hero-faint text-sm focus:outline-none focus:bg-overlay/15 focus:border-overlay/40 transition-all"
+                     />
+                     <span className="absolute top-1/2 -translate-y-1/2 left-3 text-on-hero-faint">
                       <Icons.Mail className="w-5 h-5" />
                     </span>
                   </div>

@@ -24,16 +24,16 @@ export default function Login() {
   }
 
   return (
-    <div className="pt-20 min-h-screen flex items-center justify-center bg-dark relative overflow-hidden">
+    <div className="pt-16 sm:pt-20 lg:pt-20 min-h-screen flex items-center justify-center bg-dark relative overflow-hidden">
       <div className="absolute inset-0 z-0">
         <img src={get('bg_login') || '/hero-bg.png'} alt="" className="w-full h-full object-cover opacity-20" style={{ objectPosition: `${get('bg_login_x') || 50}% ${get('bg_login_y') || 50}%` }} />
-        <div className="absolute inset-0 bg-gradient-to-b from-[#0a0a0f]/80 to-[#0a0a0f]" />
+        <div className="hero-overlay-bottom" />
       </div>
       <div className="absolute top-0 right-1/4 w-72 h-72 bg-primary/10 rounded-full blur-3xl" />
       <div className="absolute bottom-0 left-1/4 w-72 h-72 bg-primary/5 rounded-full blur-3xl" />
 
-      <div className="relative z-10 w-full max-w-sm">
-        <div className="bg-overlay/10 rounded-2xl p-8 border border-overlay/20 shadow-2xl">
+      <div className="relative z-10 w-full max-w-sm px-4">
+        <div className="bg-overlay/10 rounded-2xl p-6 sm:p-8 border border-overlay/20 shadow-2xl">
           {/* Logo */}
           <div className="text-center mb-6">
             <img src={get('site_logo') || '/logo.png'} alt={get('site_name') || 'Automotive Academy'} className="w-32 h-auto mx-auto mb-3" />

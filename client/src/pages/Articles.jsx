@@ -44,23 +44,23 @@ export default function Articles() {
   return (
     <div>
       {/* ============ HERO ============ */}
-      <section className="relative pt-32 pb-16 overflow-hidden bg-[#0a0a0f]">
+      <section className="relative pt-24 sm:pt-28 lg:pt-28 pb-10 sm:pb-12 md:pb-16 overflow-hidden bg-dark">
         {/* Background image */}
         <div className="absolute inset-0 z-0">
           <img src={get('bg_articles') || '/articles-bg.webp'} alt="" className="w-full h-full object-cover" style={{ objectPosition: `${get('bg_articles_x') || 50}% ${get('bg_articles_y') || 50}%` }} />
-          <div className="absolute inset-0 bg-[#0a0a0f]/65" />
+          <div className="hero-overlay-solid" />
         </div>
         <div className="absolute top-0 right-1/4 w-96 h-96 bg-primary/5 rounded-full blur-3xl" />
         <div className="absolute bottom-0 left-1/4 w-96 h-96 bg-primary/3 rounded-full blur-3xl" />
         <div className="container-custom relative z-10 text-center">
-          <span className="inline-flex items-center gap-2 text-primary font-bold text-sm mb-3">
+          <span className="inline-flex items-center gap-2 text-primary font-bold text-xs sm:text-sm mb-2 sm:mb-3">
             <span className="w-8 h-px bg-primary" />
             <Icons.BookOpen className="w-4 h-4" />
-            {get('hero_articles_label') || t('articles.label')}
+            {lang === 'ar' ? (get('hero_articles_label') || t('articles.label')) : t('articles.label')}
             <span className="w-8 h-px bg-primary" />
           </span>
-          <h1 className="text-3xl md:text-4xl font-bold text-white mb-3">{get('hero_articles_title') || t('articles.title')}</h1>
-          <p className="text-white/70 text-sm md:text-base max-w-xl mx-auto">{get('hero_articles_desc') || t('articles.desc')}</p>
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-on-hero mb-2 sm:mb-3">{lang === 'ar' ? (get('hero_articles_title') || t('articles.title')) : t('articles.title')}</h1>
+          <p className="text-on-hero-secondary text-sm md:text-base max-w-xl mx-auto">{lang === 'ar' ? (get('hero_articles_desc') || t('articles.desc')) : t('articles.desc')}</p>
         </div>
       </section>
 
@@ -152,7 +152,7 @@ export default function Articles() {
                   <h2 className="text-lg font-bold text-heading">{t('articles.latest')}</h2>
                 </div>
 
-                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
                   {recent.map(article => (
                     <ArticleCard key={article._id} article={article} onClick={() => setSelectedArticle(article)} formatDate={formatDate} t={t} renderIcon={renderIcon} />
                   ))}
@@ -229,13 +229,13 @@ export default function Articles() {
       {selectedArticle && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80" onClick={() => setSelectedArticle(null)}>
           <div
-            className="relative bg-[#0a0a0f] rounded-2xl border border-white/10 max-w-2xl w-full shadow-2xl overflow-hidden flex flex-col max-h-[85vh]"
+            className="relative bg-surface rounded-2xl border border-overlay/10 max-w-2xl w-full shadow-2xl overflow-hidden flex flex-col max-h-[85vh]"
             onClick={e => e.stopPropagation()}
           >
               {/* Close button */}
               <button
                 onClick={() => setSelectedArticle(null)}
-                className="absolute top-4 left-4 z-20 w-10 h-10 rounded-lg bg-black/50 backdrop-blur-md flex items-center justify-center text-white hover:bg-black/70 transition-all"
+                className="absolute top-4 left-4 z-20 w-10 h-10 rounded-lg bg-overlay/20 backdrop-blur-md flex items-center justify-center text-muted hover:text-heading hover:bg-overlay/30 transition-all"
               >
                 ✕
               </button>
@@ -244,7 +244,7 @@ export default function Articles() {
               {selectedArticle.image && (
                 <div className="relative h-48 md:h-60 overflow-hidden flex-shrink-0">
                   <img src={selectedArticle.image} alt={selectedArticle.title} className="w-full h-full object-cover" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0f] via-[#0a0a0f]/30 to-transparent" />
+                  <div className="hero-overlay-dual" />
                 </div>
               )}
 
@@ -252,14 +252,14 @@ export default function Articles() {
               <div className="p-6 md:p-8 overflow-y-auto">
                 {/* Meta */}
                 <div className="flex items-center gap-2 mb-3 flex-wrap">
-                  <span className="text-white/50 text-xs bg-white/10 px-2.5 py-1 rounded-full">{selectedArticle.category}</span>
+                   <span className="text-on-hero-faint text-xs bg-overlay/5 px-2.5 py-1 rounded-full">{selectedArticle.category}</span>
                 </div>
 
                 {/* Title */}
-                <h1 className="text-white font-bold text-xl md:text-2xl mb-4 leading-tight">{selectedArticle.title}</h1>
+                 <h1 className="text-heading font-bold text-xl md:text-2xl mb-4 leading-tight">{selectedArticle.title}</h1>
 
-                {/* Date */}
-                <div className="flex items-center gap-4 pb-4 mb-4 border-b border-white/10 text-xs text-white/40 flex-wrap">
+                 {/* Date */}
+                 <div className="flex items-center gap-4 pb-4 mb-4 border-b border-overlay/10 text-xs text-faint flex-wrap">
                   <span className="flex items-center gap-1"><Icons.Calendar className="w-3.5 h-3.5" /> {formatDate(selectedArticle.createdAt)}</span>
                 </div>
 
@@ -271,15 +271,15 @@ export default function Articles() {
                 )}
 
                 {/* Content */}
-                <div className="text-white/80 text-sm leading-relaxed whitespace-pre-wrap">
+                 <div className="text-body text-sm leading-relaxed whitespace-pre-wrap">
                   {selectedArticle.content}
                 </div>
 
                 {/* Tags */}
                 {selectedArticle.tags?.length > 0 && (
-                  <div className="flex items-center gap-2 mt-6 pt-4 border-t border-white/10 flex-wrap">
+                  <div className="flex items-center gap-2 mt-6 pt-4 border-t border-overlay/10 flex-wrap">
                     {selectedArticle.tags.map((tag, i) => (
-                      <span key={i} className="text-white/50 text-[10px] bg-white/5 border border-white/10 px-2.5 py-1 rounded-full">
+                       <span key={i} className="text-faint text-[10px] bg-overlay/5 border border-overlay/10 px-2.5 py-1 rounded-full">
                         #{tag.trim()}
                       </span>
                     ))}
@@ -289,7 +289,7 @@ export default function Articles() {
                 {/* Back button */}
                 <button
                   onClick={() => setSelectedArticle(null)}
-                  className="mt-6 flex items-center gap-2 text-white/60 hover:text-primary text-xs font-medium transition-colors"
+                   className="mt-6 flex items-center gap-2 text-faint hover:text-primary text-xs font-medium transition-colors"
                 >
                   <Icons.ArrowLeft className="w-4 h-4 rotate-180" />
                   {t('articles.back')}

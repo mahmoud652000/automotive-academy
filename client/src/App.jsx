@@ -23,6 +23,8 @@ import Booking from './pages/Booking'
 import Login from './pages/Login'
 import Dashboard from './pages/Dashboard'
 import NotFound from './pages/NotFound'
+import Privacy from './pages/Privacy'
+import Terms from './pages/Terms'
 import NewsletterConfirm from './pages/NewsletterConfirm'
 import NewsletterUnsubscribe from './pages/NewsletterUnsubscribe'
 
@@ -47,6 +49,8 @@ function AnimatedRoutes() {
         <Route path="/articles" element={<PageTransition><Articles /></PageTransition>} />
         <Route path="/contact" element={<PageTransition><Contact /></PageTransition>} />
         <Route path="/booking" element={<PageTransition><Booking /></PageTransition>} />
+        <Route path="/privacy" element={<PageTransition><Privacy /></PageTransition>} />
+        <Route path="/terms" element={<PageTransition><Terms /></PageTransition>} />
         <Route path="/login" element={<PageTransition><Login /></PageTransition>} />
         <Route path="/newsletter/confirm/:token" element={<NewsletterConfirm />} />
         <Route path="/newsletter/unsubscribe/:token" element={<NewsletterUnsubscribe />} />

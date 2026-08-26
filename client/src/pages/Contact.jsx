@@ -37,38 +37,39 @@ export default function Contact() {
     <div>
       {/* Hero banner */}
       <section className="relative w-full overflow-hidden">
-        <img src={get('bg_contact') || '/contact-bg.webp'} alt={t('contact.title')} className="w-full h-[200px] sm:h-auto block object-cover" style={{ objectPosition: `${get('bg_contact_x') || 50}% ${get('bg_contact_y') || 50}%` }} />
-        <div className="absolute inset-0 flex items-center bg-gradient-to-l from-[#0a0a0f]/90 via-[#0a0a0f]/50 to-transparent">
-          <div className="container-custom">
-            <div className="max-w-sm text-right">
-              <h1 className="text-xl sm:text-2xl md:text-4xl font-bold text-white mb-3 drop-shadow-lg">{get('hero_contact_title') || t('contact.heroTitle')}</h1>
-              <p className="text-xs sm:text-sm md:text-base text-white/80 leading-relaxed drop-shadow-md">{get('hero_contact_desc') || t('contact.heroDesc')}</p>
-            </div>
+        <img src={get('bg_contact') || '/contact-bg.webp'} alt={t('contact.title')} className="w-full h-[160px] sm:h-[200px] md:h-auto block object-cover" style={{ objectPosition: `${get('bg_contact_x') || 50}% ${get('bg_contact_y') || 50}%` }} />
+        <div className="absolute inset-0 flex items-center hero-overlay-left-fade" />
+        <div className="container-custom absolute inset-0 flex items-center">
+          <div className="max-w-sm text-start">
+            <h1 className="text-lg sm:text-xl md:text-4xl font-bold text-primary mb-2 sm:mb-3 drop-shadow-lg">
+              {lang === 'ar' ? (get('hero_contact_title') || t('contact.heroTitle')) : t('contact.heroTitle')}
+            </h1>
+            <p className="text-xs sm:text-sm md:text-base text-on-hero-secondary leading-relaxed drop-shadow-md">{lang === 'ar' ? (get('hero_contact_desc') || t('contact.heroDesc')) : t('contact.heroDesc')}</p>
           </div>
         </div>
       </section>
 
       {/* Contact methods */}
-      <section className="relative z-20 py-10 md:py-14">
+      <section className="relative z-20 py-8 sm:py-10 md:py-14">
         <div className="container-custom">
           {/* Title */}
-          <div className="flex items-center justify-center gap-3 mb-8">
-            <span className="w-12 md:w-20 h-px bg-primary" />
-            <h2 className="text-heading font-bold text-base sm:text-lg md:text-2xl whitespace-nowrap overflow-hidden text-ellipsis">{t('contact.title')}</h2>
-            <span className="w-12 md:w-20 h-px bg-primary" />
+          <div className="flex items-center justify-center gap-3 mb-6 sm:mb-8">
+            <span className="w-8 sm:w-12 md:w-20 h-px bg-primary" />
+            <h2 className="text-heading font-bold text-sm sm:text-base md:text-2xl whitespace-nowrap">{t('contact.title')}</h2>
+            <span className="w-8 sm:w-12 md:w-20 h-px bg-primary" />
           </div>
 
           {/* Cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4">
             {contactMethods.map((method, index) => (
               <a
                 key={index}
                 href={method.link}
-                className="group bg-overlay/[0.03] border border-overlay/10 rounded-2xl p-5 flex flex-col items-center text-center hover:border-primary/30 hover:bg-overlay/[0.05] transition-all duration-500 hover:-translate-y-1"
+                className="group bg-overlay/[0.03] border border-overlay/10 rounded-2xl p-4 sm:p-5 flex flex-col items-center text-center hover:border-primary/30 hover:bg-overlay/[0.05] transition-all duration-500 hover:-translate-y-1"
               >
                 {/* Icon */}
-                <div className="w-12 h-12 rounded-full border-2 border-primary/30 flex items-center justify-center text-primary group-hover:border-primary group-hover:bg-primary/10 transition-all duration-500 mb-4">
-                  {renderIcon(method.icon, 'w-5 h-5')}
+                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 border-primary/30 flex items-center justify-center text-primary group-hover:border-primary group-hover:bg-primary/10 transition-all duration-500 mb-3 sm:mb-4">
+                  {renderIcon(method.icon, 'w-4 h-4 sm:w-5 sm:h-5')}
                 </div>
 
                 {/* Title */}
@@ -87,21 +88,21 @@ export default function Contact() {
         </div>
       </section>
 
-      <section className="py-16 bg-surface">
+      <section className="py-8 sm:py-10 md:py-16 bg-surface">
         <div className="container-custom">
-          <div className="grid lg:grid-cols-2 gap-8">
+          <div className="grid lg:grid-cols-2 gap-6 sm:gap-8">
             <div className="relative">
               {/* Decorative glow */}
               <div className="absolute -inset-4 bg-primary/5 rounded-3xl blur-2xl opacity-50" />
 
-              <div className="relative bg-gradient-to-b from-white/[0.04] to-transparent rounded-2xl p-6 md:p-8 border border-overlay/10">
+              <div className="relative bg-gradient-to-b from-white/[0.04] to-transparent rounded-2xl p-4 sm:p-6 md:p-8 border border-overlay/10">
                 {/* Header */}
-                <div className="flex items-center gap-3 mb-6">
-                  <div className="w-11 h-11 bg-primary/10 rounded-xl flex items-center justify-center text-primary border border-primary/20">
-                    <Icons.Mail className="w-5 h-5" />
+                <div className="flex items-center gap-3 mb-4 sm:mb-6">
+                  <div className="w-10 h-10 sm:w-11 sm:h-11 bg-primary/10 rounded-xl flex items-center justify-center text-primary border border-primary/20">
+                    <Icons.Mail className="w-4 h-4 sm:w-5 sm:h-5" />
                   </div>
                   <div>
-                    <h2 className="text-xl md:text-2xl font-bold text-heading">{t('contact.sendMsg')}</h2>
+                    <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-heading">{t('contact.sendMsg')}</h2>
                     <p className="text-faint text-xs mt-0.5">{t('contact.sendMsgSub')}</p>
                   </div>
                 </div>
@@ -160,8 +161,8 @@ export default function Contact() {
               </div>
             </div>
             <div>
-              <h2 className="text-2xl font-bold text-heading mb-6">{t('contact.location')}</h2>
-              <div className="rounded-xl overflow-hidden h-96 border border-overlay/10">
+              <h2 className="text-xl sm:text-2xl font-bold text-heading mb-4 sm:mb-6">{t('contact.location')}</h2>
+              <div className="rounded-xl overflow-hidden h-64 sm:h-80 md:h-96 border border-overlay/10">
                 <iframe src="https://maps.google.com/maps?q=31.0252126,31.3926808&z=17&hl=ar&output=embed" className="w-full h-full" style={{ border: 0 }} title={t('contact.mapTitle')} />
               </div>
             </div>
@@ -169,21 +170,21 @@ export default function Contact() {
         </div>
       </section>
 
-      <section className="py-10 md:py-14 bg-surface relative overflow-hidden">
+      <section className="py-8 sm:py-10 md:py-14 bg-surface relative overflow-hidden">
         <div className="absolute top-0 right-1/4 w-96 h-96 bg-primary/5 rounded-full blur-3xl" />
         <div className="container-custom relative z-10">
-          <div className="text-center mb-8">
-            <span className="text-primary font-bold text-sm flex items-center justify-center gap-2 mb-2">
+          <div className="text-center mb-6 sm:mb-8">
+            <span className="text-primary font-bold text-xs sm:text-sm flex items-center justify-center gap-2 mb-2">
               <span className="w-8 h-px bg-primary" />
               {t('contact.branchesLabel')}
               <span className="w-8 h-px bg-primary" />
             </span>
-            <h2 className="text-2xl md:text-3xl font-bold text-heading">{t('contact.branchesTitle')}</h2>
+            <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-heading">{t('contact.branchesTitle')}</h2>
           </div>
           <div className="max-w-3xl mx-auto">
             {branches.map((branch, index) => (
               <div key={index} className="group relative bg-gradient-to-b from-white/[0.04] to-transparent rounded-2xl overflow-hidden border border-overlay/10 hover:border-primary/30 transition-all duration-500 hover:-translate-y-1 hover:shadow-2xl hover:shadow-primary/10">
-                <div className="relative h-56 md:h-72 overflow-hidden">
+                <div className="relative h-44 sm:h-56 md:h-72 overflow-hidden">
                   <img src={branch.image} alt={lang === 'ar' ? branch.name : branch.nameEn} className="w-full h-full object-cover group-hover:scale-105 transition-all duration-700" />
                   <div className="absolute inset-0 bg-gradient-to-t from-surface via-surface/30 to-transparent" />
                   <div className="absolute bottom-4 right-4">

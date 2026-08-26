@@ -2,7 +2,7 @@
 const stroke = {
   fill: 'none',
   stroke: 'currentColor',
-  strokeWidth: 2,
+  strokeWidth: 2.2,
   strokeLinecap: 'round',
   strokeLinejoin: 'round',
 }

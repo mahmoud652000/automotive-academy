@@ -41,21 +41,21 @@ export default function Courses() {
   }
 
   return (
-    <div className="pt-20">
+    <div className="pt-16 sm:pt-20 lg:pt-20">
       {/* Hero */}
-      <section className="relative py-16 md:py-20 flex items-center overflow-hidden bg-[#0a0a0f]">
+      <section className="relative py-10 sm:py-12 md:py-16 lg:py-20 flex items-center overflow-hidden bg-dark">
         <div className="absolute inset-0 z-0">
           <img src={get('bg_courses') || '/courses-bg.webp'} alt="" className="w-full h-full object-cover" style={{ objectPosition: `${get('bg_courses_x') || 50}% ${get('bg_courses_y') || 50}%` }} />
-          <div className="absolute inset-0 bg-gradient-to-l from-[#0a0a0f] via-[#0a0a0f]/80 to-transparent" />
+          <div className="hero-overlay-left-fade" />
         </div>
         <div className="container-custom relative z-10 w-full">
-          <div className="max-w-lg ml-auto">
-            <span className="text-primary font-bold text-sm flex items-center gap-2 mb-3">
+          <div className="max-w-lg ms-auto">
+            <span className="text-primary font-bold text-xs sm:text-sm flex items-center gap-2 mb-2 sm:mb-3">
               <span className="w-8 h-px bg-primary" />
               {t('courses.label')}
             </span>
-            <h1 className="text-3xl md:text-4xl font-bold text-white mb-3 leading-tight">{t('courses.title')}</h1>
-            <p className="text-white/70 text-sm md:text-base leading-relaxed">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-on-hero mb-2 sm:mb-3 leading-tight">{t('courses.title')}</h1>
+            <p className="text-on-hero-secondary text-sm sm:text-base leading-relaxed">
               {t('courses.desc')}
             </p>
           </div>
@@ -63,7 +63,7 @@ export default function Courses() {
       </section>
 
       {/* Courses grid */}
-      <section className="py-8 md:py-10 bg-dark relative">
+      <section className="py-6 sm:py-8 md:py-10 bg-dark relative">
         {/* Divider */}
         <div className="absolute top-0 left-0 right-0 flex justify-center -translate-y-1/2">
           <div className="flex items-center gap-3 px-4">
@@ -92,16 +92,16 @@ export default function Courses() {
             </div>
           </div>
 
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
             {courses.map((course) => (
               <div
                 key={course.id}
                 className="group relative rounded-xl overflow-hidden border border-overlay/10 hover:border-primary/50 transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl hover:shadow-primary/20 bg-surface flex flex-col"
               >
                 {/* Image */}
-                <div className="relative overflow-hidden h-44">
+                <div className="relative overflow-hidden h-36 sm:h-40 md:h-44">
                   <img src={course.image} alt={lang === 'ar' ? course.title : course.titleEn} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#0B1120] via-[#0B1120]/50 to-transparent" />
+                  <div className="card-img-overlay" />
                   <div className="absolute top-0 right-0 left-0 h-1 bg-primary scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-right" />
                   {/* Duration badge */}
                   <div className="absolute top-3 right-3 bg-primary/90  text-white text-[10px] font-bold px-2 py-1 rounded">
@@ -110,9 +110,9 @@ export default function Courses() {
                 </div>
 
                 {/* Content */}
-                <div className="p-5 flex flex-col flex-1">
-                  <h3 className="text-heading font-bold text-sm mb-1.5 group-hover:text-primary transition-colors">{lang === 'ar' ? course.title : course.titleEn}</h3>
-                  <p className="text-muted text-xs leading-relaxed mb-3 flex-1 line-clamp-2">{lang === 'ar' ? course.desc : course.descEn}</p>
+                <div className="p-4 sm:p-5 flex flex-col flex-1">
+                  <h3 className="text-heading font-bold text-xs sm:text-sm mb-1.5 group-hover:text-primary transition-colors">{lang === 'ar' ? course.title : course.titleEn}</h3>
+                  <p className="text-muted text-[11px] sm:text-xs leading-relaxed mb-3 flex-1 line-clamp-2">{lang === 'ar' ? course.desc : course.descEn}</p>
                   <button
                     onClick={() => handleEnroll(lang === 'ar' ? course.title : course.titleEn)}
                     className="w-full flex items-center justify-center gap-2 bg-overlay/5 hover:bg-primary text-heading hover:text-white font-bold py-2 rounded-lg transition-all duration-300 text-xs border border-overlay/10 hover:border-primary group-hover:shadow-lg group-hover:shadow-primary/30"

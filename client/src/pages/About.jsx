@@ -15,26 +15,26 @@ export default function About() {
   const { get } = useSettings()
 
   return (
-    <div className="pt-20">
+    <div className="pt-16 sm:pt-20 lg:pt-20">
       {/* Hero */}
-      <section className="relative min-h-[45vh] flex items-center overflow-hidden">
+      <section className="relative min-h-[35vh] sm:min-h-[45vh] flex items-center overflow-hidden">
         <div className="absolute inset-0 z-0">
           <img src={get('bg_about') || '/hero-bg.png'} alt="" className="w-full h-full object-cover" style={{ objectPosition: `${get('bg_about_x') || 50}% ${get('bg_about_y') || 50}%` }} />
-          <div className="absolute inset-0 bg-gradient-to-l from-[#0a0a0f] via-[#0a0a0f]/85 to-[#0a0a0f]/50" />
+          <div className="hero-overlay-left" />
         </div>
-        <div className="container-custom relative z-10 w-full text-center">
-          <span className="text-primary font-medium text-sm">{get('hero_about_title') || t('about.label')}</span>
-          <h1 className="text-2xl md:text-3xl font-bold text-white mt-2 mb-2">{get('hero_about_subtitle') || t('about.title')}</h1>
-          <p className="text-white/80 text-sm md:text-base max-w-xl mx-auto leading-relaxed">
-            {get('hero_about_subtitle') || t('about.subtitle')}
+        <div className="container-custom relative z-10 w-full text-center py-8">
+          <span className="text-primary font-medium text-xs sm:text-sm">{lang === 'ar' ? (get('hero_about_title') || t('about.label')) : t('about.label')}</span>
+          <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-on-hero mt-2 mb-2">{lang === 'ar' ? (get('hero_about_subtitle') || t('about.title')) : t('about.title')}</h1>
+          <p className="text-on-hero-secondary text-sm md:text-base max-w-xl mx-auto leading-relaxed">
+            {lang === 'ar' ? (get('hero_about_subtitle') || t('about.subtitle')) : t('about.subtitle')}
           </p>
         </div>
       </section>
 
       {/* About section with founder */}
-      <section className="py-10 md:py-14 bg-dark">
+      <section className="py-8 sm:py-10 md:py-14 bg-dark">
         <div className="container-custom">
-          <div className="grid lg:grid-cols-5 gap-8 items-start">
+          <div className="grid lg:grid-cols-5 gap-6 sm:gap-8 items-start">
             {/* Text - 3 cols */}
             <div className="lg:col-span-3">
               <span className="text-primary font-medium text-sm">{t('about.storyLabel')}</span>
@@ -98,17 +98,17 @@ export default function About() {
       </section>
 
       {/* Values */}
-      <section className="py-10 md:py-14 bg-surface">
+      <section className="py-8 sm:py-10 md:py-14 bg-surface">
         <div className="container-custom">
-          <div className="text-center mb-8">
-            <span className="text-primary font-medium text-sm">{t('about.valuesLabel')}</span>
-            <h2 className="text-xl md:text-2xl font-bold text-heading mt-2">{t('about.valuesTitle')}</h2>
+          <div className="text-center mb-6 sm:mb-8">
+            <span className="text-primary font-medium text-xs sm:text-sm">{t('about.valuesLabel')}</span>
+            <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-heading mt-2">{t('about.valuesTitle')}</h2>
           </div>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-5 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
             {values.map((value, index) => (
-              <div key={index} className="group bg-overlay/5 rounded-xl p-5 text-center border border-overlay/10 hover:border-primary/30 transition-all duration-300 hover:-translate-y-1">
-                <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mx-auto mb-3 text-primary group-hover:bg-primary group-hover:text-white transition-all duration-300">
-                  {renderIcon(value.icon, 'w-6 h-6')}
+              <div key={index} className="group bg-overlay/5 rounded-xl p-4 sm:p-5 text-center border border-overlay/10 hover:border-primary/30 transition-all duration-300 hover:-translate-y-1">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-primary/10 rounded-lg flex items-center justify-center mx-auto mb-2 sm:mb-3 text-primary group-hover:bg-primary group-hover:text-white transition-all duration-300">
+                  {renderIcon(value.icon, 'w-5 h-5 sm:w-6 sm:h-6')}
                 </div>
                 <h3 className="text-heading font-bold text-sm mb-1">{lang === 'ar' ? value.title : value.titleEn}</h3>
                 <p className="text-muted text-xs">{lang === 'ar' ? value.desc : value.descEn}</p>

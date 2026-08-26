@@ -31,7 +31,23 @@ export default {
         cairo: ['Cairo', 'sans-serif'],
         sans: ['Cairo', 'system-ui', 'sans-serif'],
       },
+      fontSize: {
+        'heading-xs': ['0.75rem', { lineHeight: '1rem' }],
+        'heading-sm': ['0.875rem', { lineHeight: '1.25rem' }],
+        'heading-base': ['1rem', { lineHeight: '1.5rem' }],
+        'heading-lg': ['1.125rem', { lineHeight: '1.5rem' }],
+        'heading-xl': ['1.25rem', { lineHeight: '1.3' }],
+        'heading-2xl': ['1.5rem', { lineHeight: '1.25' }],
+        'heading-3xl': ['1.75rem', { lineHeight: '1.2' }],
+        'heading-4xl': ['2rem', { lineHeight: '1.15' }],
+        'heading-5xl': ['2.5rem', { lineHeight: '1.1' }],
+        'heading-6xl': ['3rem', { lineHeight: '1.1' }],
+      },
     },
+    plugins: [
+      function({ addVariant }) {
+        addVariant('light', '.light')
+      },
+    ],
   },
-  plugins: [],
 }
