@@ -46,9 +46,19 @@ app.use('/api/settings', settingsRouter)
 app.use('/api/upload', uploadsRouter)
 app.use('/api/subscribers', subscribersRouter)
 
-app.get('/', (req, res) => {
-  res.json({ message: 'Automotive Academy API' })
-})
+// --- التعديل هنا: تشغيل واجهة الموقع ---
+const clientPath = path.join(__dirname, '../client/dist')
+if (fs.existsSync(clientPath)) {
+  app.use(express.static(clientPath))
+  // اي رابط مش API يرجع للواجهة
+  app.get(/^(?!\/api).*/, (req, res) => {
+    res.sendFile(path.join(clientPath, 'index.html'))
+  })
+} else {
+  app.get('/', (req, res) => {
+    res.json({ message: 'Automotive Academy API - ابني الفرونت أولا npm run build' })
+  })
+}
 
 app.post('/api/seed', (req, res) => {
   try {
