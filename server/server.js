@@ -2,6 +2,7 @@ import express from 'express'
 import cors from 'cors'
 import dotenv from 'dotenv'
 import path from 'path'
+import fs from 'fs'
 import { fileURLToPath } from 'url'
 import db, { prepareBody } from './db.js'
 import bookingsRouter from './routes/bookings.js'
@@ -25,7 +26,11 @@ const app = express()
 
 app.use(cors())
 app.use(express.json({ limit: '10mb' }))
-const uploadsDir = process.env.VERCEL ? '/tmp/uploads' : path.join(__dirname, 'uploads')
+
+const uploadsDir = path.join(__dirname, 'uploads')
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir, { recursive: true })
+}
 app.use('/uploads', express.static(uploadsDir))
 
 app.use('/api/bookings', bookingsRouter)
@@ -45,7 +50,6 @@ app.get('/', (req, res) => {
   res.json({ message: 'Automotive Academy API' })
 })
 
-// Seed endpoint — inserts default data only if table is empty
 app.post('/api/seed', (req, res) => {
   try {
     const { offers: seedOffers, services: seedServices, courses: seedCourses } = req.body
@@ -76,11 +80,8 @@ app.post('/api/seed', (req, res) => {
 
 const PORT = process.env.PORT || 5000
 
-// Only start listening when running standalone (not on Vercel serverless)
-if (!process.env.VERCEL) {
-  app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`)
-  })
-}
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`)
+})
 
 export default app
