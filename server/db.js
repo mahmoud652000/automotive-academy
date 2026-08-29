@@ -3,8 +3,7 @@ import path from 'path'
 import { fileURLToPath } from 'url'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
-const isVercel = process.env.VERCEL === '1'
-const dbPath = isVercel ? '/tmp/data.db' : path.join(__dirname, 'data.db')
+const dbPath = path.join(__dirname, 'data.db')
 
 const db = new Database(dbPath)
 db.pragma('journal_mode = WAL')
@@ -176,10 +175,8 @@ const JSON_COLUMNS = {
   articles: ['tags'],
 }
 
-// Map frontend field names to SQLite column names
 const FIELD_MAPS = {}
 
-// Valid columns per table
 const TABLE_COLUMNS = {
   offers: ['title', 'titleEn', 'desc', 'descEn', 'oldPrice', 'newPrice', 'discount', 'category', 'subcategory', 'categoryEn', 'image', 'icon', 'active'],
   services: ['title', 'titleEn', 'description', 'descriptionEn', 'icon', 'image', 'category'],
@@ -193,7 +190,6 @@ const TABLE_COLUMNS = {
   subscribers: ['email', 'status', 'token'],
 }
 
-// Reverse map for output: SQLite column → frontend field name
 const REVERSE_FIELD_MAPS = {}
 for (const [table, maps] of Object.entries(FIELD_MAPS)) {
   REVERSE_FIELD_MAPS[table] = {}
@@ -202,11 +198,9 @@ for (const [table, maps] of Object.entries(FIELD_MAPS)) {
   }
 }
 
-// Map a SQLite row to the API response format (mimics Mongoose output)
 export function formatRow(row, table) {
   if (!row) return null
   const formatted = {}
-
   for (const [key, value] of Object.entries(row)) {
     if (key === 'id') {
       formatted._id = String(value)
@@ -224,7 +218,6 @@ export function formatRow(row, table) {
       formatted[key] = value
     }
   }
-
   return formatted
 }
 
@@ -232,47 +225,37 @@ export function formatRows(rows, table) {
   return rows.map(r => formatRow(r, table))
 }
 
-// Prepare a request body for INSERT/UPDATE
 export function prepareBody(body, table) {
-  const data = { ...body }
+  const data = {...body }
   delete data._id
   delete data.id
   delete data.createdAt
   delete data.updatedAt
   delete data.created_at
   delete data.updated_at
-
-  // Map frontend field names to SQLite column names
   const fieldMap = FIELD_MAPS[table] || {}
   for (const [from, to] of Object.entries(fieldMap)) {
-    if (from in data && !(to in data)) {
+    if (from in data &&!(to in data)) {
       data[to] = data[from]
       delete data[from]
     }
   }
-
-  // Filter to only valid columns
   const validCols = TABLE_COLUMNS[table] || []
   const filtered = {}
   for (const col of validCols) {
     if (col in data) filtered[col] = data[col]
   }
-
-  // Convert booleans to integers
   for (const col of BOOL_COLUMNS[table] || []) {
-    if (col in filtered) filtered[col] = filtered[col] ? 1 : 0
+    if (col in filtered) filtered[col] = filtered[col]? 1 : 0
   }
-  // Convert arrays to JSON strings
   for (const col of JSON_COLUMNS[table] || []) {
     if (col in filtered && Array.isArray(filtered[col])) {
       filtered[col] = JSON.stringify(filtered[col])
     }
   }
-
   return filtered
 }
 
-// Build an INSERT statement dynamically
 export function buildInsert(table, data) {
   const keys = Object.keys(data)
   const placeholders = keys.map(() => '?').join(', ')
@@ -281,15 +264,14 @@ export function buildInsert(table, data) {
   return { sql, values }
 }
 
-// Build an UPDATE statement dynamically
 export function buildUpdate(table, data) {
   const keys = Object.keys(data)
   if (keys.length === 0) {
-    return { sql: `UPDATE ${table} SET updated_at = datetime('now') WHERE id = ?`, values: [] }
+    return { sql: `UPDATE ${table} SET updated_at = datetime('now') WHERE id =?`, values: [] }
   }
-  const sets = keys.map(k => `${k} = ?`).join(', ')
+  const sets = keys.map(k => `${k} =?`).join(', ')
   const values = keys.map(k => data[k])
-  const sql = `UPDATE ${table} SET ${sets}, updated_at = datetime('now') WHERE id = ?`
+  const sql = `UPDATE ${table} SET ${sets}, updated_at = datetime('now') WHERE id =?`
   return { sql, values }
 }
 
