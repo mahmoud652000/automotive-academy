@@ -106,7 +106,7 @@ npm run dev
 
 # أو تشغيل كل جزء منفصلاً
 npm run dev:client    # Frontend → http://localhost:5173
-npm run dev:server    # Backend  → http://localhost:5000
+npm run dev:server    # Backend  → http://localhost:3000
 ```
 
 ### 3️⃣ البناء للإنتاج
