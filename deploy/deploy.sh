@@ -1,6 +1,12 @@
 #!/bin/bash
 set -e
 
+# Use sudo only when not running as root (Hostinger VPS default is root)
+SUDO=""
+if [ "$(id -u)" -ne 0 ]; then
+  SUDO="sudo"
+fi
+
 # ===== Configuration =====
 PROJECT_DIR="/var/www/automotive-academy"
 DOMAIN="automotiveacademy-car.com"
@@ -11,8 +17,8 @@ echo "=== Automotive Academy - Deployment ==="
 # 1. Install Node.js if missing
 if ! command -v node &> /dev/null; then
   echo "[1/8] Installing Node.js 18..."
-  curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
-  sudo apt install -y nodejs
+  curl -fsSL https://deb.nodesource.com/setup_18.x | ${SUDO} -E bash -
+  ${SUDO} apt install -y nodejs
 else
   echo "[1/8] Node.js already installed: $(node -v)"
 fi
@@ -20,14 +26,14 @@ fi
 # 2. Install PM2 if missing
 if ! command -v pm2 &> /dev/null; then
   echo "[2/8] Installing PM2..."
-  sudo npm install -g pm2
+  ${SUDO} npm install -g pm2
 else
   echo "[2/8] PM2 already installed"
 fi
 
 # 3. Install build tools for better-sqlite3
 echo "[3/8] Installing build tools..."
-sudo apt install -y python3 make g++ nginx
+${SUDO} apt install -y python3 make g++ nginx
 
 # 4. Install dependencies
 echo "[4/8] Installing dependencies..."
@@ -51,23 +57,23 @@ pm2 startup 2>/dev/null || true
 # 7. Configure Nginx
 echo "[7/8] Configuring Nginx..."
 NGINX_FILE="/etc/nginx/sites-available/automotive-academy"
-sudo cp "$PROJECT_DIR/deploy/nginx.conf" "$NGINX_FILE"
-sudo sed -i "s/yourdomain.com/$DOMAIN/g" "$NGINX_FILE"
-sudo sed -i "s|/home/youruser/automotive-academy|$PROJECT_DIR|g" "$NGINX_FILE"
-sudo ln -sf "$NGINX_FILE" /etc/nginx/sites-enabled/
-sudo rm -f /etc/nginx/sites-enabled/default
-sudo nginx -t
-sudo systemctl reload nginx
+${SUDO} cp "$PROJECT_DIR/deploy/nginx.conf" "$NGINX_FILE"
+${SUDO} sed -i "s/yourdomain.com/$DOMAIN/g" "$NGINX_FILE"
+${SUDO} sed -i "s|/home/youruser/automotive-academy|$PROJECT_DIR|g" "$NGINX_FILE"
+${SUDO} ln -sf "$NGINX_FILE" /etc/nginx/sites-enabled/
+${SUDO} rm -f /etc/nginx/sites-enabled/default
+${SUDO} nginx -t
+${SUDO} systemctl reload nginx
 
 # 8. SSL (optional)
 echo "[8/8] Setting up SSL..."
 read -p "Install SSL certificate with Let's Encrypt? (y/n): " -r
 if [[ $REPLY =~ ^[Yy]$ ]]; then
-  sudo apt install -y certbot python3-certbot-nginx
-  sudo certbot --nginx -d "$DOMAIN"
+  ${SUDO} apt install -y certbot python3-certbot-nginx
+  ${SUDO} certbot --nginx -d "$DOMAIN"
   echo "SSL installed!"
 else
-  echo "Skipping SSL — you can install later with: sudo certbot --nginx -d $DOMAIN"
+  echo "Skipping SSL — you can install later with: ${SUDO} certbot --nginx -d $DOMAIN"
 fi
 
 echo ""
