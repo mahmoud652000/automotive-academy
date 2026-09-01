@@ -2,8 +2,8 @@
 set -e
 
 # ===== Configuration =====
-PROJECT_DIR="/home/youruser/automotive-academy"
-DOMAIN="yourdomain.com"
+PROJECT_DIR="/var/www/automotive-academy"
+DOMAIN="automotiveacademy-car.com"
 # =========================
 
 echo "=== Automotive Academy - Deployment ==="

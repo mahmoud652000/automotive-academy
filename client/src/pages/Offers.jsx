@@ -319,7 +319,7 @@ export default function Offers() {
       {/* Booking modal */}
       {selectedOffer && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/70" onClick={() => setSelectedOffer(null)}>
-          <div className="bg-overlay/10 rounded-2xl p-6 md:p-8 border border-overlay/20 max-w-md w-full shadow-2xl" onClick={(e) => e.stopPropagation()}>
+          <div className="bg-surface rounded-2xl p-6 md:p-8 border border-overlay/20 max-w-md w-full shadow-2xl" onClick={(e) => e.stopPropagation()}>
             {submitted ? (
               <div className="text-center">
                 <div className="w-16 h-16 bg-green-600/20 rounded-full flex items-center justify-center mx-auto mb-4">

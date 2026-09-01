@@ -4,3 +4,11 @@ dist/
 
 .codely-cli
 .codely
+
+# Secrets & data (must be uploaded to server manually, never to git)
+server/.env
+server/data.db
+server/data.db-wal
+server/data.db-shm
+server/data.db-journal
+server/uploads/
